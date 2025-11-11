@@ -1,0 +1,23 @@
+{
+  "stac_version": "1.1.0",
+  "id": "catalog",
+  "type": "Catalog",
+  "description": "Root catalog",
+  "links": [
+    {
+      "type": "application/json",
+      "rel": "item",
+      "href": "./S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE.json"
+    },
+    {
+      "type": "application/json",
+      "rel": "item",
+      "href": "./S2B_MSIL1C_20241228T101339_N0511_R022_T32TPQ_20241228T120532.SAFE.json"
+    },
+    {
+      "type": "application/json",
+      "rel": "item",
+      "href": "./S2B_MSIL1C_20241228T101339_N0511_R022_T32TQQ_20241228T120532.SAFE.json"
+    }
+  ]
+}
