@@ -43,6 +43,16 @@ $graph:
         label: resampling
         doc: nearest neighbour, bi-linear, or cubic convolution
         default: CC
+      origin_lon:
+        type: float
+        label: origin lon
+        doc: upper left corner of reference grid for tiles
+        default: -25
+      origin_lat:
+        type: float
+        label: origin lat
+        doc: upper left corner of reference grid for tiles
+        default: 60
       dem:
         type:
           type: enum
@@ -231,13 +241,13 @@ $graph:
           dem: dem
           do_atmo: do_atmo
           do_topo: do_topo
-          do-brdf: do_brdf
+          do_brdf: do_brdf
           do_adjacency: do_adjacency
-          do_multi_scattering do_multi_scattering
-          do_aod do_aod
-          erase_clouds erase_clouds
-          max_cloud_cover_frame max_cloud_cover_frame
-          max_cloud_cover_tile max_cloud_cover_tile
+          do_multi_scattering: do_multi_scattering
+          do_aod: do_aod
+          erase_clouds: erase_clouds
+          max_cloud_cover_frame: max_cloud_cover_frame
+          max_cloud_cover_tile: max_cloud_cover_tile
           cloud_buffer: cloud_buffer
           cirrus_buffer: cirrus_buffer
           shadow_buffer: shadow_buffer
@@ -254,7 +264,6 @@ $graph:
           timeout_zip: timeout_zip
           output_format: output_format
           output_dst: output_dst
-          output_dst: output_dst
           output_aod: output_aod
           output_wvp: output_wvp
           output_vzn: output_vzn
@@ -264,7 +273,7 @@ $graph:
           - force_ard
 
   - class: CommandLineTool
-    id: force_level2_wrapper
+    id: force-level2-wrapper
     requirements:
       DockerRequirement:
         dockerPull: quay.io/bcdev/force-openeo:1.0
@@ -272,7 +281,7 @@ $graph:
         networkAccess: true
 
     baseCommand:
-      - force_level2_wrapper.sh
+      - force-level2-wrapper.sh
     inputs:
       input:
         type: Directory
