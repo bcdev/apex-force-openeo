@@ -2,7 +2,7 @@
 set -e
 #set -x
 
-# This shell script will be called as an entry point into the FORCE wrapper Docker container.
+# This shell script is called as an entry point into the FORCE wrapper Docker container.
 # Parameters and the catalogue of inputs are passed as command line arguments with --key value syntax.
 # the last parameter is the catalogue.json with the URLs of inputs.
 
@@ -22,7 +22,7 @@ for item in $(cat $catalogue|jq -r .links[].href); do
     else
         echo $(basename $safeurl) already available
     fi
-    echo inputs/$(basename $safeurl) QUEUED >> inputs/tds.txt
+    echo /data/inputs/$(basename $safeurl) QUEUED >> inputs/tds.txt
 done
 
 mkdir -p param outputs
@@ -71,5 +71,7 @@ cat l2ps.template | envsubst > param/l2ps.prm
 
 mkdir -p log provenance temp
 
+# preliminary call of force-level2 via docker, will later call force-level2 directly and the wrapper script runs in the container
+
 # docker run -v `pwd`:/data -w /data --user "$(id -u):$(id -g)" davidfrantz/force bash -c "force-level2 param/l2ps.prm > l2.out 2>&1"
-docker run -v `pwd`:/data -w /data --user "$(id -u):$(id -g)" --rm true davidfrantz/force bash -c "force-level2 param/l2ps.prm"
+docker run -i -t -v `pwd`:/data -w /data --user "$(id -u):$(id -g)" --rm davidfrantz/force bash -c "force-level2 param/l2ps.prm"
