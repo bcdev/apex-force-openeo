@@ -1,0 +1,98 @@
+    "${id}": {
+      "href": "${boa_path}",
+      "bands": [
+        {
+          "eo:center_wavelength": 0.493,
+          "eo:full_width_half_max": 0.065,
+          "name": "BLUE",
+          "eo:common_name": "B2"
+        },
+        {
+          "eo:center_wavelength": 0.560,
+          "eo:full_width_half_max": 0.035,
+          "name": "GREEN",
+          "eo:common_name": "B3"
+        },
+        {
+          "eo:center_wavelength": 0.665,
+          "eo:full_width_half_max": 0.031,
+          "name": "RED",
+          "eo:common_name": "B4"
+        },
+        {
+          "eo:center_wavelength": 0.704,
+          "eo:full_width_half_max": 0.015,
+          "name": "REDEDGE1",
+          "eo:common_name": "B5"
+        },
+        {
+          "eo:center_wavelength": 0.740,
+          "eo:full_width_half_max": 0.014,
+          "name": "REDEDGE2",
+          "eo:common_name": "B6"
+        },
+        {
+          "eo:center_wavelength": 0.783,
+          "eo:full_width_half_max": 0.02,
+          "name": "REDEDGE3",
+          "eo:common_name": "B7"
+        },
+        {
+          "eo:center_wavelength": 0.833,
+          "eo:full_width_half_max": 0.115,
+          "name": "BROADNIR",
+          "eo:common_name": "B8"
+        },
+        {
+          "eo:center_wavelength": 0.865,
+          "eo:full_width_half_max": 0.02,
+          "name": "NIR",
+          "eo:common_name": "B8A"
+        },
+        {
+          "eo:center_wavelength": 1.614,
+          "eo:full_width_half_max": 0.093,
+          "name": "SWIR1",
+          "eo:common_name": "B11"
+        },
+        {
+          "eo:center_wavelength": 2.202,
+          "eo:full_width_half_max": 0.181,
+          "name": "SWIR2",
+          "eo:common_name": "B12"
+        }
+      ],
+      "type": "image/tif",
+      "file:size": ${size},
+      "file:checksum": "$md5sum",
+      "file:local_path": "$boa_path",
+      "proj:bbox": [
+        -705560.0,
+        -1153755.0,
+        -555560.0,
+        -1003755.0
+      ],
+      "proj:code": "PROJCS["BU MEaSUREs Lambert Azimuthal Equal Area - EU - V01",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["degree",0.0174532925199433]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["false_easting",0.0],PARAMETER["false_northing",0.0],PARAMETER["longitude_of_center",20],PARAMETER["latitude_of_center",55],UNIT["meter",1.0]]",
+      "proj:transform": [
+        10.0,
+        0.0,
+        -705560.0,
+        0.0,
+        -10.0,
+        1003755.0
+      ],
+      "gsd": 10,
+      "roles": [
+        "data",
+        "reflectance"
+      ],
+      "title": "${title}",
+      "nodata": 0,
+      "data_type": "uint16",
+      "proj:shape": [
+        15000,
+        15000
+      ],
+      "raster:scale": 0.0001,
+      "raster:offset": 0.0
+    },

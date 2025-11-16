@@ -1,0 +1,63 @@
+{
+  "id": "${processing_name}-l2-ard",
+  "type": "Feature",
+  "bbox": [
+    10.250617,
+    44.135251,
+    12.667621,
+    45.146753
+  ],
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          10.272040967768444,
+          45.14675285555784
+        ],
+        [
+          11.66762107681286,
+          45.122671880514964
+        ],
+        [
+          11.622741209146946,
+          44.135250725162805
+        ],
+        [
+          10.250616924801538,
+          44.158520786393645
+        ],
+        [
+          10.272040967768444,
+          45.14675285555784
+        ]
+      ]
+    ]
+  },
+  "collection": "force-level2",
+  "properties": {
+    "datetime": "2024-11-13T10:12:51.024Z",
+    "start_datetime": "2024-11-13T10:12:51.024Z",
+    "end_datetime": "2024-11-13T10:12:51.024Z",
+    "created": "2024-11-13T14:25:10.000000Z",
+    "updated": "2024-11-13T14:42:57.203100Z",
+    "published": "2024-11-13T14:41:18.448292Z",
+    "constellation": "sentinel-2",
+    "instruments": [ "msi" ],
+    "processing:level": "L2",
+    "processing:version": "3.8.01",
+    "processing:datetime": "2024-11-13T12:11:35.000000Z",
+    "processing:facility": "BC",
+    "product:type": "FORCE_L2_ARD",
+    "gsd": 10,
+    "grid:code": "GLANCE7",
+  },
+  "links": [
+    {
+      "rel": "self",
+      "type": "application/geo+json",
+      "href": "file://outputs/catalogue.json"
+      "comment-href": "https://openeo.dataspace.copernicus.eu/home/martin/bologna/catalogue.json"
+    }  
+  }
+  "assets": {

@@ -1,0 +1,44 @@
+    "${id}": {
+      "href": "${qai_path}",
+      "bands": [
+        {
+          "eo:center_wavelength": 0.493,
+          "eo:full_width_half_max": 0.065,
+          "name": "QAI",
+          "eo:common_name": "Quality assurance information"
+        }
+      ],
+      "type": "image/tif",
+      "file:size": ${size},
+      "file:checksum": "$md5sum",
+      "file:local_path": "$qai_path",
+      "proj:bbox": [
+        -705560.0,
+        -1153755.0,
+        -555560.0,
+        -1003755.0
+      ],
+      "proj:code": "PROJCS["BU MEaSUREs Lambert Azimuthal Equal Area - EU - V01",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["degree",0.0174532925199433]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["false_easting",0.0],PARAMETER["false_northing",0.0],PARAMETER["longitude_of_center",20],PARAMETER["latitude_of_center",55],UNIT["meter",1.0]]",
+      "proj:transform": [
+        10.0,
+        0.0,
+        -705560.0,
+        0.0,
+        -10.0,
+        1003755.0
+      ],
+      "gsd": 10,
+      "roles": [
+        "data",
+        "reflectance"
+      ],
+      "title": "${title}",
+      "nodata": 0,
+      "data_type": "uint16",
+      "proj:shape": [
+        15000,
+        15000
+      ],
+      "raster:scale": 0.0001,
+      "raster:offset": 0.0
+    },

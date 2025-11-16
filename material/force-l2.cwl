@@ -282,10 +282,10 @@ $graph:
     id: force_level2_wrapper
     requirements:
       DockerRequirement:
-        dockerPull: davidfrantz/force
+        dockerPull: apex-force-wrapper
 
     baseCommand:
-      - ./force-level2-wrapper.sh
+      - /opt/apex-force-wrapper/bin/force-level2-wrapper.sh
     inputs:
       input:
         type: Directory
