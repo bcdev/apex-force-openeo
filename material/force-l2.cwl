@@ -282,7 +282,7 @@ $graph:
     id: force_level2_wrapper
     requirements:
       DockerRequirement:
-        dockerPull: apex-force-wrapper
+        dockerPull: quay.io/bcdev/force-eaop:0.0.1
 
     baseCommand:
       - /opt/apex-force-wrapper/bin/force-level2-wrapper.sh
