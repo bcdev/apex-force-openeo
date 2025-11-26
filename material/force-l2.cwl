@@ -1,4 +1,13 @@
 cwlVersion: v1.2
+
+# tested with
+# ssh yarn@archive03
+# cd integration/force/test3
+# . /home/yarn/opt/miniconda-cwltool/bin/activate
+# export AWS_ACCESS_KEY_ID=...
+# export AWS_SECRET_ACCESS_KEY=...
+# cwltool --preserve-environment=AWS_ACCESS_KEY_ID --preserve-environment=AWS_SECRET_ACCESS_KEY --tmpdir-prefix=/home/yarn/integration/force/tmp/ /home/yarn/integration/force/apex-force-openeo/material/force-l2.cwl
+
 class: CommandLineTool
 requirements:
   DockerRequirement:
@@ -14,8 +23,8 @@ inputs:
       position: 1
     default:
       - "s3://EODATA/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE"
-      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TPQ_20241228T120532.SAFE"
-      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TQQ_20241228T120532.SAFE"
+#      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TPQ_20241228T120532.SAFE"
+#      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TQQ_20241228T120532.SAFE"
   aoi:
     type: string?
     inputBinding:
@@ -189,11 +198,22 @@ inputs:
       prefix: --output_ovv
 
 outputs:
+  ## Alternative with a flat file list, breaks structure
   #force_level2_ard:
-  #  outputBinding:
-  #    glob: ["catalogue.json"]
   #  type: File[]
-  force_level2_ard:
-    outputBinding:
-      glob: .
-    type: Directory
+  #  outputBinding:
+  #    glob: ["*.json", "CITEME*.txt", "*/datacube-definition.prj", "*/*/*tif", "*/*/*jpg"]
+  ## Alternative with subdirectory with generated name
+  #force_level2_ard1:
+  #   type: Directory
+  #   outputBinding:
+  #     glob: "."
+  # Alternative to avoid the additional directory level:
+  force_level2_ard1:
+     type: Directory
+     outputBinding:
+       glob: "europe"
+  force_level2_ard2:
+     type: File[]
+     outputBinding:
+       glob: ["*.json", "CITEME*.txt" ]
