@@ -15,7 +15,7 @@ FILE_QUEUE = ${PWD}/inputs/tds.txt
 # programs of FORCE can handle different spatial resolutions (e.g. 30m
 # Landsat and 10m Sentinel-2).
 # Type: full directory path
-DIR_LEVEL2 = ${PWD}/outputs
+DIR_LEVEL2 = ${PWD}/outputs/l2-ard
 # This is the directory where logfiles should be saved.
 # Type: full directory path
 DIR_LOG = ${PWD}/log

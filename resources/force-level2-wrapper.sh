@@ -115,56 +115,56 @@ cat /opt/apex-force-wrapper/etc/l2ps.template | envsubst > param/l2ps.prm
 
 # call of force-level2
 
-mkdir -p log provenance temp
+mkdir -p outputs/l2-ard log provenance temp
 
 # docker run -i -t -v `pwd`:/data -w /data --user "$(id -u):$(id -g)" --rm davidfrantz/force bash -c "force-level2 param/l2ps.prm"
-if [ ! -e outputs/CITEME* ]; then
+if [ ! -e outputs/l2-ard/CITEME* ]; then
     script -q /dev/stdout -c "force-level2 param/l2ps.prm"
 fi
 
 # create stac catalogue for output
 
-rm -r outputs/.parallel
+rm -rf outputs/l2-ard/.parallel
 find outputs/
 
 # TODO make parameter processing_name
 export processing_name=bologna
 # CITEME_0x65.txt
-export citeme_path=$(cd outputs; ls CITEME*)
-cat /opt/apex-force-wrapper/etc/output-item-header.template | envsubst > outputs/$processing_name-l2-ard.json
-for continent_prj_path in $(cd outputs; ls */datacube-definition.prj); do
+export citeme_path=$(cd outputs/l2-ard; ls CITEME*)
+cat /opt/apex-force-wrapper/etc/output-item-header.template | envsubst > outputs/l2-ard/$processing_name-l2-ard.json
+for continent_prj_path in $(cd outputs/l2-ard; ls */datacube-definition.prj); do
     # europe
     continent_dir=$(dirname $continent_prj_path)
-    for tile_dir in $(cd outputs; ls -d $continent_dir/X*_Y*); do
-        for boa_path in $(cd outputs; ls $tile_dir/*BOA.tif); do
+    for tile_dir in $(cd outputs/l2-ard; ls -d $continent_dir/X*_Y*); do
+        for boa_path in $(cd outputs/l2-ard; ls $tile_dir/*BOA.tif); do
             export boa_path
             export id=$(echo ${boa_path%.tif} | tr '/' '.' )
-            export size=$(ls -l outputs/$boa_path | cut -d ' ' -f 5)
-            export md5sum=$(md5sum outputs/$boa_path | cut -d ' ' -f 1)
+            export size=$(ls -l outputs/l2-ard/$boa_path | cut -d ' ' -f 5)
+            export md5sum=$(md5sum outputs/l2-ard/$boa_path | cut -d ' ' -f 1)
             export title="$(echo ${boa_path%.tif} | tr '/' ' ' | tr '_' ' ')"
-            cat /opt/apex-force-wrapper/etc/output-item-boa-asset.template | envsubst >> outputs/$processing_name-l2-ard.json
+            cat /opt/apex-force-wrapper/etc/output-item-boa-asset.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
         done
-        for qai_path in $(cd outputs; ls $tile_dir/*QAI.tif); do
+        for qai_path in $(cd outputs/l2-ard; ls $tile_dir/*QAI.tif); do
             export qai_path
             export id=$(echo ${qai_path%.tif} | tr '/' '.' )
-            export size=$(ls -l outputs/$qai_path | cut -d ' ' -f 5)
-            export md5sum=$(md5sum outputs/$qai_path | cut -d ' ' -f 1)
+            export size=$(ls -l outputs/l2-ard/$qai_path | cut -d ' ' -f 5)
+            export md5sum=$(md5sum outputs/l2-ard/$qai_path | cut -d ' ' -f 1)
             export title="$(echo ${qai_path%.tif} | tr '/' ' ' | tr '_' ' ')"
-            cat /opt/apex-force-wrapper/etc/output-item-qai-asset.template | envsubst >> outputs/$processing_name-l2-ard.json
+            cat /opt/apex-force-wrapper/etc/output-item-qai-asset.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
         done
-        for ovv_path in $(cd outputs; ls $tile_dir/*OVV.jpg); do
+        for ovv_path in $(cd outputs/l2-ard; ls $tile_dir/*OVV.jpg); do
             export ovv_path
             export id=$(echo ${ovv_path%.tif} | tr '/' '.' )
-            export size=$(ls -l outputs/$ovv_path | cut -d ' ' -f 5)
-            export md5sum=$(md5sum outputs/$ovv_path | cut -d ' ' -f 1)
+            export size=$(ls -l outputs/l2-ard/$ovv_path | cut -d ' ' -f 5)
+            export md5sum=$(md5sum outputs/l2-ard/$ovv_path | cut -d ' ' -f 1)
             export title="$(echo ${ovv_path%.jpg} | tr '/' ' ' | tr '_' ' ')"
-            cat /opt/apex-force-wrapper/etc/output-item-ovv-asset.template | envsubst >> outputs/$processing_name-l2-ard.json
+            cat /opt/apex-force-wrapper/etc/output-item-ovv-asset.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
         done
     done
     export continent_prj_path
     export title="$continent_dir projection"
-    cat /opt/apex-force-wrapper/etc/output-item-continent.template | envsubst >> outputs/$processing_name-l2-ard.json
+    cat /opt/apex-force-wrapper/etc/output-item-continent.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
 done
-cat /opt/apex-force-wrapper/etc/output-item-footer.template | envsubst >> outputs/$processing_name-l2-ard.json
+cat /opt/apex-force-wrapper/etc/output-item-footer.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
 
-cat /opt/apex-force-wrapper/etc/output-catalogue.template | envsubst > outputs/catalogue.json
+cat /opt/apex-force-wrapper/etc/output-catalogue.template | envsubst > outputs/l2-ard/catalogue.json

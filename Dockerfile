@@ -1,3 +1,6 @@
+# build image with
+# docker build -t quay.io/bcdev/force-eoap:0.0.2 .
+
 FROM davidfrantz/force
 
 LABEL FORCE='3.8.00'

@@ -11,8 +11,8 @@ cwlVersion: v1.2
 class: CommandLineTool
 requirements:
   DockerRequirement:
-#    dockerPull: quay.io/bcdev/force-eoap:0.0.1
-    dockerImageId: apex-force-wrapper:latest
+    dockerPull: quay.io/bcdev/force-eoap:0.0.2
+#    dockerImageId: quay.io/bcdev/force-eoap:0.0.2
   NetworkAccess:
      networkAccess: true
 baseCommand: /opt/apex-force-wrapper/bin/force-level2-wrapper.sh
@@ -208,12 +208,17 @@ outputs:
   #   type: Directory
   #   outputBinding:
   #     glob: "."
-  # Alternative to avoid the additional directory level:
-  force_level2_ard1:
+  # Alternative to avoid the additional directory level, but requires to know the subdir name like europe:
+  #force_level2_ard1:
+  #   type: Directory
+  #   outputBinding:
+  #     glob: "europe"
+  #force_level2_ard2:
+  #   type: File[]
+  #   outputBinding:
+  #     glob: ["*.json", "CITEME*.txt" ]
+  # Alternative with a predictable directory name "l2-ard"
+  force_level2_ard:
      type: Directory
      outputBinding:
-       glob: "europe"
-  force_level2_ard2:
-     type: File[]
-     outputBinding:
-       glob: ["*.json", "CITEME*.txt" ]
+       glob: "l2-ard"
