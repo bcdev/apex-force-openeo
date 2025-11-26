@@ -3,31 +3,36 @@ set -e
 set -x
 
 # This shell script is called as an entry point into the FORCE wrapper Docker container.
-# Parameters and the directory with the catalogue of inputs are passed as command line arguments with --key value syntax.
-# the last parameter is the input directory with catalogue.json with the URLs of inputs.
+# old: Parameters and the directory with the catalogue of inputs are passed as command line arguments with --key value syntax.
+# old: The last parameter is the input directory with catalogue.json with the URLs of inputs.
+# new: Parameters are passed as --key value arguments. Inputs are passed as positional parameters. There is no input directory any more.
+# new: The tmp directory shall be used for all intermediates. The working directory shall be used for the output.
+# new: environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are provided by the caller
 
-input_catalogue_dir=${@:$#}
+s3_host=eodata.dataspace.copernicus.eu
 
-mkdir -p inputs
-rm -f inputs/tds.txt
-touch inputs/tds.txt
+#input_catalogue_dir=${@:$#}
+#
+#mkdir -p inputs
+#rm -f inputs/tds.txt
+#touch inputs/tds.txt
+#
+## catalogue.json
+#catalogue=${input_catalogue_dir}/catalogue.json
+## ./S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE.json
+#for item in $(cat $catalogue|jq -r .links[].href); do
+#    # s3://eodata/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
+#    safeurl=$(cat ${input_catalogue_dir}/$item | jq -r .assets.product_metadata.href|xargs -n 1 dirname)
+#    if [ ! -e inputs/$(basename $safeurl) ]; then
+#        echo staging $(basename $safeurl)
+#        s3cmd -c ${input_catalogue_dir}/dot-s3cfg-cdsedata get -r $safeurl inputs
+#    else
+#        echo $(basename $safeurl) already available
+#    fi
+#    echo ${PWD}/inputs/$(basename $safeurl) QUEUED >> inputs/tds.txt
+#done
 
-# catalogue.json
-catalogue=${input_catalogue_dir}/catalogue.json
-# ./S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE.json
-for item in $(cat $catalogue|jq -r .links[].href); do
-    # s3://eodata/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
-    safeurl=$(cat ${input_catalogue_dir}/$item | jq -r .assets.product_metadata.href|xargs -n 1 dirname)
-    if [ ! -e inputs/$(basename $safeurl) ]; then
-        echo staging $(basename $safeurl)
-        s3cmd -c ${input_catalogue_dir}/dot-s3cfg-cdsedata get -r $safeurl inputs
-    else
-        echo $(basename $safeurl) already available
-    fi
-    echo ${PWD}/inputs/$(basename $safeurl) QUEUED >> inputs/tds.txt
-done
-
-mkdir -p param
+# parse parameter and replace defaults in env
 
 export aoi=NULL
 export resolution=10
@@ -67,13 +72,50 @@ export output_vzn=FALSE
 export output_hot=FALSE
 export output_ovv=TRUE
 
-# parse parameter and replace defaults in env here
+inputs=
+while [ "$1" != "" ]; do
+    if [ "${1:0:2}" = "--" ]; then
+        declare ${1:2}="$2"
+        export ${1:2}
+        shift 2
+    else
+        inputs="$inputs $1"
+        shift
+    fi
+done
 
+# use /tmp for all intermediates
+
+ln -s $(pwd) /tmp/outputs
+cd /tmp
+
+# retrieve inputs
+
+mkdir inputs
+rm -f inputs/tds.txt
+touch inputs/tds.txt
+
+for safeurl in $inputs; do
+    # s3://EODATA/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
+    if [ ! -e inputs/$(basename $safeurl) ]; then
+        echo staging $(basename $safeurl)
+        #s3cmd --host $s3_host get -r $safeurl inputs
+        s5cmd --endpoint-url=https://$s3_host cp $safeurl* inputs
+
+    else
+        echo $(basename $safeurl) already available
+    fi
+    echo ${PWD}/inputs/$(basename $safeurl) QUEUED >> inputs/tds.txt
+done
+
+# create parameter file
+
+mkdir -p param
 cat /opt/apex-force-wrapper/etc/l2ps.template | envsubst > param/l2ps.prm
 
-mkdir -p outputs log provenance temp
-
 # call of force-level2
+
+mkdir -p log provenance temp
 
 # docker run -i -t -v `pwd`:/data -w /data --user "$(id -u):$(id -g)" --rm davidfrantz/force bash -c "force-level2 param/l2ps.prm"
 if [ ! -e outputs/CITEME* ]; then
@@ -82,13 +124,14 @@ fi
 
 # create stac catalogue for output
 
-find outputs
+rm -r outputs/.parallel
+find outputs/
 
 # TODO make parameter processing_name
 export processing_name=bologna
 # CITEME_0x65.txt
 export citeme_path=$(cd outputs; ls CITEME*)
-cat /opt/apex-force-wrapper/etc/output-item-header.template | envsubst > $processing_name-l2-ard.json
+cat /opt/apex-force-wrapper/etc/output-item-header.template | envsubst > outputs/$processing_name-l2-ard.json
 for continent_prj_path in $(cd outputs; ls */datacube-definition.prj); do
     # europe
     continent_dir=$(dirname $continent_prj_path)
@@ -99,7 +142,7 @@ for continent_prj_path in $(cd outputs; ls */datacube-definition.prj); do
             export size=$(ls -l outputs/$boa_path | cut -d ' ' -f 5)
             export md5sum=$(md5sum outputs/$boa_path | cut -d ' ' -f 1)
             export title="$(echo ${boa_path%.tif} | tr '/' ' ' | tr '_' ' ')"
-            cat /opt/apex-force-wrapper/etc/output-item-boa-asset.template | envsubst >> $processing_name-l2-ard.json
+            cat /opt/apex-force-wrapper/etc/output-item-boa-asset.template | envsubst >> outputs/$processing_name-l2-ard.json
         done
         for qai_path in $(cd outputs; ls $tile_dir/*QAI.tif); do
             export qai_path
@@ -107,7 +150,7 @@ for continent_prj_path in $(cd outputs; ls */datacube-definition.prj); do
             export size=$(ls -l outputs/$qai_path | cut -d ' ' -f 5)
             export md5sum=$(md5sum outputs/$qai_path | cut -d ' ' -f 1)
             export title="$(echo ${qai_path%.tif} | tr '/' ' ' | tr '_' ' ')"
-            cat /opt/apex-force-wrapper/etc/output-item-qai-asset.template | envsubst >> $processing_name-l2-ard.json
+            cat /opt/apex-force-wrapper/etc/output-item-qai-asset.template | envsubst >> outputs/$processing_name-l2-ard.json
         done
         for ovv_path in $(cd outputs; ls $tile_dir/*OVV.jpg); do
             export ovv_path
@@ -115,13 +158,13 @@ for continent_prj_path in $(cd outputs; ls */datacube-definition.prj); do
             export size=$(ls -l outputs/$ovv_path | cut -d ' ' -f 5)
             export md5sum=$(md5sum outputs/$ovv_path | cut -d ' ' -f 1)
             export title="$(echo ${ovv_path%.jpg} | tr '/' ' ' | tr '_' ' ')"
-            cat /opt/apex-force-wrapper/etc/output-item-ovv-asset.template | envsubst >> $processing_name-l2-ard.json
+            cat /opt/apex-force-wrapper/etc/output-item-ovv-asset.template | envsubst >> outputs/$processing_name-l2-ard.json
         done
     done
     export continent_prj_path
     export title="$continent_dir projection"
-    cat /opt/apex-force-wrapper/etc/output-item-continent.template | envsubst >> $processing_name-l2-ard.json
+    cat /opt/apex-force-wrapper/etc/output-item-continent.template | envsubst >> outputs/$processing_name-l2-ard.json
 done
-cat /opt/apex-force-wrapper/etc/output-item-footer.template | envsubst >> $processing_name-l2-ard.json
+cat /opt/apex-force-wrapper/etc/output-item-footer.template | envsubst >> outputs/$processing_name-l2-ard.json
 
-cat /opt/apex-force-wrapper/etc/output-catalogue.template | envsubst > catalogue.json
+cat /opt/apex-force-wrapper/etc/output-catalogue.template | envsubst > outputs/catalogue.json

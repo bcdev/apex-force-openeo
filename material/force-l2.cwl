@@ -2,14 +2,20 @@ cwlVersion: v1.2
 class: CommandLineTool
 requirements:
   DockerRequirement:
-    dockerPull: quay.io/bcdev/force-eaop:0.0.1
-
+#    dockerPull: quay.io/bcdev/force-eoap:0.0.1
+    dockerImageId: apex-force-wrapper:latest
+  NetworkAccess:
+     networkAccess: true
 baseCommand: /opt/apex-force-wrapper/bin/force-level2-wrapper.sh
 inputs:
   input:
     type: string[]
     inputBinding:
       position: 1
+    default:
+      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE"
+      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TPQ_20241228T120532.SAFE"
+      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TQQ_20241228T120532.SAFE"
   aoi:
     type: string?
     inputBinding:
@@ -18,6 +24,7 @@ inputs:
     type: int?
     inputBinding:
       prefix: --resolution
+    default: 20
   projection:
     type:
       - "null"
@@ -27,6 +34,7 @@ inputs:
           - EQUI7
         inputBinding:
           prefix: --projection
+    default: GLANCE7
   resampling:
     type:
       - "null"
@@ -181,7 +189,11 @@ inputs:
       prefix: --output_ovv
 
 outputs:
+  #force_level2_ard:
+  #  outputBinding:
+  #    glob: ["catalogue.json"]
+  #  type: File[]
   force_level2_ard:
     outputBinding:
-      glob: ["catalog.json"]
-    type: File[]
+      glob: .
+    type: Directory
