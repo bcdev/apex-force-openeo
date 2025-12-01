@@ -4,14 +4,16 @@ cwlVersion: v1.2
 # ssh yarn@archive03
 # cd integration/force/test3
 # . /home/yarn/opt/miniconda-cwltool/bin/activate
+# export AWS_ENDPOINT_URL_S3='https://eodata.dataspace.copernicus.eu'
 # export AWS_ACCESS_KEY_ID=...
 # export AWS_SECRET_ACCESS_KEY=...
-# cwltool --preserve-environment=AWS_ACCESS_KEY_ID --preserve-environment=AWS_SECRET_ACCESS_KEY --tmpdir-prefix=/home/yarn/integration/force/tmp/ /home/yarn/integration/force/apex-force-openeo/material/force-l2.cwl
+# cwltool --preserve-environment=AWS_ENDPOINT_URL_S3 --preserve-environment=AWS_ACCESS_KEY_ID --preserve-environment=AWS_SECRET_ACCESS_KEY --force-docker-pull --tmpdir-prefix=$HOME/tmp/ material/force-l2.cwl
 
 class: CommandLineTool
 requirements:
   DockerRequirement:
-    dockerPull: quay.io/bcdev/force-eoap:0.0.2
+    # Copernicus registery for testing. quay.io/bcdev is also accessible
+    dockerPull: registry.stag.warsaw.openeo.dataspace.copernicus.eu/rand/force-eoap:0.0.3
 #    dockerImageId: quay.io/bcdev/force-eoap:0.0.2
   NetworkAccess:
      networkAccess: true
@@ -23,8 +25,8 @@ inputs:
       position: 1
     default:
       - "s3://EODATA/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE"
-      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TPQ_20241228T120532.SAFE"
-      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TQQ_20241228T120532.SAFE"
+#      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TPQ_20241228T120532.SAFE"
+#      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TQQ_20241228T120532.SAFE"
   aoi:
     type: string?
     inputBinding:
@@ -199,10 +201,10 @@ inputs:
 
 outputs:
   ## Alternative with a flat file list, breaks structure
-  #force_level2_ard:
-  #  type: File[]
-  #  outputBinding:
-  #    glob: ["*.json", "CITEME*.txt", "*/datacube-definition.prj", "*/*/*tif", "*/*/*jpg"]
+  force_level2_ard:
+    type: File[]
+    outputBinding:
+      glob: ["*.json", "CITEME*.txt", "*/datacube-definition.prj", "*/*/*tif", "*/*/*jpg"]
   ## Alternative with subdirectory with generated name
   #force_level2_ard1:
   #   type: Directory
@@ -218,7 +220,7 @@ outputs:
   #   outputBinding:
   #     glob: ["*.json", "CITEME*.txt" ]
   # Alternative with a predictable directory name "l2-ard"
-  force_level2_ard:
-     type: Directory
-     outputBinding:
-       glob: "l2-ard"
+#  force_level2_ard:
+#     type: Directory
+#     outputBinding:
+#       glob: "l2-ard"
