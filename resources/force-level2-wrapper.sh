@@ -108,7 +108,7 @@ mkdir -p /tmp/copernicus
 for safeurl in $inputs; do
     granule_filename=$(basename $safeurl)
     granule=${granule_filename:39:5}
-    vrt_path=/tmp/MGRS_VRT/MGRS_T${granule}.vrt
+    vrt_path=/opt/apex-force-wrapper/etc/MGRS_VRT/MGRS_T${granule}.vrt
     for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
         dem_tile_name=$(basename dem_tile_path)
         if [ -e /tmp/copernicus/$dem_tile_name ]; then
@@ -119,7 +119,7 @@ for safeurl in $inputs; do
         fi
     done
 done
-export file_dem=/tmp/MGRS_VRT
+export file_dem=/opt/apex-force-wrapper/etc/MGRS_VRT
 export use_dem_database=TRUE
 
 # retrieve inputs

@@ -26,6 +26,6 @@ COPY resources/force-aoi-converter.py /opt/apex-force-wrapper/bin/
 COPY resources/*.template /opt/apex-force-wrapper/etc/
 COPY resources/MGRS_VRT.tar.gz /opt/apex-force-wrapper/etc/
 
-RUN tar xCf /tmp /opt/apex-force-wrapper/etc/MGRS_VRT.tar.gz
+RUN tar xCf /opt/apex-force-wrapper/etc /opt/apex-force-wrapper/etc/MGRS_VRT.tar.gz
 
 ENV PATH=$PATH:/opt/apex-force-wrapper/bin
