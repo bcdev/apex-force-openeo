@@ -108,13 +108,14 @@ fi
 # retrieve DEM unless available
 
 mkdir -p /tmp/copernicus
+echo inputs $inputs
 for safeurl in $inputs; do
     granule_filename=$(basename $saveurl)
     granule=${granule_filename:39:5}
     vrt_path=/tmp/dem-vrts/MGRS_T${granule}.vrt
     for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
         dem_tile_name=$(basename dem_tile_path)
-        if [ -e $dem_tile_path ]; then
+        if [ -e /tmp/copernicus/$dem_tile_name ]; then
             echo $dem_tile_name exists
         else:
             tile=${dem_tile_name:18:14}
