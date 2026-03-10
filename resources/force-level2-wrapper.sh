@@ -88,6 +88,7 @@ while [ "$1" != "" ]; do
         shift
     fi
 done
+export inputs
 echo "$inputs"
 
 # use /tmp for all intermediates
@@ -124,6 +125,7 @@ done
 # retrieve DEM unless available
 
 mkdir -p /tmp/copernicus
+echo $inputs
 for safeurl in $inputs; do
     granule_filename=$(basename $saveurl)
     granule=${granule_filename:39:5}
