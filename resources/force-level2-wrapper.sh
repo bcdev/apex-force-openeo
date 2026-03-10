@@ -113,7 +113,7 @@ for safeurl in $inputs; do
         dem_tile_name=$(basename $dem_tile_path)
         if [ -e /tmp/copernicus/$dem_tile_name ]; then
             echo $dem_tile_name exists
-        else:
+        else
             tile=${dem_tile_name:18:14}
             s5cmd cp f"s3://eodata/auxdata/CopDEM/COP-DEM_GLO-30-DGED_PUBLIC/DEM1_SAR_DGE_30_20130602T005548_20140730T170342_ADS_000000_6522.DEM/Copernicus_DSM_10_${tile}/DEM/Copernicus_DSM_10_${tile}_DEM.tif" /tmp/copernicus/
         fi
@@ -144,6 +144,7 @@ done
 
 mkdir -p param
 cat /opt/apex-force-wrapper/etc/l2ps.template | envsubst > param/l2ps.prm
+cat param/l2ps.prm
 
 # call of force-level2
 
@@ -159,7 +160,7 @@ fi
 rm -rf outputs/l2-ard/.parallel
 find outputs/
 
-# TODO make parameter processing_name
+# TODO introduce parameter processing_name
 export processing_name=bologna
 # CITEME_0x65.txt
 export citeme_path=$(cd outputs/l2-ard; ls CITEME*)
