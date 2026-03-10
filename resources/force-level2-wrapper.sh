@@ -110,7 +110,7 @@ for safeurl in $inputs; do
     granule=${granule_filename:39:5}
     vrt_path=/opt/apex-force-wrapper/etc/MGRS_VRT/MGRS_T${granule}.vrt
     for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
-        dem_tile_name=$(basename dem_tile_path)
+        dem_tile_name=$(basename $dem_tile_path)
         if [ -e /tmp/copernicus/$dem_tile_name ]; then
             echo $dem_tile_name exists
         else:
