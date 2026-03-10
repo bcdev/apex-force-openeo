@@ -53,7 +53,8 @@ FILE_AOI = ${aoi}
 # spheric correction and cloud /cloud shadow detection will suffer without
 # a DEM.
 # Type: full file path
-FILE_DEM = ${dem}
+FILE_DEM = ${file_dem}
+USE_DEM_DATABASE = ${use_dem_database}
 # Nodata value of the DEM.
 # Type: Integer. Valid range: [-32768,32767]
 DEM_NODATA = -32767
