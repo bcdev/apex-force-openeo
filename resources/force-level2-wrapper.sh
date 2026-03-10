@@ -115,7 +115,7 @@ for safeurl in $inputs; do
             echo $dem_tile_name exists
         else
             tile=${dem_tile_name:18:14}
-            s5cmd cp f"s3://eodata/auxdata/CopDEM/COP-DEM_GLO-30-DGED_PUBLIC/DEM1_SAR_DGE_30_20130602T005548_20140730T170342_ADS_000000_6522.DEM/Copernicus_DSM_10_${tile}/DEM/Copernicus_DSM_10_${tile}_DEM.tif" /tmp/copernicus/
+            s5cmd cp s3://eodata/auxdata/CopDEM/COP-DEM_GLO-30-DGED_PUBLIC/DEM1_SAR_DGE_30_20130602T005548_20140730T170342_ADS_000000_6522.DEM/Copernicus_DSM_10_${tile}/DEM/Copernicus_DSM_10_${tile}_DEM.tif /tmp/copernicus/
         fi
     done
 done
