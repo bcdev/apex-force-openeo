@@ -25,4 +25,4 @@ COPY resources/force-level2-wrapper.sh /opt/apex-force-wrapper/bin/
 COPY resources/force-aoi-converter.py /opt/apex-force-wrapper/bin/
 COPY resources/*.template /opt/apex-force-wrapper/etc/
 
-ENV PATH=$PATH:/opt/force-wrapper/bin
+ENV PATH=$PATH:/opt/apex-force-wrapper/bin
