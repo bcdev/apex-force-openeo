@@ -88,6 +88,9 @@ while [ "$1" != "" ]; do
         shift
     fi
 done
+if [ "$inputs" != "" ]; then
+    inputs="${inputs:1}"
+fi
 
 # use /tmp for all intermediates
 
