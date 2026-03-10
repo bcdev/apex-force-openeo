@@ -24,5 +24,8 @@ RUN curl -L -o s5cmd.tar.gz https://github.com/peak/s5cmd/releases/download/v2.2
 COPY resources/force-level2-wrapper.sh /opt/apex-force-wrapper/bin/
 COPY resources/force-aoi-converter.py /opt/apex-force-wrapper/bin/
 COPY resources/*.template /opt/apex-force-wrapper/etc/
+COPY resources/MGRS_VRT.tar.gz /opt/apex-force-wrapper/etc/
+
+RUN tar xCf /tmp /opt/apex-force-wrapper/etc/MGRS_VRT.tar.gz
 
 ENV PATH=$PATH:/opt/apex-force-wrapper/bin
