@@ -109,6 +109,7 @@ fi
 
 mkdir -p /tmp/copernicus
 echo inputs $inputs
+export inputs
 for safeurl in $inputs; do
     granule_filename=$(basename $saveurl)
     granule=${granule_filename:39:5}
