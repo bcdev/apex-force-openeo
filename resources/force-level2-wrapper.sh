@@ -88,9 +88,7 @@ while [ "$1" != "" ]; do
         shift
     fi
 done
-if [ "$inputs" != "" ]; then
-    inputs="${inputs:1}"
-fi
+echo "$inputs"
 
 # use /tmp for all intermediates
 
@@ -104,28 +102,6 @@ if [ "$aoi" != NULL ]; then
     force-aoi-converter.py "$aoi" aoi.shp
     export aoi=/tmp/aoi.shp
 fi
-
-# retrieve DEM unless available
-
-mkdir -p /tmp/copernicus
-echo inputs $inputs
-export inputs
-for safeurl in $inputs; do
-    granule_filename=$(basename $saveurl)
-    granule=${granule_filename:39:5}
-    vrt_path=/tmp/dem-vrts/MGRS_T${granule}.vrt
-    for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
-        dem_tile_name=$(basename dem_tile_path)
-        if [ -e /tmp/copernicus/$dem_tile_name ]; then
-            echo $dem_tile_name exists
-        else:
-            tile=${dem_tile_name:18:14}
-            s5cmd cp f"s3://eodata/auxdata/CopDEM/COP-DEM_GLO-30-DGED_PUBLIC/DEM1_SAR_DGE_30_20130602T005548_20140730T170342_ADS_000000_6522.DEM/Copernicus_DSM_10_${tile}/DEM/Copernicus_DSM_10_${tile}_DEM.tif" /tmp/copernicus/
-        fi
-    done
-done
-export file_dem=/tmp/dem-vrts
-export use_dem_database=TRUE
 
 # retrieve inputs
 
@@ -144,6 +120,26 @@ for safeurl in $inputs; do
     fi
     echo ${PWD}/inputs/$(basename $safeurl) QUEUED >> inputs/tds.txt
 done
+
+# retrieve DEM unless available
+
+mkdir -p /tmp/copernicus
+for safeurl in $inputs; do
+    granule_filename=$(basename $saveurl)
+    granule=${granule_filename:39:5}
+    vrt_path=/tmp/dem-vrts/MGRS_T${granule}.vrt
+    for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
+        dem_tile_name=$(basename dem_tile_path)
+        if [ -e /tmp/copernicus/$dem_tile_name ]; then
+            echo $dem_tile_name exists
+        else:
+            tile=${dem_tile_name:18:14}
+            s5cmd cp f"s3://eodata/auxdata/CopDEM/COP-DEM_GLO-30-DGED_PUBLIC/DEM1_SAR_DGE_30_20130602T005548_20140730T170342_ADS_000000_6522.DEM/Copernicus_DSM_10_${tile}/DEM/Copernicus_DSM_10_${tile}_DEM.tif" /tmp/copernicus/
+        fi
+    done
+done
+export file_dem=/tmp/dem-vrts
+export use_dem_database=TRUE
 
 # create parameter file
 
