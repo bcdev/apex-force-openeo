@@ -19,8 +19,10 @@ RUN curl -L -o s5cmd.tar.gz https://github.com/peak/s5cmd/releases/download/v2.2
     chmod +x /usr/local/bin/s5cmd && \
     rm s5cmd.tar.gz LICENSE README.md CHANGELOG.md 2>/dev/null || true
 
-# copy the wrapper script to the container
+# copy the wrapper scripts to the container
 COPY resources/force-level2-wrapper.sh /opt/apex-force-wrapper/bin/
+COPY resources/higher-level/force-tsa-wrapper.sh /opt/apex-force-wrapper/bin/
 COPY resources/*.template /opt/apex-force-wrapper/etc/
+COPY resources/higher-level/*.template /opt/apex-force-wrapper/etc/
 
 ENV PATH=$PATH:/opt/force-wrapper/bin
