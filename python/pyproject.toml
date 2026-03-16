@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools >= 82.0.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stac-staging"
+version = "0.0.1-dev"
+requires-python = ">= 3.10"
+dependencies = [
+    "click>=8.3.1",
+    "pystac>=1.14.3",
+    "stac-asset>=0.4.7",
+]
+
+[project.scripts]
+download-item = "stac_staging.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["stac-staging"]
