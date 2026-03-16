@@ -10,7 +10,7 @@ DIR_LOWER = ${DIR_INPUT_DATA}
 DIR_HIGHER = ${PWD}/outputs/hlps-tsa
 # This is the directory where provenance files should be saved.
 # Type: full directory path
-DIR_PROVENANCE = NULL
+DIR_PROVENANCE = ${PWD}/outputs/provenance
 
 # MASKING
 # ------------------------------------------------------------------------
@@ -33,8 +33,9 @@ BASE_MASK = NULL
 # to the FORCE domain. If the size of the metadata exceeds the Tiff's limit,
 # an external .aux.xml file is additionally generated.
 # Type: Character. Valid values: {ENVI,GTiff,COG,CUSTOM}
-OUTPUT_FORMAT = COG
-# File that contains custom GDAL output options. This is only used if 
+#OUTPUT_FORMAT = COG
+OUTPUT_FORMAT = GTiff
+# File that contains custom GDAL output options. This is only used if
 # OUTPUT_FORMAT = CUSTOM. If OUTPUT_FORMAT = CUSTOM, this file is mandatory.
 # The file should be written in tag and value notation. The first two lines 
 # are mandatory and specify GDAL driver and file extension, e.g. DRIVER = GTiff
@@ -88,8 +89,8 @@ PRETTY_PROGRESS = FALSE
 # A shapefile of the tiles can be generated with force-tabulate-grid
 # Type: Integer list. Valid range: [-999,9999]
 # TODO check if by default nothing is processed
-X_TILE_RANGE = 0 0
-Y_TILE_RANGE = 0 0
+X_TILE_RANGE = 31 32
+Y_TILE_RANGE = 29 30
 # Allow-list of tiles. Can be used to further limit the analysis extent to
 # non-square extents. The allow-list is intersected with the analysis extent,
 # i.e. only tiles included in both the analysis extent AND the allow-list will
@@ -195,7 +196,7 @@ BELOW_NOISE = 0
 # Time extent for the analysis. All data between these dates will be used in
 # the analysis.
 # Type: Date list. Format: YYYY-MM-DD
-DATE_RANGE = 2010-01-01 2019-12-31
+DATE_RANGE = 2024-06-01 2024-09-01
 # DOY range for filtering the time extent. Day-of-Years that are outside of
 # the given interval will be ignored. Example: DATE_RANGE = 2010-01-01 
 # 2019-12-31, DOY_RANGE = 91 273 will use all April-September observations from

@@ -1,6 +1,6 @@
 data_cube:
   class: Directory
-  path: "."
+  path: "inputs/l2-ard"
 STM:
   - MIN
   - AVG

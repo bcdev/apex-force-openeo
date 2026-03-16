@@ -35,7 +35,7 @@ inputs:
       - MAX
 outputs:
   testfile:
-    type: File
+    type: Directory
     outputBinding:
-      glob: "param/*.prm"
+      glob: "outputs/hlps-tsa"
 

@@ -19,11 +19,13 @@ done
 parameter_template="/opt/apex-force-wrapper/etc/force-tsa-parameters.template"
 filled_parameter_path="param/force-tsa-parameters.prm"
 output_dir="outputs/hlps-tsa"
+provenance_dir="outputs/provenance"
 
 mkdir -p param
 cat "$parameter_template" | envsubst > "$filled_parameter_path"
 
-mkdir -p outputs/htsa
+mkdir -p $output_dir
+mkdir -p $provenance_dir
 
 exit_code=$?
 if [ ! -e "${output_dir}"/CITEME* ]; then
