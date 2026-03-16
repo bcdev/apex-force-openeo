@@ -3,7 +3,7 @@
 # Push to registery that is available in openEO backend:
 # skopeo copy --multi-arch=all --format=oci docker-daemon:quay.io/bcdev/force-eoap:0.0.4 docker://registry.stag.warsaw.openeo.dataspace.copernicus.eu/rand/force-eoap:0.0.4
 
-FROM davidfrantz/force
+FROM davidfrantz/force:3.8.00
 
 LABEL FORCE='3.8.00'
 LABEL maintainer="David Frantz, University of Trier, Germany"
