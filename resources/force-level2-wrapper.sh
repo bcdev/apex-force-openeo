@@ -45,7 +45,7 @@ export projection=GLANCE7
 export resampling=CC
 export origin_lon=-25
 export origin_lat=60
-export dem=NULL
+export file_dem=NULL
 export do_atmo=TRUE
 export do_topo=TRUE
 export do_brdf=TRUE
@@ -103,23 +103,32 @@ if [ "$aoi" != NULL ]; then
 fi
 
 # retrieve DEM unless available
+# structure is
+#   required vrt go to /tmp/mgrs-vrt/...
+#   downloaded tiles go to /tmp/copernicus/...
 
-mkdir -p /tmp/copernicus
+mkdir -p /tmp/copernicus /tmp/mgrs-vrt
 for safeurl in $inputs; do
     granule_filename=$(basename $safeurl)
     granule=${granule_filename:39:5}
-    vrt_path=/opt/apex-force-wrapper/etc/MGRS_VRT/MGRS_T${granule}.vrt
+    vrt_path=/opt/apex-force-wrapper/auxdata/MGRS_VRT/MGRS_T${granule}.vrt
+    cp $vrt_path /tmp/mgrs-vrt/
     for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
         dem_tile_name=$(basename $dem_tile_path)
+        eodata_tile_path=$(ls -l /opt/apex-force-wrapper/auxdata/copernicus/$dem_tile_name|awk '{print $11}')
         if [ -e /tmp/copernicus/$dem_tile_name ]; then
             echo $dem_tile_name exists
         else
-            tile=${dem_tile_name:18:14}
-            s5cmd cp s3://eodata/auxdata/CopDEM/COP-DEM_GLO-30-DGED_PUBLIC/DEM1_SAR_DGE_30_20130602T005548_20140730T170342_ADS_000000_6522.DEM/Copernicus_DSM_10_${tile}/DEM/Copernicus_DSM_10_${tile}_DEM.tif /tmp/copernicus/
+            s5cmd cp s3:/$eodata_tile_path /tmp/copernicus/
+            ls -l /tmp/copernicus/$dem_tile_name
         fi
     done
 done
-export file_dem=/opt/apex-force-wrapper/etc/MGRS_VRT
+
+find /tmp/mgrs-vrt
+find /tmp/copernicus
+
+export file_dem=/tmp/mgrs-vrt
 export use_dem_database=TRUE
 
 # retrieve inputs
@@ -142,6 +151,11 @@ done
 
 # create parameter file
 
+# test overwrites
+#export aoi=NULL
+export file_dem=NULL
+export do_topo=FALSE
+
 mkdir -p param
 cat /opt/apex-force-wrapper/etc/l2ps.template | envsubst > param/l2ps.prm
 cat param/l2ps.prm
@@ -157,7 +171,7 @@ fi
 
 # create stac catalogue for output
 
-rm -rf outputs/l2-ard/.parallel
+rm -rf outputs/.parallel
 find outputs/
 
 # TODO introduce parameter processing_name
