@@ -19,6 +19,17 @@ RUN curl -L -o s5cmd.tar.gz https://github.com/peak/s5cmd/releases/download/v2.2
     chmod +x /usr/local/bin/s5cmd && \
     rm s5cmd.tar.gz LICENSE README.md CHANGELOG.md 2>/dev/null || true
 
+# Install python tool for staging and its requirements
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/opt/uv" sh
+ENV PATH=${PATH}:/opt/uv
+COPY python/src /opt/stac-staging/src
+COPY python/pyproject.toml /opt/stac-staging/
+COPY python/uv.lock /opt/stac-staging/
+WORKDIR /opt/stac-staging
+RUN uv sync --python 3.13
+WORKDIR /
+
 # copy the wrapper scripts to the container
 COPY resources/force-level2-wrapper.sh /opt/apex-force-wrapper/bin/
 COPY resources/higher-level/force-tsa-wrapper.sh /opt/apex-force-wrapper/bin/
