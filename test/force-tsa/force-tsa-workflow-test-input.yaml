@@ -2,3 +2,5 @@ item_url: "https://s3.waw4-1.cloudferro.com/calrissian/pvc-85434649-b4e1-4b9f-a4
 STM:
   - Q50
   - Q25
+DATE_RANGE_START: "2024-01-01"
+DATE_RANGE_END: "2024-12-31"

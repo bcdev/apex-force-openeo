@@ -33,6 +33,17 @@ inputs:
     default:
       - MIN
       - MAX
+  # TODO better type than string?
+  DATE_RANGE_START:
+    type: string
+    inputBinding:
+      prefix:
+        --DATE_RANGE_START
+  DATE_RANGE_END:
+    type: string
+    inputBinding:
+      prefix:
+        --DATE_RANGE_START
 outputs:
   tsa_cube:
     type: Directory
