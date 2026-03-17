@@ -34,7 +34,7 @@ inputs:
       - MIN
       - MAX
 outputs:
-  testfile:
+  tsa_cube:
     type: Directory
     outputBinding:
       glob: "outputs/hlps-tsa"
