@@ -22,7 +22,7 @@ output_dir="outputs/hlps-tsa"
 provenance_dir="outputs/provenance"
 
 mkdir -p param
-cat "$parameter_template" | envsubst > "$filled_parameter_path"
+envsubst < "$parameter_template" > "$filled_parameter_path"
 
 mkdir -p $output_dir
 mkdir -p $provenance_dir
