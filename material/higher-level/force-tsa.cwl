@@ -43,7 +43,7 @@ inputs:
     type: string
     inputBinding:
       prefix:
-        --DATE_RANGE_START
+        --DATE_RANGE_END
 outputs:
   tsa_cube:
     type: Directory
