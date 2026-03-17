@@ -45,13 +45,13 @@ export projection=GLANCE7
 export resampling=CC
 export origin_lon=-25
 export origin_lat=60
-export file_dem=NULL
-export do_atmo=TRUE
-export do_topo=TRUE
-export do_brdf=TRUE
-export do_adjacency=TRUE
-export do_multi_scattering=TRUE
-export do_aod=TRUE
+export dem=NULL
+export do_atmo=FALSE
+export do_topo=FALSE
+export do_brdf=FALSE
+export do_adjacency=FALSE
+export do_multi_scattering=FALSE
+export do_aod=FALSE
 export erase_clouds=FALSE
 export max_cloud_cover_frame=99
 export max_cloud_cover_tile=99
@@ -62,7 +62,7 @@ export snow_buffer=30
 export cloud_threshold=0.225
 export shadow_threshold=0.02
 export res_merge=IMPROPHE
-export impulse_noise=TRUE
+export impulse_noise=FALSE
 export buffer_nodata=FALSE
 export nproc=3
 export nthread=4
@@ -79,7 +79,11 @@ export output_ovv=TRUE
 
 inputs=
 while [ "$1" != "" ]; do
-    if [ "${1:0:2}" = "--" ]; then
+    if [ "${1:0:2}" = "--" -a "${2:0:2}" = "--" ]; then
+        declare ${1:2}="TRUE"
+        export ${1:2}
+        shift 1
+    elif [ "${1:0:2}" = "--" ]; then
         declare ${1:2}="$2"
         export ${1:2}
         shift 2
@@ -106,30 +110,42 @@ fi
 # structure is
 #   required vrt go to /tmp/mgrs-vrt/...
 #   downloaded tiles go to /tmp/copernicus/...
-
-mkdir -p /tmp/copernicus /tmp/mgrs-vrt
-for safeurl in $inputs; do
-    granule_filename=$(basename $safeurl)
-    granule=${granule_filename:39:5}
-    vrt_path=/opt/apex-force-wrapper/auxdata/MGRS_VRT/MGRS_T${granule}.vrt
-    cp $vrt_path /tmp/mgrs-vrt/
-    for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
-        dem_tile_name=$(basename $dem_tile_path)
-        eodata_tile_path=$(ls -l /opt/apex-force-wrapper/auxdata/copernicus/$dem_tile_name|awk '{print $11}')
-        if [ -e /tmp/copernicus/$dem_tile_name ]; then
-            echo $dem_tile_name exists
-        else
-            s5cmd cp s3:/$eodata_tile_path /tmp/copernicus/
-            ls -l /tmp/copernicus/$dem_tile_name
-        fi
+# only Copernicus DEM 30m is supported
+if [ "$dem" == "" -o "$dem" == "NULL" ]; then
+    export file_dem=NULL
+    export dem_database=NULL
+    if [ "$do_topo" = "TRUE" ]; then
+        echo "WARNING: do_topo set to TRUE but dem not set"
+    fi
+elif [ "$dem" == "Copernicus_30m" ]; then
+    mkdir -p /tmp/copernicus /tmp/mgrs-vrt
+    for safeurl in $inputs; do
+        granule_filename=$(basename $safeurl)
+        granule=${granule_filename:39:5}
+        vrt_path=/opt/apex-force-wrapper/auxdata/MGRS_VRT/MGRS_T${granule}.vrt
+        cp $vrt_path /tmp/mgrs-vrt/
+        for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
+            dem_tile_name=$(basename $dem_tile_path)
+            eodata_tile_path=$(ls -l /opt/apex-force-wrapper/auxdata/copernicus/$dem_tile_name|awk '{print $11}')
+            if [ -e /tmp/copernicus/$dem_tile_name ]; then
+                echo $dem_tile_name exists
+            else
+                s5cmd cp s3:/$eodata_tile_path /tmp/copernicus/
+                ls -l /tmp/copernicus/$dem_tile_name
+            fi
+        done
     done
-done
-
-find /tmp/mgrs-vrt
-find /tmp/copernicus
-
-export file_dem=/tmp/mgrs-vrt
-export use_dem_database=TRUE
+    find /tmp/mgrs-vrt
+    find /tmp/copernicus
+    export file_dem=/tmp/mgrs-vrt
+    export use_dem_database=TRUE
+    if [ "$do_topo" = "FALSE" ]; then
+        echo "WARNING: dem set but do_topo is false"
+    fi
+else
+    echo DEM other than Copernicus_30m not yet supported, but dem=$dem set as parameter
+    exit 1
+fi
 
 # retrieve inputs
 
@@ -150,11 +166,6 @@ for safeurl in $inputs; do
 done
 
 # create parameter file
-
-# test overwrites
-#export aoi=NULL
-export file_dem=NULL
-export do_topo=FALSE
 
 mkdir -p param
 cat /opt/apex-force-wrapper/etc/l2ps.template | envsubst > param/l2ps.prm

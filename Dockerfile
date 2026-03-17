@@ -10,8 +10,8 @@ LABEL maintainer="David Frantz, University of Trier, Germany"
 
 USER root
 RUN mkdir -p /var/cache/apt/archives/partial
-RUN apt-get update && apt-get install -yq jq gettext python3 curl xmlstarlet
-RUN pip3 install geopandas
+RUN apt-get update && apt-get install -yq jq gettext python3 python3-geopandas curl xmlstarlet
+#RUN pip3 install geopandas
 
 # Install s5cmd from GitHub releases
 RUN curl -L -o s5cmd.tar.gz https://github.com/peak/s5cmd/releases/download/v2.2.2/s5cmd_2.2.2_Linux-64bit.tar.gz && \
