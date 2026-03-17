@@ -13,8 +13,8 @@ class: CommandLineTool
 requirements:
   DockerRequirement:
 #    dockerPull: registry.stag.warsaw.openeo.dataspace.copernicus.eu/rand/force-eoap:0.0.7
-    dockerPull: quay.io/bcdev/force-eoap:0.0.7
-#    dockerImageId: quay.io/bcdev/force-eoap:0.0.7
+#    dockerPull: quay.io/bcdev/force-eoap:0.0.9
+    dockerImageId: quay.io/bcdev/force-eoap:0.0.9
   NetworkAccess:
      networkAccess: true
   ResourceRequirement:
@@ -36,6 +36,7 @@ inputs:
     type: string?
     inputBinding:
       prefix: --aoi
+#    default: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.5,44.0],[10.5,45.0],[11.5,45.0],[11.5,44.0],[10.5,44.0]]] }, "properties": { "name": "Bologna" }, "id": "08" }'
   resolution:
     type: int?
     inputBinding:

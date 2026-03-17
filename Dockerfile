@@ -10,7 +10,8 @@ LABEL maintainer="David Frantz, University of Trier, Germany"
 
 USER root
 RUN mkdir -p /var/cache/apt/archives/partial
-RUN apt-get update && apt-get install -yq jq gettext python3 curl
+RUN apt-get update && apt-get install -yq jq gettext python3 python3-geopandas curl xmlstarlet
+#RUN pip3 install geopandas
 
 # Install s5cmd from GitHub releases
 RUN curl -L -o s5cmd.tar.gz https://github.com/peak/s5cmd/releases/download/v2.2.2/s5cmd_2.2.2_Linux-64bit.tar.gz && \
@@ -21,6 +22,12 @@ RUN curl -L -o s5cmd.tar.gz https://github.com/peak/s5cmd/releases/download/v2.2
 
 # copy the wrapper script to the container
 COPY resources/force-level2-wrapper.sh /opt/apex-force-wrapper/bin/
+COPY resources/force-aoi-converter.py /opt/apex-force-wrapper/bin/
 COPY resources/*.template /opt/apex-force-wrapper/etc/
+COPY resources/MGRS_VRT.tar.gz /opt/apex-force-wrapper/auxdata/
+COPY resources/copernicus-dem-symlinks.tar.gz /opt/apex-force-wrapper/auxdata/
 
-ENV PATH=$PATH:/opt/force-wrapper/bin
+RUN tar xCf /opt/apex-force-wrapper/auxdata /opt/apex-force-wrapper/auxdata/MGRS_VRT.tar.gz && \
+    tar xCf /opt/apex-force-wrapper/auxdata /opt/apex-force-wrapper/auxdata/copernicus-dem-symlinks.tar.gz
+
+ENV PATH=$PATH:/opt/apex-force-wrapper/bin

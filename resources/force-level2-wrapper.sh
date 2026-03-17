@@ -46,12 +46,12 @@ export resampling=CC
 export origin_lon=-25
 export origin_lat=60
 export dem=NULL
-export do_atmo=TRUE
+export do_atmo=FALSE
 export do_topo=FALSE
-export do_brdf=TRUE
-export do_adjacency=TRUE
-export do_multi_scattering=TRUE
-export do_aod=TRUE
+export do_brdf=FALSE
+export do_adjacency=FALSE
+export do_multi_scattering=FALSE
+export do_aod=FALSE
 export erase_clouds=FALSE
 export max_cloud_cover_frame=99
 export max_cloud_cover_tile=99
@@ -62,7 +62,7 @@ export snow_buffer=30
 export cloud_threshold=0.225
 export shadow_threshold=0.02
 export res_merge=IMPROPHE
-export impulse_noise=TRUE
+export impulse_noise=FALSE
 export buffer_nodata=FALSE
 export nproc=3
 export nthread=4
@@ -79,7 +79,11 @@ export output_ovv=TRUE
 
 inputs=
 while [ "$1" != "" ]; do
-    if [ "${1:0:2}" = "--" ]; then
+    if [ "${1:0:2}" = "--" -a "${2:0:2}" = "--" ]; then
+        declare ${1:2}="TRUE"
+        export ${1:2}
+        shift 1
+    elif [ "${1:0:2}" = "--" ]; then
         declare ${1:2}="$2"
         export ${1:2}
         shift 2
@@ -94,6 +98,55 @@ done
 ln -s $(pwd) /tmp/outputs
 cd /tmp
 
+# convert AOI to file
+
+if [ "$aoi" != NULL ]; then
+    # convert AOI geojson into shapefile
+    force-aoi-converter.py "$aoi" aoi.shp
+    export aoi=/tmp/aoi.shp
+fi
+
+# retrieve DEM unless available
+# structure is
+#   required vrt go to /tmp/mgrs-vrt/...
+#   downloaded tiles go to /tmp/copernicus/...
+# only Copernicus DEM 30m is supported
+if [ "$dem" == "" -o "$dem" == "NULL" ]; then
+    export file_dem=NULL
+    export dem_database=NULL
+    if [ "$do_topo" = "TRUE" ]; then
+        echo "WARNING: do_topo set to TRUE but dem not set"
+    fi
+elif [ "$dem" == "Copernicus_30m" ]; then
+    mkdir -p /tmp/copernicus /tmp/mgrs-vrt
+    for safeurl in $inputs; do
+        granule_filename=$(basename $safeurl)
+        granule=${granule_filename:39:5}
+        vrt_path=/opt/apex-force-wrapper/auxdata/MGRS_VRT/MGRS_T${granule}.vrt
+        cp $vrt_path /tmp/mgrs-vrt/
+        for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
+            dem_tile_name=$(basename $dem_tile_path)
+            eodata_tile_path=$(ls -l /opt/apex-force-wrapper/auxdata/copernicus/$dem_tile_name|awk '{print $11}')
+            if [ -e /tmp/copernicus/$dem_tile_name ]; then
+                echo $dem_tile_name exists
+            else
+                s5cmd cp s3:/$eodata_tile_path /tmp/copernicus/
+                ls -l /tmp/copernicus/$dem_tile_name
+            fi
+        done
+    done
+    find /tmp/mgrs-vrt
+    find /tmp/copernicus
+    export file_dem=/tmp/mgrs-vrt
+    export use_dem_database=TRUE
+    if [ "$do_topo" = "FALSE" ]; then
+        echo "WARNING: dem set but do_topo is false"
+    fi
+else
+    echo DEM other than Copernicus_30m not yet supported, but dem=$dem set as parameter
+    exit 1
+fi
+
 # retrieve inputs
 
 mkdir inputs
@@ -106,7 +159,6 @@ for safeurl in $inputs; do
         echo staging $(basename $safeurl)
         #s3cmd get -r $safeurl inputs
         s5cmd cp $safeurl* inputs
-
     else
         echo $(basename $safeurl) already available
     fi
@@ -117,6 +169,7 @@ done
 
 mkdir -p param
 cat /opt/apex-force-wrapper/etc/l2ps.template | envsubst > param/l2ps.prm
+cat param/l2ps.prm
 
 # call of force-level2
 
@@ -129,10 +182,10 @@ fi
 
 # create stac catalogue for output
 
-rm -rf outputs/l2-ard/.parallel
+rm -rf outputs/.parallel
 find outputs/
 
-# TODO make parameter processing_name
+# TODO introduce parameter processing_name
 export processing_name=bologna
 # CITEME_0x65.txt
 export citeme_path=$(cd outputs/l2-ard; ls CITEME*)
