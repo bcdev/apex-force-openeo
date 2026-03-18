@@ -100,9 +100,11 @@ cd /tmp
 
 # convert AOI to file
 
+alias uv="/opt/uv/uv"
+alias aoi_converter="uv run --project /opt/force-python-tools force-aoi-converter"
 if [ "$aoi" != NULL ]; then
     # convert AOI geojson into shapefile
-    force-aoi-converter.py "$aoi" aoi.shp
+    force-aoi-converter "$aoi" aoi.shp
     export aoi=/tmp/aoi.shp
 fi
 

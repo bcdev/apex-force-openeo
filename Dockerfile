@@ -23,17 +23,16 @@ RUN curl -L -o s5cmd.tar.gz https://github.com/peak/s5cmd/releases/download/v2.2
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="/opt/uv" sh
 ENV PATH=${PATH}:/opt/uv
-COPY python/src /opt/stac-staging/src
-COPY python/pyproject.toml /opt/stac-staging/
-COPY python/uv.lock /opt/stac-staging/
-WORKDIR /opt/stac-staging
+COPY python/src /opt/force-python-tools/src
+COPY python/pyproject.toml /opt/force-python-tools/
+COPY python/uv.lock /opt/force-python-tools/
+WORKDIR /opt/force-python-tools
 RUN uv sync --python 3.13
 WORKDIR /
 
 # copy the wrapper scripts to the container
 COPY resources/force-level2-wrapper.sh /opt/apex-force-wrapper/bin/
 COPY resources/higher-level/force-tsa-wrapper.sh /opt/apex-force-wrapper/bin/
-COPY resources/force-aoi-converter.py /opt/apex-force-wrapper/bin/
 COPY resources/*.template /opt/apex-force-wrapper/etc/
 COPY resources/higher-level/*.template /opt/apex-force-wrapper/etc/
 COPY resources/MGRS_VRT.tar.gz /opt/apex-force-wrapper/auxdata/
