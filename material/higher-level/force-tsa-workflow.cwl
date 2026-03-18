@@ -14,11 +14,8 @@ inputs:
       - MIN
   DATE_RANGE_START:
     type: string
-    # TODO remove spurious defaults
-    default: 2026-01-01
   DATE_RANGE_END:
     type: string
-    default: 2026-03-01
 
 outputs:
   tsa_cube:
