@@ -17,4 +17,4 @@ download-item = "stac_staging.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["stac-staging"]
+include = ["stac_staging", "force_utils"]
