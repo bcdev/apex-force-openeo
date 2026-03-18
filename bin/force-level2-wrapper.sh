@@ -170,7 +170,7 @@ done
 # create parameter file
 
 mkdir -p param
-cat /opt/apex-force-wrapper/etc/l2ps.template | envsubst > param/l2ps.prm
+cat /opt/apex-force-wrapper/etc/force-level2-parameters.template | envsubst > param/l2ps.prm
 cat param/l2ps.prm
 
 # call of force-level2
