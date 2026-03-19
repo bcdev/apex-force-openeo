@@ -12,7 +12,7 @@ arguments:
   - "run"
   - "--no-sync"        # use locked python environment from container
   - "--project"
-  - "/opt/stac-staging"
+  - "/opt/force-python-tools"
   - "download-item"    # the actual executable
 
 
