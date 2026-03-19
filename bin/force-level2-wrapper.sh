@@ -98,13 +98,20 @@ done
 ln -s $(pwd) /tmp/outputs
 cd /tmp
 
+# shorthands
+
+uv() {
+  /opt/uv/uv "$@"
+}
+aoi-converter() {
+  uv run --project /opt/force-python-tools --no-sync force-aoi-converter "$@"
+}
+
 # convert AOI to file
 
-alias uv="/opt/uv/uv"
-alias aoi_converter="uv run --project /opt/force-python-tools force-aoi-converter"
 if [ "$aoi" != NULL ]; then
     # convert AOI geojson into shapefile
-    force-aoi-converter "$aoi" aoi.shp
+    aoi-converter "$aoi" aoi.shp
     export aoi=/tmp/aoi.shp
 fi
 
