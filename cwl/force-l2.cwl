@@ -13,13 +13,13 @@ class: CommandLineTool
 requirements:
   DockerRequirement:
 #    dockerPull: registry.stag.warsaw.openeo.dataspace.copernicus.eu/rand/force-eoap:0.0.7
-#    dockerPull: quay.io/bcdev/force-eoap:0.0.9
-    dockerImageId: quay.io/bcdev/force-eoap:0.0.9
+    dockerPull: quay.io/bcdev/force-eoap:0.0.9
+#    dockerImageId: quay.io/bcdev/force-eoap:0.0.9
   NetworkAccess:
      networkAccess: true
   ResourceRequirement:
-    ramMin: 7000
-    ramMax: 7000
+    ramMin: 8192
+    ramMax: 8192
     coresMin: 1
     coresMax: 4
 baseCommand: /opt/apex-force-wrapper/bin/force-level2-wrapper.sh
@@ -36,7 +36,7 @@ inputs:
     type: string?
     inputBinding:
       prefix: --aoi
-#    default: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.5,44.0],[10.5,45.0],[11.5,45.0],[11.5,44.0],[10.5,44.0]]] }, "properties": { "name": "Bologna" }, "id": "08" }'
+      default: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.5,44.0],[10.5,45.0],[11.5,45.0],[11.5,44.0],[10.5,44.0]]] }, "properties": { "name": "Bologna" }, "id": "08" }'
   resolution:
     type: int?
     inputBinding:
@@ -72,18 +72,22 @@ inputs:
           - none
     inputBinding:
       prefix: --dem
+    default: Copernicus_30m
   do_atmo:
     type: boolean?
     inputBinding:
       prefix: --do_atmo
+    default: true
   do_topo:
     type: boolean?
     inputBinding:
       prefix: --do_topo
+    default: true
   do_brdf:
     type: boolean?
     inputBinding:
       prefix: --do_brdf
+    default: true
   do_adjacency:
     type: boolean?
     inputBinding:
@@ -92,10 +96,12 @@ inputs:
     type: boolean?
     inputBinding:
       prefix: --do_multi_scattering
+    default: true
   do_aod:
     type: boolean?
     inputBinding:
       prefix: --do_aod
+    default: true
   erase_clouds:
     type: boolean?
     inputBinding:
@@ -143,10 +149,12 @@ inputs:
           - NONE
     inputBinding:
       prefix: --res_merge
+    default: IMPROPHE
   impulse_noise:
     type: boolean?
     inputBinding:
       prefix: --impulse_noise
+    default: true
   buffer_nodata:
     type: boolean?
     inputBinding:
