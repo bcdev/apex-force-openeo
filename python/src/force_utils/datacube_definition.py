@@ -1,31 +1,18 @@
-from typing import Dict, Optional
-from collections.abc import Callable
-
+from typing import Optional, Dict
+from collections.abc import Callable, Iterable
 from pathlib import Path
+from datetime import datetime, timezone
+import json
 
+import pystac
 # TODO replace rasterio with pyproj
 import rasterio
 import shapely
 from rasterio import warp
-import click
+import multihash
+import numpy as np
 
-
-@click.command()
-@click.argument("data_cube_root", type=click.Path(exists=True))
-def compute_datacube_bounding_box(data_cube_root):
-    data_cube_def = ForceDataCubeDefinition(data_cube_root)
-    bounding_box = data_cube_def.compute_bounding_box()
-
-    bounding_box_shapely = shapely.geometry.box(
-        minx=bounding_box["west"],
-        maxy=bounding_box["south"],
-        maxx=bounding_box["east"],
-        miny=bounding_box["north"],
-    )
-
-    import pdb
-    pdb.set_trace()
-    print(bounding_box_shapely.wkt)
+from force_utils import force_stac
 
 
 class ForceDataCubeDefinition:
@@ -52,7 +39,9 @@ class ForceDataCubeDefinition:
         :param data_cube_root: root directory of the datacube,
             the directory that contains the datacube-definition.prj file.
         """
-        self._data_cube_root = Path(data_cube_root)
+        self._data_cube_root = Path(data_cube_root).resolve()
+        if not self._data_cube_root.exists():
+            raise ValueError(f"Path to datacube '{data_cube_root}' does not exist")
         with open(self._data_cube_root / self.DATACUBE_DEFINITION_FILENAME) as fp:
             self.projection_wkt = self._parse_data_cube_definition_entry(fp.readline())
             self.grid_origin_lon = self._parse_data_cube_definition_entry(fp.readline(), float)
@@ -63,14 +52,14 @@ class ForceDataCubeDefinition:
             self.block_size = int(self._parse_data_cube_definition_entry(fp.readline(), float))
         self.crs_rasterio = rasterio.CRS.from_wkt(self.projection_wkt)
 
-    def compute_bounding_box(self) -> Dict[str, float|str]:
-        tiles = [t.name for t in  self._data_cube_root.glob("X????_Y????")]
+    def compute_bounding_box(self) -> shapely.Polygon:
+        tiles = list(self.iter_tiles())
         tile_x = [int(t[1:5]) for t in tiles]
         tile_y = [int(t[7:11]) for t in tiles]
 
         return self._compute_bounding_box(min(tile_x), max(tile_x), min(tile_y), max(tile_y))
 
-    def _compute_bounding_box(self, min_tile_x: int, max_tile_x: int, min_tile_y: int, max_tile_y: int) -> Dict[str, float|str]:
+    def _compute_bounding_box(self, min_tile_x: int, max_tile_x: int, min_tile_y: int, max_tile_y: int) -> shapely.Polygon:
         target_crs = rasterio.CRS.from_string(self.TARGET_BOUNDS_CRS)
         left_proj = self.grid_origin_x + min_tile_x * self.tile_size
         right_proj = self.grid_origin_x + (max_tile_x + 1) * self.tile_size
@@ -86,14 +75,14 @@ class ForceDataCubeDefinition:
             densify_pts=self.DENSIFY_POINTS_DEFAULT
         )
 
-        # TODO better box type?
-        return {
-            "west": west,
-            "south": south,
-            "east": east,
-            "north": north,
-            "crs": target_crs.to_wkt(),
-        }
+        bounding_box = shapely.geometry.box(
+            minx=west,
+            maxy=south,
+            maxx=east,
+            miny=north,
+        )
+
+        return bounding_box
 
     @staticmethod
     def _parse_data_cube_definition_entry(line, dtype: Optional[Callable]=None):
@@ -102,7 +91,109 @@ class ForceDataCubeDefinition:
             return dtype(entry)
         return entry
 
+    def iter_tiles(self) -> Iterable[str]:
+        return (t.name for t in  self._data_cube_root.glob("X????_Y????"))
+
+    def generate_stac(self, id_prefix: str) -> pystac.Catalog:
+        catalog = pystac.Catalog(f"{id_prefix}-catalog", "description")
+        item = self._generate_stac_item(id_prefix=id_prefix)
+        catalog.add_item(item)
+        return catalog
+
+    # TODO make validate false by default
+    def _generate_stac_item(self, id_prefix: str, validate=True):
+        bbox = self.compute_bounding_box()
+        item_id = f"{id_prefix}-{self._data_cube_root.stem}" if id_prefix else self._data_cube_root.stem
+        now = datetime.now(tz=timezone.utc)
+        now_iso = f"{now.isoformat()}Z"
+
+        item = pystac.Item(
+            item_id,
+            geometry=json.loads(shapely.to_geojson(bbox)),
+            bbox=list(bbox.bounds),
+            datetime=now,
+            # TODO consider passing extra properties as a parameter to the function
+            # instead of hardcoding here
+            properties={
+                "created": now_iso,
+                "updated": now_iso,
+                #"published": now_iso,
+                "constellation": "sentinel-2",
+                "instruments": [ "msi" ]
+            }
+        )
+
+        # extensions
+        # TODO make extensions optional / configurable
+        item.ext.add("proj")
+        item.ext.add("file")
+        item.ext.add("raster")
+
+        for tile in self.iter_tiles():
+            assets = self._generate_stac_assets(tile)
+            for asset_key, asset in assets.items():
+                item.add_asset(asset_key, asset)
+        if validate:
+            item.validate()
+        return item
+
+    def _generate_stac_assets(self, tile: str) -> Dict[str, pystac.Asset]:
+        tile_path = self._data_cube_root / tile
+        assets = {}
+        for asset_path in tile_path.glob("*"):
+            asset_path_relative = asset_path.relative_to(self._data_cube_root)
+            asset_key = force_stac.get_asset_key(tile, asset_path_relative)
+            asset = pystac.Asset(
+                href=str(asset_path_relative),
+                title=force_stac.get_asset_title(tile, asset_path_relative),
+                media_type=force_stac.get_media_type(asset_path_relative)
+            )
+
+            # Common metadata
 
 
-def bounding_box_from_datacube_definition(datacube_definition):
-    pass
+
+            # File extension
+            mh = multihash.digest(asset_path.read_bytes(), multihash.Func.sha2_256)
+            mh_digest = multihash.encode(mh.digest, multihash.Func.sha2_256)
+
+            asset.ext.file.checksum = multihash.to_hex_string(mh_digest)
+            asset.ext.file.size = asset_path.stat(follow_symlinks=True).st_size
+            asset.ext.file.local_path=str(asset_path_relative)
+
+            with rasterio.open(asset_path) as ds:
+                crs = ds.crs
+                bbox = shapely.geometry.box(
+                    minx=ds.bounds.left,
+                    maxx=ds.bounds.right,
+                    miny=ds.bounds.bottom,
+                    maxy=ds.bounds.top,
+                )
+                centroid_lon, centroid_lat = ds.lnglat()
+
+                # Projection extension
+
+                asset.ext.proj.code = ":".join(crs.to_authority())
+                asset.ext.proj.wkt2 = crs.wkt
+                asset.ext.proj.bbox = bbox.bounds
+                asset.ext.proj.geometry = json.loads(shapely.to_geojson(bbox))
+                asset.ext.proj.transform = ds.transform
+                asset.ext.proj.shape = ds.shape
+                asset.ext.proj.centroid = {
+                    "lat": centroid_lat,
+                    "lon": centroid_lon,
+                }
+
+                # Raster extension
+
+                scale = ds.scales[0]
+                assert all([s == scale for s in ds.scales]), f"Multiple scales found for asset {asset_path.resolve()}"
+                asset.ext.raster.scale = scale
+                offset = ds.offsets[0]
+                assert all([o == offset for o in ds.offsets]), f"Multiple offsets found for asset {asset_path.resolve()}"
+                asset.ext.raster.offset = offset
+                asset.ext.raster.spatial_resolution = np.mean(ds.res)
+                asset.ext.raster.sampling = "area"
+
+            assets[asset_key] = asset
+        return assets
