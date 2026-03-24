@@ -3,7 +3,7 @@ cwlVersion: v1.2
 class: CommandLineTool
 requirements:
   DockerRequirement:
-    dockerPull: quay.io/bcdev/force-eoap:0.0.9
+    dockerPull: quay.io/bcdev/force-eoap:dev
   NetworkAccess:
     networkAccess: true # TODO is this needed, if we can download independently?
   ResourceRequirement:
@@ -22,8 +22,6 @@ inputs:
     type: Directory
     inputBinding:
       prefix: --DIR_INPUT_DATA
-    default:
-      "dummy" # TODO real, accessible, stac catalog for testing
   STM:
     type: force-tsa-parameter-schema.yaml#STM_type[]
     inputBinding:

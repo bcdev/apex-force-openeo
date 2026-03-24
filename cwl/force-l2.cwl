@@ -13,7 +13,7 @@ class: CommandLineTool
 requirements:
   DockerRequirement:
 #    dockerPull: registry.stag.warsaw.openeo.dataspace.copernicus.eu/rand/force-eoap:0.0.7
-    dockerPull: quay.io/bcdev/force-eoap:0.0.9
+    dockerPull: quay.io/bcdev/force-eoap:dev
 #    dockerImageId: quay.io/bcdev/force-eoap:0.0.9
   NetworkAccess:
      networkAccess: true
