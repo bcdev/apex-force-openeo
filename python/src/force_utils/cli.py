@@ -1,9 +1,12 @@
 from pathlib import Path
+import logging
 
 import click
-import shapely
 
 from force_utils.datacube_definition import ForceDataCubeDefinition
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @click.command()
 @click.argument("datacube_root", type=click.Path(exists=True))
@@ -11,10 +14,15 @@ from force_utils.datacube_definition import ForceDataCubeDefinition
 @click.option("--id-prefix", "-i", type=str, default="")
 def gen_stac(datacube_root, output_path, id_prefix):
     output_path = Path(output_path)
+    logger.info(f"Generating STAC catalog and item for {datacube_root}")
     data_cube_def = ForceDataCubeDefinition(datacube_root)
     catalog = data_cube_def.generate_stac(id_prefix=id_prefix)
     catalog.normalize_hrefs(str(output_path))
+    logger.info(f"Saving STAC catalog to {output_path.resolve()}")
     catalog.save(dest_href=str(output_path) )
+    # TODO remove
+    logger.info(list(output_path.iterdir()))
+    logger.info(list(next(iter(output_path.glob("hlps-tsa*"))).iterdir()))
 
 @click.command()
 @click.argument("data_cube_root", type=click.Path(exists=True))
