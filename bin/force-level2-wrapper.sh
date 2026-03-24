@@ -217,7 +217,7 @@ for continent_prj_path in $(cd outputs/l2-ard; ls */datacube-definition.prj); do
             export size=$(ls -l outputs/l2-ard/$qai_path | cut -d ' ' -f 5)
             export md5sum=$(md5sum outputs/l2-ard/$qai_path | cut -d ' ' -f 1)
             export title="$(echo ${qai_path%.tif} | tr '/' ' ' | tr '_' ' ')"
-            cat /opt/apex--wrapper/etc/output-item-qai-asset.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
+            cat /opt/apex-force-wrapper/etc/output-item-qai-asset.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
         done
         for ovv_path in $(cd outputs/l2-ard; ls $tile_dir/*OVV.jpg); do
             export ovv_path
