@@ -1,12 +1,15 @@
 from pathlib import Path
 import asyncio
 from typing import Dict
+import logging
 
 import click
 import pystac
 import stac_asset
 from stac_asset import blocking
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @click.command()
 @click.option("--url", "-u", type=str, required=True)
@@ -32,7 +35,7 @@ def main(url: str, output_path: Path, synchronous: bool):
 def download_assets_sync(assets: Dict, output_path_base: Path, config: stac_asset.Config):
     for asset_key, asset in assets.items():
         download_path = (output_path_base / asset.extra_fields["file:local_path"]).resolve()
-        print(f"Downloading {asset_key} to {download_path}")
+        logger.info(f"Downloading {asset_key} to {download_path} (sync)")
         # TODO async download
         blocking.download_asset(asset_key, asset, path=download_path, config=config)
 
@@ -40,6 +43,7 @@ async def download_assets_async(assets: Dict, output_path_base: Path, config: st
     tasks = []
     for asset_key, asset in assets.items():
         download_path = (output_path_base / asset.extra_fields["file:local_path"]).resolve()
+        logger.info(f"Downloading {asset_key} to {download_path} (async)")
         task = await stac_asset.download_asset(asset_key, asset, path=download_path, config=config)
         tasks.append(task)
 
