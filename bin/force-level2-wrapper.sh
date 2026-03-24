@@ -68,7 +68,7 @@ export nproc=3
 export nthread=4
 export parallel_reads=FALSE
 export process_start_delay=3
-export timeout_zip=30
+export timeout_zip=300
 export output_format=GTiff
 export output_dst=FALSE
 export output_aod=FALSE
@@ -195,7 +195,8 @@ rm -rf outputs/.parallel
 find outputs/
 
 # TODO introduce parameter processing_name
-export processing_name=bologna
+default_name=cube-$(date -u +%Y%m%dT%H%M)
+export processing_name=${name:-$default_name}
 # CITEME_0x65.txt
 export citeme_path=$(cd outputs/l2-ard; ls CITEME*)
 cat /opt/apex-force-wrapper/etc/output-item-header.template | envsubst > outputs/l2-ard/$processing_name-l2-ard.json

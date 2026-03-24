@@ -32,6 +32,10 @@ inputs:
       - "s3://EODATA/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE"
 #      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TPQ_20241228T120532.SAFE"
 #      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TQQ_20241228T120532.SAFE"
+  name:
+    type: string?
+    inputBinding:
+      prefix: --name
   aoi:
     type: string?
     inputBinding:
@@ -62,6 +66,7 @@ inputs:
           - CC
     inputBinding:
       prefix: --resampling
+    default: CC
   dem:
     type:
       - "null"
@@ -92,6 +97,7 @@ inputs:
     type: boolean?
     inputBinding:
       prefix: --do_adjacency
+    default: true
   do_multi_scattering:
     type: boolean?
     inputBinding:
