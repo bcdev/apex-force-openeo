@@ -25,7 +25,7 @@ outputs:
     type: File
     outputSource: force_tsa/stac_catalog
   stac_items:
-    type: Directory
+    type: File[]
     outputSource: force_tsa/stac_items
 
 steps:

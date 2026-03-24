@@ -52,6 +52,6 @@ fi
 
 # create stac catalog for outputs
 
-gen-stac "$output_dir" --output-path "$stac_output_dir" --id-prefix "hlps-tsa"
+gen-stac "$output_dir" --output-path "$stac_output_dir" --id-prefix ""
 
 exit $?
