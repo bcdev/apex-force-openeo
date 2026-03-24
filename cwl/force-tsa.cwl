@@ -47,4 +47,12 @@ outputs:
     type: Directory
     outputBinding:
       glob: "outputs/hlps-tsa"
+  stac_catalog:
+    type: File
+    outputBinding:
+      glob: "outputs/stac/catalog.json"
+  stac_items:
+    type: Directory
+    outputBinding:
+      glob: "outputs/stac/hlps-tsa/hlps-tsa.json"
 
