@@ -36,7 +36,7 @@ inputs:
     type: string?
     inputBinding:
       prefix: --aoi
-      default: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.5,44.0],[10.5,45.0],[11.5,45.0],[11.5,44.0],[10.5,44.0]]] }, "properties": { "name": "Bologna" }, "id": "08" }'
+    default: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.5,44.0],[10.5,45.0],[11.5,45.0],[11.5,44.0],[10.5,44.0]]] }, "properties": { "name": "Bologna" }, "id": "08" }'
   resolution:
     type: int?
     inputBinding:
