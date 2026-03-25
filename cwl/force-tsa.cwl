@@ -54,5 +54,5 @@ outputs:
   stac_items:
     type: Directory
     outputBinding:
-      glob: "outputs/stac/hlps-tsa/hlps-tsa.json"
+      glob: "outputs/stac/*hlps-tsa"
 
