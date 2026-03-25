@@ -13,6 +13,7 @@ dependencies = [
     "pystac[validation]>=1.14.3",
     "rasterio>=1.4.4",
     "stac-asset>=0.4.7",
+    "aiohttp>=3.13.3"
 ]
 
 [project.scripts]
