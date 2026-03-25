@@ -95,7 +95,8 @@ class ForceDataCubeDefinition:
         return (t.name for t in  self._data_cube_root.glob("X????_Y????"))
 
     def generate_stac(self, id_prefix: str) -> pystac.Catalog:
-        catalog = pystac.Catalog(f"{id_prefix}-catalog", "description")
+        catalog_id = f"{id_prefix}-catalog" if id_prefix else "catalog"
+        catalog = pystac.Catalog(catalog_id, "description")
         item = self._generate_stac_item(id_prefix=id_prefix)
         catalog.add_item(item)
         return catalog

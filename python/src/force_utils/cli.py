@@ -2,6 +2,7 @@ from pathlib import Path
 import logging
 
 import click
+import pystac
 
 from force_utils.datacube_definition import ForceDataCubeDefinition
 
@@ -19,10 +20,7 @@ def gen_stac(datacube_root, output_path, id_prefix):
     catalog = data_cube_def.generate_stac(id_prefix=id_prefix)
     catalog.normalize_hrefs(str(output_path))
     logger.info(f"Saving STAC catalog to {output_path.resolve()}")
-    catalog.save(dest_href=str(output_path) )
-    # TODO remove
-    logger.info(list(output_path.iterdir()))
-    logger.info(list(next(iter(output_path.glob("hlps-tsa*"))).iterdir()))
+    catalog.save(dest_href=str(output_path), catalog_type=pystac.CatalogType.SELF_CONTAINED)
 
 @click.command()
 @click.argument("data_cube_root", type=click.Path(exists=True))
