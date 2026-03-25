@@ -40,21 +40,36 @@ inputs:
     type: string?
     inputBinding:
       prefix: --aoi
-    default: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.5,44.0],[10.5,45.0],[11.5,45.0],[11.5,44.0],[10.5,44.0]]] }, "properties": { "name": "Bologna" }, "id": "08" }'
+#    default: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.5,44.0],[10.5,45.0],[11.5,45.0],[11.5,44.0],[10.5,44.0]]] }, "properties": { "name": "Bologna" } }'
+  tile_size:
+    type: int?
+    inputBinding:
+      prefix: --tile_size
+    default: 30000
+  block_size:
+    type: int?
+    inputBinding:
+      prefix: --block_size
+    default: 3000
+  origin_lon:
+    type: float?
+    inputBinding:
+      prefix: --origin_lon
+    default: -25.0
+  origin_lat:
+    type: float?
+    inputBinding:
+      prefix: --origin_lat
+    default: 60.0
   resolution:
     type: int?
     inputBinding:
       prefix: --resolution
     default: 20
   projection:
-    type:
-      - "null"
-      - type: enum
-        symbols:
-          - GLANCE7
-          - EQUI7
-        inputBinding:
-          prefix: --projection
+    type: string?
+    inputBinding:
+      prefix: --projection
     default: GLANCE7
   resampling:
     type:
@@ -64,6 +79,17 @@ inputs:
           - NN
           - BL
           - CC
+          - CSP
+          - LZ
+          - AVG
+          - MODE
+          - MAX
+          - MIN
+          - MED
+          - Q1
+          - Q3
+          - SUM
+          - RMS
     inputBinding:
       prefix: --resampling
     default: CC
@@ -72,7 +98,6 @@ inputs:
       - "null"
       - type: enum
         symbols:
-          - Copernicus_90m
           - Copernicus_30m
           - none
     inputBinding:
@@ -165,26 +190,6 @@ inputs:
     type: boolean?
     inputBinding:
       prefix: --buffer_nodata
-  nproc:
-    type: int?
-    inputBinding:
-      prefix: --nproc
-  nthread:
-    type: int?
-    inputBinding:
-      prefix: --nthread
-  parallel_reads:
-    type: boolean?
-    inputBinding:
-      prefix: --parallel_reads
-  process_start_delay:
-    type: int?
-    inputBinding:
-      prefix: --process_start_delay
-  timeout_zip:
-    type: int?
-    inputBinding:
-      prefix: --timeout_zip
   output_format:
     type:
       - "null"

@@ -88,14 +88,14 @@ FILE_TILE = NULL
 # This is the tile size (in target units, commonly in meters) of the 
 # gridded output. tiles are square; not used if DO_TILE = FALSE. 
 # Type: Double. Valid range: ]0,...
-TILE_SIZE = 30000 30000
+TILE_SIZE = ${tile_size} ${tile_size}
 # This is the block size (in target units, commonly in meters) of the 
 # image chips. Blocks are stripes, i.e. they are as wide as the tile,
 # and as high as specified here; not used if DO_TILE = FALSE or 
 # OUTPUT_FORMAT = ENVI. The blocks are the primary processing unit of
 # the force-higher-level routines.
 # Type: Double. Valid range: ]0,TILE_SIZE]
-#BLOCK_SIZE = 3000
+BLOCK_SIZE = ${block_size}
 # This is the spatial resolution of Landsat output; not used if DO_REPROJ 
 # = FALSE. Note that the tile and block sizes must be a multiple of the
 # pixel resolution.
@@ -140,23 +140,23 @@ RESAMPLING = ${resampling}
 # Bottom-of-Atmosphere reflectance is computed. If FALSE, only Top-of-Atmo-
 # sphere reflectance is computed.
 # Type: Logical. Valid values: {TRUE,FALSE}
-DO_ATMO = ${do_atmo}
+DO_ATMO = ${do_atmo^^}
 # This indicates if topographic correction should be performed. If TRUE,
 # a DEM need to be given.
 # Type: Logical. Valid values: {TRUE,FALSE}
-DO_TOPO = ${do_topo}
+DO_TOPO = ${do_topo^^}
 # This indicates if BRDF correction should be performed. If TRUE, output is
 # nadir BRDF adjusted reflectance instead of BOA reflectance (the output is
 # named BOA nonetheless).
 # Type: Logical. Valid values: {TRUE,FALSE}
-DO_BRDF = ${do_brdf}
+DO_BRDF = ${do_brdf^^}
 # This indicates if adjacency effect correction should be performed.
 # Type: Logical. Valid values: {TRUE,FALSE}
-ADJACENCY_EFFECT = ${do_adjacency}
+ADJACENCY_EFFECT = ${do_adjacency^^}
 # This indicates if multiple scattering (TRUE) or the single scattering
 # approximation (FALSE) should be used in the radiative transfer calculations.
 # Type: Logical. Valid values: {TRUE,FALSE}
-MULTI_SCATTERING = ${do_multi_scattering}
+MULTI_SCATTERING = ${do_multi_scattering^^}
 
 # WATER VAPOR CORRECTION OPTIONS
 # ------------------------------------------------------------------------
@@ -189,7 +189,7 @@ WATER_VAPOR = NULL
 # This indicates whether the internal AOD estimation (TRUE) or externally
 # generated AOD values should be used (FALSE).
 # Type: Logical. Valid values: {TRUE,FALSE}
-DO_AOD  = ${do_aod}
+DO_AOD  = ${do_aod^^}
 # This is the directory where the aerosol optical depth look-up-tables are
 # located. They can be used to input external AOD values. It is recom-
 # mended to use the internal algorithm only. If a path is given, and 
@@ -205,7 +205,7 @@ DIR_AOD  = NULL
 # product will still mark these pixels as clouds. Use this option is disk space 
 # is of concern.
 # Type: Logical. Valid values: {TRUE,FALSE}
-ERASE_CLOUDS = ${erase_clouds}
+ERASE_CLOUDS = ${erase_clouds^^}
 # This parameter cancels the processing of images that exceed the given
 # threshold. The processing will be canceled after cloud detection.
 # Type: Integer. Valid range: ]0,100]
@@ -256,10 +256,10 @@ COREG_BASE_NODATA = -9999
 # This parameter defines if impulse noise should be removed. Ony applies
 # to 8bit input data.
 # Type: Logical. Valid values: {TRUE,FALSE}
-IMPULSE_NOISE = ${impulse_noise}
+IMPULSE_NOISE = ${impulse_noise^^}
 # This parameter defines if nodata pixels should be buffered by 1 pixel.
 # Type: Logical. Valid values: {TRUE,FALSE}
-BUFFER_NODATA = ${buffer_nodata}
+BUFFER_NODATA = ${buffer_nodata^^}
 
 # TIER LEVEL
 # ------------------------------------------------------------------------
@@ -331,27 +331,27 @@ FILE_OUTPUT_OPTIONS = NULL
 # duct can be used in force-level3; no other higher-level FORCE module is
 # using this.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_DST = ${output_dst}
+OUTPUT_DST = ${output_dst^^}
 # Output Aerosol Optical Depth map for the green band? No higher-level FORCE
 # module is using this.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_AOD = ${output_aod}
+OUTPUT_AOD = ${output_aod^^}
 # Output the Water Vapor map? No higher-level FORCE module is using this.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_WVP = ${output_wvp}
+OUTPUT_WVP = ${output_wvp^^}
 # Output the View Zenith map? This product can be used in force-level3; no
 # other higher-level FORCE module is using this.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_VZN = ${output_vzn}
+OUTPUT_VZN = ${output_vzn^^}
 # Output the Haze Optimzed Transformation output? This product can be
 # used in force-level3; no other higher-level FORCE module is using this.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_HOT = ${output_hot}
+OUTPUT_HOT = ${output_hot^^}
 # Output overview thumbnails? These are jpegs at reduced spatial resolution,
 # which feature an RGB overview + quality information overlayed (pink: cloud,
 # red: cirrus, cyan: cloud shadow, yellow: snow, orange: saturated, green:
 # subzero reflectance). No higher-level FORCE module is using this.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_OVV = ${output_ovv}
+OUTPUT_OVV = ${output_ovv^^}
 
 ++PARAM_LEVEL2_END++
