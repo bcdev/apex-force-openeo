@@ -6,6 +6,7 @@ requirements:
     networkAccess: true
   DockerRequirement:
     dockerPull: quay.io/bcdev/force-eoap:dev
+    # dockerImageId: quay.io/bcdev/force-eoap:dev
 
 baseCommand: /opt/uv/uv
 arguments:

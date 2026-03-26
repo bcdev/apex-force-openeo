@@ -4,6 +4,7 @@ class: CommandLineTool
 requirements:
   DockerRequirement:
     dockerPull: quay.io/bcdev/force-eoap:dev
+    #dockerImageId: quay.io/bcdev/force-eoap:dev
   NetworkAccess:
     networkAccess: true # TODO is this needed, if we can download independently?
   ResourceRequirement:
