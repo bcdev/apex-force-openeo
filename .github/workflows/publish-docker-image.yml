@@ -35,7 +35,7 @@ jobs:
         # TODO replace with buildx action by Docker
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.IMG_REG_NAME }}/${{ env.ORG_NAME }}/${{ env.APP_NAME }}:${{ github.event.inputs.tag }}
+          docker build -t ${{ env.IMG_REG_NAME }}/${{ env.ORG_NAME }}/${{ env.APP_NAME }}:${{ github.event.inputs.tag }} $(pwd)
 
       - name: Push Docker image to quay.io
         run: |
