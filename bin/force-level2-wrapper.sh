@@ -95,6 +95,22 @@ while [ "$1" != "" ]; do
     fi
 done
 
+do_atmo="${do_atmo^^}"
+do_topo="${do_topo^^}"
+do_brdf="${do_brdf^^}"
+do_adjacency="${do_adjacency^^}"
+do_multi_scattering="${do_multi_scattering^^}"
+do_aod="${do_aod^^}"
+erase_clouds="${erase_clouds^^}"
+impulse_noise="${impulse_noise^^}"
+buffer_nodata="${buffer_nodata^^}"
+output_dst="${output_dst^^}"
+output_aod="${output_aod^^}"
+output_wvp="${output_wvp^^}"
+output_vzn="${output_vzn^^}"
+output_hot="${output_hot^^}"
+output_ovv="${output_ovv^^}"
+
 # use /tmp for all intermediates
 
 ln -s $(pwd) /tmp/outputs
