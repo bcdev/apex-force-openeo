@@ -1,0 +1,41 @@
+# Action to build and push the docker image with a hand-defined tag.
+# Based on https://github.com/bcdev/service-xcube-viewer-apps/blob/main/.github/workflows/custom-xcube-viewer-images-workflow.yaml
+
+name: Publish Docker image
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag for the docker image
+        required: true
+env:
+  ORG_NAME: bcdev
+  IMAGE_NAME: force-eoap
+  IM_REG_NAME: quay.io
+jobs:
+  build-docker-image:
+    runs-on: ubuntu-latest
+    name: build-docker-image
+    concurrency:
+      group: ${{ github.workflow }}
+    steps:
+      - name: git-checkout
+        uses: actions/checkout@v4
+      - name: info
+        id: info
+        run: |
+          echo "TAG: ${{ github.event.inputs.tag }}"
+      - name: Log in to Quay.io
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.IMG_REG_NAME }}
+          username: ${{ secrets.IMG_REG_USERNAME }} # quay.io username, must be in GitHub secrets
+          password: ${{ secrets.IMG_REG_PASSWORD }}
+        # TODO replace with buildx action by Docker
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.IMG_REG_NAME }}/${{ env.ORG_NAME }}/${{ env.APP_NAME }}:${{ github.event.inputs.tag }} $BUILD_CONTEXT
+
+      - name: Push Docker image to quay.io
+        run: |
+          docker push ${{ env.IMG_REG_NAME }}/${{ env.ORG_NAME }}/${{ env.APP_NAME }}:${{ github.event.inputs.tag }}
