@@ -12,6 +12,7 @@ env:
   ORG_NAME: bcdev
   IMAGE_NAME: force-eoap
   IMG_REG_NAME: quay.io
+  APP_NAME: force-eoap
 jobs:
   build-docker-image:
     runs-on: ubuntu-latest
@@ -34,7 +35,7 @@ jobs:
         # TODO replace with buildx action by Docker
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.IMG_REG_NAME }}/${{ env.ORG_NAME }}/${{ env.APP_NAME }}:${{ github.event.inputs.tag }} $BUILD_CONTEXT
+          docker build -t ${{ env.IMG_REG_NAME }}/${{ env.ORG_NAME }}/${{ env.APP_NAME }}:${{ github.event.inputs.tag }}
 
       - name: Push Docker image to quay.io
         run: |
