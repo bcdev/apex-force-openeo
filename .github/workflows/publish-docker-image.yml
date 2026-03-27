@@ -11,7 +11,7 @@ on:
 env:
   ORG_NAME: bcdev
   IMAGE_NAME: force-eoap
-  IM_REG_NAME: quay.io
+  IMG_REG_NAME: quay.io
 jobs:
   build-docker-image:
     runs-on: ubuntu-latest
