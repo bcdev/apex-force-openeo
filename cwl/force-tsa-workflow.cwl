@@ -21,6 +21,12 @@ outputs:
   tsa_cube:
     type: Directory
     outputSource: force_tsa/tsa_cube
+  stac_catalog:
+    type: File
+    outputSource: force_tsa/stac_catalog
+  stac_items:
+    type: Directory
+    outputSource: force_tsa/stac_items
 
 steps:
   staging:
@@ -37,4 +43,4 @@ steps:
       STM: STM
       DATE_RANGE_START: DATE_RANGE_START
       DATE_RANGE_END: DATE_RANGE_END
-    out: [tsa_cube]
+    out: [tsa_cube, stac_catalog, stac_items]

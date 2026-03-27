@@ -9,15 +9,18 @@ requires-python = ">= 3.10"
 dependencies = [
     "click>=8.3.1",
     "geopandas>=1.1.3",
-    "pystac>=1.14.3",
+    "py-multihash>=3.0.0",
+    "pystac[validation]>=1.14.3",
     "rasterio>=1.4.4",
     "stac-asset>=0.4.7",
+    "aiohttp>=3.13.3"
 ]
 
 [project.scripts]
 download-item = "stac_staging.main:main"
 force-aoi-converter = "force_utils.force_aoi_converter:main"
 datacube-bounding-box = "force_utils.datacube_definition:compute_datacube_bounding_box"
+gen-stac = "force_utils.cli:gen_stac"
 
 [tool.setuptools.packages.find]
 where = ["src"]
