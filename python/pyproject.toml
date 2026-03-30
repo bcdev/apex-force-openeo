@@ -13,11 +13,13 @@ dependencies = [
     "pystac[validation]>=1.14.3",
     "rasterio>=1.4.4",
     "stac-asset>=0.4.7",
-    "aiohttp>=3.13.3"
+    "aiohttp>=3.13.3",
 ]
 
 [project.scripts]
+# TODO remove in favour of download-stac
 download-item = "stac_staging.main:main"
+download-stac = "stac_staging.cli:download_from_stac"
 force-aoi-converter = "force_utils.force_aoi_converter:main"
 datacube-bounding-box = "force_utils.datacube_definition:compute_datacube_bounding_box"
 gen-stac = "force_utils.cli:gen_stac"
@@ -25,3 +27,8 @@ gen-stac = "force_utils.cli:gen_stac"
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["stac_staging", "force_utils"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
