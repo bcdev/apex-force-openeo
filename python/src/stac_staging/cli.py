@@ -42,7 +42,10 @@ def download_from_stac(
     """
     LOGGER.info(f"Hello there")
     output_path = Path(output_path)
-    stac_obj = pystac.read_file(url)
+    try:
+        stac_obj = pystac.read_file(url)
+    except pystac.STACTypeError as _e:
+        stac_obj = pystac.ItemCollection.from_file(url)
     LOGGER.info(f"Found STAC object '{stac_obj}' at '{url}'")
 
     items = convert_stac_object_to_item_collection(stac_obj)
