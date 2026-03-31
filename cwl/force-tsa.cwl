@@ -18,10 +18,10 @@ requirements:
 baseCommand: /opt/apex-force-wrapper/bin/force-tsa-wrapper.sh
 # Inputs are defined in the FORCE documentation: https://force-eo.readthedocs.io/en/stable/components/higher-level/tsa/param.html
 inputs:
-  data_cube:
+  input_data_dir:
     type: Directory
     inputBinding:
-      prefix: --dir_input_data
+      prefix: --input_data_dir
     default:
       "dummy" # TODO real, accessible, stac catalog for testing
 

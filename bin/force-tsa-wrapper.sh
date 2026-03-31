@@ -5,7 +5,7 @@ set -x
 # parse parameter and replace defaults in env
 # list parameters are passed as comma-separated values: MIN,MAX,Q50
 
-export dir_input_data=
+export input_data_dir=
 export time_range=
 export doy_range=1,366
 export x_tile_range=-999,9999
