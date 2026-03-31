@@ -95,21 +95,21 @@ while [ "$1" != "" ]; do
     fi
 done
 
-do_atmo="${do_atmo^^}"
-do_topo="${do_topo^^}"
-do_brdf="${do_brdf^^}"
-do_adjacency="${do_adjacency^^}"
-do_multi_scattering="${do_multi_scattering^^}"
-do_aod="${do_aod^^}"
-erase_clouds="${erase_clouds^^}"
-impulse_noise="${impulse_noise^^}"
-buffer_nodata="${buffer_nodata^^}"
-output_dst="${output_dst^^}"
-output_aod="${output_aod^^}"
-output_wvp="${output_wvp^^}"
-output_vzn="${output_vzn^^}"
-output_hot="${output_hot^^}"
-output_ovv="${output_ovv^^}"
+export do_atmo="${do_atmo^^}"
+export do_topo="${do_topo^^}"
+export do_brdf="${do_brdf^^}"
+export do_adjacency="${do_adjacency^^}"
+export do_multi_scattering="${do_multi_scattering^^}"
+export do_aod="${do_aod^^}"
+export erase_clouds="${erase_clouds^^}"
+export impulse_noise="${impulse_noise^^}"
+export buffer_nodata="${buffer_nodata^^}"
+export output_dst="${output_dst^^}"
+export output_aod="${output_aod^^}"
+export output_wvp="${output_wvp^^}"
+export output_vzn="${output_vzn^^}"
+export output_hot="${output_hot^^}"
+export output_ovv="${output_ovv^^}"
 
 # use /tmp for all intermediates
 
