@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------
 # Lower Level datapool (parent directory of tiled input data)
 # Type: full directory path
-DIR_LOWER = ${dir_input_data}
+DIR_LOWER = ${input_data_dir}
 # Higher Level datapool (parent directory of tiled output data)
 # Type: full directory path
 DIR_HIGHER = ${output_dir}
