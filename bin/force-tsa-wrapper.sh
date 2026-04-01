@@ -5,24 +5,26 @@ set -x
 # parse parameter and replace defaults in env
 # list parameters are passed as comma-separated values: MIN,MAX,Q50
 
+export name=
 export input_data_dir=
-export time_range=
-export doy_range=1,366
+export date_range=
+export doy_range=1,365
 export x_tile_range=-999,9999
 export y_tile_range=-999,9999
 export file_tile=NULL
 export chunk_size=7500,7500
 export resolution=20
+export reduce_psf=false
 export use_l2_improphe=false
 export sensors=SEN2A,SEN2B,SEN2C
-export target_sensors=SEN2L
+export target_sensor=SEN2L
 export product_type_main=BOA
 export product_type_quality=QAI
 export spectral_adjust=false
 export screen_qai=NODATA,CLOUD_OPAQUE,CLOUD_BUFFER,CLOUD_CIRRUS,CLOUD_SHADOW,SNOW,SUBZERO,SATURATION
 export above_noise=0
 export below_noise=0
-export index=NULL
+export index=NDVI,EVI,NBR
 export standardize_tss=NONE
 export output_tss=false
 export interpolate=NONE
@@ -33,12 +35,13 @@ export harmonic_trend=false
 export harmonic_modes=3
 export harmonic_fit_range=
 export output_nrt=false
-export int_days=16
+export int_day=16
 export standardize_tsi=NONE
 export output_tsi=false
 export output_stm=false
 export stm=
 export fold_type=AVG
+export standardize_fold=NONE
 export output_fby=false
 export output_fbq=false
 export output_fbm=false
@@ -58,7 +61,7 @@ export pol_start_threshold=0.2
 export pol_mid_threshold=0.5
 export pol_end_threshold=0.8
 export pol_adaptive=false
-export pol=
+export pol=VSS,VPS,VES,VSA,RMR,IGS
 export standardize_pol=NONE
 export output_pct=false
 export output_pol=false
@@ -69,6 +72,7 @@ export trend_conf=0.95
 export change_penalty=false
 export output_format=GTiff
 export output_explode=false
+export output_subfolders=false
 export fail_if_empty=false
 
 ERROR_INCORRECT_INPUT=3
@@ -86,22 +90,30 @@ gen-stac() {
 
 while [ "$1" != "" ]; do
     if [ "${1:0:2}" = "--" ]; then
-        declare ${1:2}="${2//,/ }"
-        export ${1:2}
-        shift 2
+        if [ "$2" = "" -o "${2:0:2}" = "--" ]; then
+            declare ${1:2}=TRUE
+            export ${1:2}
+            shift 1
+        else
+            declare ${1:2}="${2//,/ }"
+            export ${1:2}
+            shift 2
+        fi
       else
+        echo "unexpected parameters $*"
         exit $ERROR_INCORRECT_INPUT
     fi
 done
 
-if [ "$time_range" = "" ]; then
-    echo "missing time_range"
+if [ "$date_range" = "" ]; then
+    echo "missing date_range"
     exit 4
-elfi [ "$dir_input_data" = "" ]; then
-    echo "missing dir_input_data"
+elif [ "$input_data_dir" = "" ]; then
+    echo "missing input_data_dir"
     exit 4
 fi
 
+export reduce_psf=${reduce_psf^^}
 export use_l2_improphe=${use_l2_improphe^^}
 export spectral_adjust=${spectral_adjust^^}
 export output_tss=${output_tss^^}
@@ -131,16 +143,22 @@ export output_tro=${output_tro^^}
 export output_cao=${output_cao^^}
 export change_penalty=${change_penalty^^}
 export output_explode=${output_explode^^}
+export output_subfolders=${output_subfolders^^}
 export fail_if_empty=${fail_if_empty^^}
 
-export output_dir="outputs/hlps-tsa"
-export provenance_dir="outputs/provenance"
+default_name=cube-$(date -u +%Y%m%dT%H%M)
+export processing_name=${name:-$default_name}
+
+ls -l
+ls -l /tmp
+
+export output_dir="."
+export provenance_dir="/tmp/provenance"
 
 parameter_template="/opt/apex-force-wrapper/etc/force-tsa-parameters.template"
-filled_parameter_path="param/force-tsa-parameters.prm"
-output_dir="outputs/hlps-tsa"
-provenance_dir="outputs/provenance"
-stac_output_dir="outputs/stac"
+filled_parameter_path="/tmp/force-tsa-parameters.prm"
+output_dir="."
+stac_output_dir="."
 
 mkdir -p $(dirname "$filled_parameter_path")
 mkdir -p "$output_dir"
@@ -155,4 +173,6 @@ fi
 
 # create stac catalog for outputs
 
-gen-stac "$output_dir" --output-path "$stac_output_dir" --id-prefix ""
+gen-stac "$output_dir" --output-path "$stac_output_dir" --item-id "$processing_name-tsa"
+
+find . -ls

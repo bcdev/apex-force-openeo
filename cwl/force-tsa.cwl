@@ -14,7 +14,7 @@ requirements:
     coresMax: 4
   SchemaDefRequirement:
     types:
-      - $import: force-tsa-parameter-schema.yaml
+      - $import: force-enums.yml
 baseCommand: /opt/apex-force-wrapper/bin/force-tsa-wrapper.sh
 # Inputs are defined in the FORCE documentation: https://force-eo.readthedocs.io/en/stable/components/higher-level/tsa/param.html
 inputs:
@@ -23,54 +23,59 @@ inputs:
     inputBinding:
       prefix: --input_data_dir
 
+  name:
+    type: string?
+    inputBinding:
+      prefix: --name
+
   date_range:
     type: string[]
-    itemSeparator: ","
     inputBinding:
       prefix: --date_range
+      itemSeparator: ","
 
   doy_range:
     type: int[]
-    itemSeparator: ","
     inputBinding:
       prefix: --doy_range
+      itemSeparator: ","
     default:
       - 1
-      - 366
+      - 365
 
   x_tile_range:
     type: int[]
-    itemSeparator: ","
     inputBinding:
       prefix: --x_tile_range
+      itemSeparator: ","
     default:
       - -999
       - 9999
 
   y_tile_range:
     type: int[]
-    itemSeparator: ","
     inputBinding:
       prefix: --y_tile_range
+      itemSeparator: ","
     default:
       - -999
       - 9999
 
   file_tile:
     type: string[]
-    itemSeparator: ","
     inputBinding:
       prefix: --file_tile
+      itemSeparator: ","
     default: NULL
 
   chunk_size:
     type: int[]
-    itemSeparator: ","
     inputBinding:
       prefix: --chunk_size
+      itemSeparator: ","
     default:
-      - 0
-      - 0
+      - 7500
+      - 7500
 
   resolution:
     type: int
@@ -94,16 +99,16 @@ inputs:
     type: force-enums.yml#sensors_type[]
     inputBinding:
       prefix: --sensors
-    itemSeparator: ","
+      itemSeparator: ","
     default:
       - SEN2A
       - SEN2B
       - SEN2C
 
-  target_sensors:
+  target_sensor:
     type: force-enums.yml#sensors_type
     inputBinding:
-      prefix: --target_sensors
+      prefix: --target_sensor
     default: SEN2L
 
   product_type_main:
@@ -128,7 +133,7 @@ inputs:
     type: force-enums.yml#screen_qai_type[]
     inputBinding:
       prefix: --screen_qai
-    itemSeparator: ","
+      itemSeparator: ","
     default:
       - NODATA
       - CLOUD_OPAQUE
@@ -155,8 +160,11 @@ inputs:
     type: force-enums.yml#index_type[]
     inputBinding:
       prefix: --index
-    itemSeparator: ","
-    default: NULL
+      itemSeparator: ","
+    default:
+      - NDVI
+      - EVI
+      - NBR
 
   standardize_tss:
     type: force-enums.yml#standardize_type
@@ -186,7 +194,7 @@ inputs:
     type: int[]
     inputBinding:
       prefix: --rbf_sigma
-    itemSeparator: ","
+      itemSeparator: ","
     default:
      - 8
      - 16
@@ -214,7 +222,7 @@ inputs:
     type: string[]
     inputBinding:
       prefix: --harmonic_fit_range
-    itemSeparator: ","
+      itemSeparator: ","
     default:
       - 1970-01-01
       - 2099-01-01
@@ -225,10 +233,10 @@ inputs:
       prefix: --output_nrt
     default: false
 
-  int_days:
+  int_day:
     type: int
     inputBinding:
-      prefix: --int_days
+      prefix: --int_day
     default: 16
 
   standardize_tsi:
@@ -253,15 +261,22 @@ inputs:
     type: force-enums.yml#stm_type[]
     inputBinding:
       prefix: --stm
-    itemSeparator: ","
+      itemSeparator: ","
     default: NONE
 
   fold_type:
     type: force-enums.yml#fold_type_type[]
     inputBinding:
       prefix: --fold_type
-    itemSeparator: ","
-    default: AVG
+      itemSeparator: ","
+    default:
+      - AVG
+
+  standardize_fold:
+    type: force-enums.yml#standardize_type
+    inputBinding:
+      prefix: --standardize_fold
+    default: NONE
 
   output_fby:
     type: boolean
@@ -381,11 +396,17 @@ inputs:
     type: force-enums.yml#pol_type[]
     inputBinding:
       prefix: --pol
-    itemSeparator: ","
-    default: NULL
+      itemSeparator: ","
+    default:
+      - VSS
+      - VPS
+      - VES
+      - VSA
+      - RMR
+      - IGS
 
   standardize_pol:
-    type: string
+    type: force-enums.yml#standardize_type
     inputBinding:
       prefix: --standardize_pol
     default: NONE
@@ -454,13 +475,4 @@ outputs:
   tsa_cube:
     type: Directory
     outputBinding:
-      glob: "outputs/hlps-tsa"
-  stac_catalog:
-    type: File
-    outputBinding:
-      glob: "outputs/stac/catalog.json"
-  stac_items:
-    type: Directory
-    outputBinding:
-      glob: "outputs/stac/*hlps-tsa"
-
+      glob: "."

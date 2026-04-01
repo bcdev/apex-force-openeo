@@ -5,7 +5,7 @@
   symbols:
     - SEN2A
     - SEN2B
-    - SEN3C
+    - SEN2C
     - SEN2L
 -
   type: enum

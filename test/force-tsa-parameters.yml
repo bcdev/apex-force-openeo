@@ -1,6 +1,9 @@
+name: emilia-romagna
 input_data_dir:
   class: Directory
-  path: l2-ard
-date_range: [2025-04-01,2025-06-30]
+  path: /data/integration/force/test3/l2-ard/europe
+date_range: [2024-04-01,2024-06-30]
+x_tile_range: [31,32]
+y_tile_range: [29,30]
 output_stm: true
 stm: [MIN,AVG,Q50,STD]

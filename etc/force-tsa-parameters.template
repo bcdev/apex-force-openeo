@@ -85,7 +85,7 @@ STREAMING = TRUE
 # If disabled (FALSE), the progress information will be simply be appended
 # on screen (stdout).
 # Type: Logical. Valid values: {TRUE,FALSE}
-PRETTY_PROGRESS = FALSE
+PRETTY_PROGRESS = TRUE
 
 # PROCESSING EXTENT AND RESOLUTION
 # ------------------------------------------------------------------------
