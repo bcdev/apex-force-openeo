@@ -1,0 +1,6 @@
+input_data_dir:
+  class: Directory
+  path: l2-ard
+date_range: [2025-04-01,2025-06-30]
+output_stm: true
+stm: [MIN,AVG,Q50,STD]
