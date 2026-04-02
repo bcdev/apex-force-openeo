@@ -1,5 +1,6 @@
 cwlVersion: v1.2
 
+$import: docker-requirement.cwl
 class: CommandLineTool
 requirements:
   NetworkAccess:

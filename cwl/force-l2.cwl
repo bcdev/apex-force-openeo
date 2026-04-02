@@ -9,12 +9,9 @@ cwlVersion: v1.2
 # export AWS_SECRET_ACCESS_KEY=...
 # cwltool --preserve-environment=AWS_ENDPOINT_URL_S3 --preserve-environment=AWS_ACCESS_KEY_ID --preserve-environment=AWS_SECRET_ACCESS_KEY --force-docker-pull --leave-container --leave-tmpdir --tmpdir-prefix=$HOME/tmp/ material/force-l2.cwl
 
+$import: docker-requirement.cwl
 class: CommandLineTool
 requirements:
-  DockerRequirement:
-#    dockerPull: registry.stag.warsaw.openeo.dataspace.copernicus.eu/rand/force-eoap:0.0.7
-    dockerPull: quay.io/bcdev/force-eoap:0.0.11
-#    dockerImageId: quay.io/bcdev/force-eoap:0.0.11
   NetworkAccess:
      networkAccess: true
   ResourceRequirement:
