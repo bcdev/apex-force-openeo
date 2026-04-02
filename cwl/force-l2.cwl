@@ -9,7 +9,6 @@ cwlVersion: v1.2
 # export AWS_SECRET_ACCESS_KEY=...
 # cwltool --preserve-environment=AWS_ENDPOINT_URL_S3 --preserve-environment=AWS_ACCESS_KEY_ID --preserve-environment=AWS_SECRET_ACCESS_KEY --force-docker-pull --leave-container --leave-tmpdir --tmpdir-prefix=$HOME/tmp/ material/force-l2.cwl
 
-$import: docker-requirement.cwl
 class: CommandLineTool
 requirements:
   NetworkAccess:
@@ -19,6 +18,10 @@ requirements:
     ramMax: 8192
     coresMin: 1
     coresMax: 4
+  DockerRequirement:
+    dockerPull:
+      $include: docker-requirement.yaml
+
 baseCommand: /opt/apex-force-wrapper/bin/force-level2-wrapper.sh
 inputs:
   input:

@@ -1,6 +1,5 @@
 cwlVersion: v1.2
 
-$import: docker-requirement.cwl
 class: CommandLineTool
 requirements:
   NetworkAccess:
@@ -14,6 +13,10 @@ requirements:
   SchemaDefRequirement:
     types:
       - $import: force-tsa-parameter-schema.yaml
+  DockerRequirement:
+    dockerPull:
+      $include: docker-requirement.yaml
+
 baseCommand: /opt/apex-force-wrapper/bin/force-tsa-wrapper.sh
 # Inputs are defined in the FORCE documentation: https://force-eo.readthedocs.io/en/stable/components/higher-level/tsa/param.html
 inputs:
