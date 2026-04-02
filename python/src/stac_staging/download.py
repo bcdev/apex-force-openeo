@@ -82,6 +82,7 @@ async def _download_assets_async(
 ):
     tasks = []
     for asset_key, asset in assets.items():
+        # TODO fails if no file:local_path attribute exists
         download_path = (
             output_path_base / asset.extra_fields["file:local_path"]
         ).resolve()
