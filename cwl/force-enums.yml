@@ -1,0 +1,208 @@
+-
+  type: enum
+  name: sensors_type
+  label: Sensor or identifier for sensor combination
+  symbols:
+    - SEN2A
+    - SEN2B
+    - SEN2C
+    - SEN2L
+-
+  type: enum
+  name: screen_qai_type
+  label: Quality flag
+  symbols:
+    - NODATA
+    - CLOUD_OPAQUE
+    - CLOUD_BUFFER
+    - CLOUD_CIRRUS
+    - CLOUD_SHADOW
+    - SNOW
+    - WATER
+    - AOD_FILL
+    - AOD_HIGH
+    - AOD_INT
+    - SUBZERO
+    - SATURATION
+    - SUN_LOW
+    - ILLUMIN_NONE
+    - ILLUMIN_POOR
+    - ILLUMIN_LOW
+    - SLOPED
+    - WVP_NONE
+-
+  type: enum
+  name: index_type
+  label: Normalised index or band name
+  symbols:
+    - B1
+    - B2
+    - B3
+    - B4
+    - B5
+    - B6
+    - B7
+    - B8
+    - B8A
+    - B9
+    - B10
+    - B11
+    - B12
+    - SMA
+    - NDVI
+    - EVI
+    - NBR
+    - NDTI
+    - ARVI
+    - SAVI
+    - SARVI
+    - TC-BRIGHT
+    - TC-GREEN
+    - TC-WET
+    - TC-DI
+    - NDBI
+    - NDWI
+    - MNDWI
+    - NDMI
+    - NDSI
+    - kNDVI
+    - NDRE1
+    - NDRE2
+    - CIre
+    - NDVIre1
+    - NDVIre2
+    - NDVIre3
+    - NDVIre1n
+    - NDVIre2n
+    - NDVIre3n
+    - MSRre
+    - MSRren
+    - CCI
+    - EVI2
+    - ContRemSWIR
+-
+  type: enum
+  name: standardize_type
+  label: Normalise mode
+  symbols:
+    - NONE
+    - NORMALIZE
+    - CENTER
+-
+  type: enum
+  name: interpolate_type
+  label: Temporal interpolation method
+  symbols:
+    - NONE
+    - LINEAR
+    - MOVING
+    - RBF
+    - HARMONIC
+-
+  type: enum
+  name: stm_type
+  label: Spectral temporal metrics aggregator
+  symbols:
+    - MIN
+    - Q01
+    - Q05
+    - Q10
+    - Q20
+    - Q25
+    - Q30
+    - Q40
+    - Q50
+    - Q60
+    - Q70
+    - Q75
+    - Q80
+    - Q90
+    - Q95
+    - Q99
+    - MAX
+    - AVG
+    - STD
+    - RNG
+    - IQR
+    - SKW
+    - KRT
+    - NUM
+    - NONE
+-
+  type: enum
+  name: fold_type_type
+  label: Temporal folding aggregator
+  symbols:
+    - MIN
+    - Q10
+    - Q25
+    - Q50
+    - Q75
+    - Q90
+    - MAX
+    - AVG
+    - STD
+    - RNG
+    - IQR
+    - SKW
+    - KRT
+    - NUM
+-
+  type: enum
+  name: pol_type
+  label: Polarmetric
+  symbols:
+    - DEM
+    - DLM
+    - DPS
+    - DSS
+    - DMS
+    - DES
+    - DEV
+    - DAV
+    - DLV
+    - LTS
+    - LGS
+    - LGV
+    - VEM
+    - VLM
+    - VPS
+    - VSS
+    - VMS
+    - VES
+    - VEV
+    - VAV
+    - VLV
+    - VBL
+    - VGA
+    - VSA
+    - VPA
+    - VGM
+    - VGV
+    - DPY
+    - DPV
+    - IST
+    - IBL
+    - IBT
+    - IGS
+    - IRR
+    - IFR
+    - RAR
+    - RAF
+    - RMR
+    - RMF
+-
+  type: enum
+  name: trend_tail_type
+  label: Significance testing tail type for trend analysis
+  symbols:
+    - LEFT
+    - TWO
+    - RIGHT
+-
+  type: enum
+  name: output_format_type
+  label: Output file format
+  symbols:
+    - GTiff
+    - COG

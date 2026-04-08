@@ -4,13 +4,13 @@
 # ------------------------------------------------------------------------
 # Lower Level datapool (parent directory of tiled input data)
 # Type: full directory path
-DIR_LOWER = ${DIR_INPUT_DATA}
+DIR_LOWER = ${input_data_dir}
 # Higher Level datapool (parent directory of tiled output data)
 # Type: full directory path
-DIR_HIGHER = ${PWD}/outputs/hlps-tsa
+DIR_HIGHER = ${output_dir}
 # This is the directory where provenance files should be saved.
 # Type: full directory path
-DIR_PROVENANCE = ${PWD}/outputs/provenance
+DIR_PROVENANCE = ${provenance_dir}
 
 # MASKING
 # ------------------------------------------------------------------------
@@ -34,7 +34,7 @@ BASE_MASK = NULL
 # an external .aux.xml file is additionally generated.
 # Note that COG output is only possible when the chunk size matches the tile size.
 # Type: Character. Valid values: {ENVI,GTiff,COG,CUSTOM}
-OUTPUT_FORMAT = GTiff
+OUTPUT_FORMAT = ${output_format}
 # File that contains custom GDAL output options. This is only used if 
 # OUTPUT_FORMAT = CUSTOM. If OUTPUT_FORMAT = CUSTOM, this file is mandatory.
 # The file should be written in tag and value notation. The first two lines 
@@ -48,17 +48,17 @@ FILE_OUTPUT_OPTIONS = NULL
 # This parameter controls whether the output is written as multi-band image, or
 # if the stack will be exploded into single-band files.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_EXPLODE = FALSE
+OUTPUT_EXPLODE = ${output_explode}
 # This parameter controls whether the output is written in one folder,
 # or whether several subfolders per product type will be generated to better
 # structure the output.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_SUBFOLDERS = FALSE
+OUTPUT_SUBFOLDERS = ${output_subfolders}
 # This parameter controls whether FORCE raises a warning or an error 
 # if no read or written bytes are detected. The default (FALSE) will 
 # result in a warning.
 # Type: Logical. Valid values: {TRUE,FALSE}
-FAIL_IF_EMPTY = TRUE
+FAIL_IF_EMPTY = ${fail_if_empty}
 
 # PARALLEL PROCESSING
 # ------------------------------------------------------------------------
@@ -69,9 +69,9 @@ FAIL_IF_EMPTY = TRUE
 # output. Each team can have multiple sub-threads to speed up the work. The
 # number of threads to use for each team is given by following parameters.
 # Type: Integer. Valid range: [1,...
-NTHREAD_READ = 8
-NTHREAD_COMPUTE = 22
-NTHREAD_WRITE = 4
+NTHREAD_READ = 4
+NTHREAD_COMPUTE = 8
+NTHREAD_WRITE = 2
 # Use STREAMING = FALSE to disable streaming. This will perform reading, 
 # computing and writing after one another in sequential mode.
 # Each operation will still be parallelized with above settings.
@@ -85,7 +85,7 @@ STREAMING = TRUE
 # If disabled (FALSE), the progress information will be simply be appended
 # on screen (stdout).
 # Type: Logical. Valid values: {TRUE,FALSE}
-PRETTY_PROGRESS = FALSE
+PRETTY_PROGRESS = TRUE
 
 # PROCESSING EXTENT AND RESOLUTION
 # ------------------------------------------------------------------------
@@ -93,18 +93,15 @@ PRETTY_PROGRESS = FALSE
 # Each existing tile falling into this square extent will be processed
 # A shapefile of the tiles can be generated with force-tabulate-grid
 # Type: Integer list. Valid range: [-999,9999]
-# TODO
-#X_TILE_RANGE = ${X_TILE_RANGE}
-#Y_TILE_RANGE = ${Y_TILE_RANGE}
-X_TILE_RANGE = 31 32
-Y_TILE_RANGE = 29 30
+X_TILE_RANGE = ${x_tile_range}
+Y_TILE_RANGE = ${y_tile_range}
 # Allow-list of tiles. Can be used to further limit the analysis extent to
 # non-square extents. The allow-list is intersected with the analysis extent,
 # i.e. only tiles included in both the analysis extent AND the allow-list will
 # be processed.
 # Optional. If NULL, the complete analysis extent is processed
 # Type: full file path
-FILE_TILE = NULL
+FILE_TILE = ${file_tile}
 # This parameter is used to define the size of the sub-tile processing units.
 # Most efficient is to use a chunk size that coincides with the tile size. Using
 # smaller chunks may be necessary if you cannot fit all necessary data into RAM.
@@ -113,24 +110,24 @@ FILE_TILE = NULL
 # parameter is not permitted anymore.
 # Type: Integer list. Valid range: ]0,TILE_SIZE]
 # TODO read by default from input
-CHUNK_SIZE = 30000 30000
+CHUNK_SIZE = ${chunk_size}
 # Analysis resolution. The tile (and chunk) size must be dividable by this
 # resolution without remainder, e.g. 30m resolution with 100km tiles is not possible
 # Type: Double. Valid range: ]0,CHUNK_SIZE]
-RESOLUTION = 10
+RESOLUTION = ${resolution}
 # How to reduce spatial resolution for cases when the image resolution is higher
 # than the analysis resolution. If FALSE, the resolution is degraded using Nearest
 # Neighbor resampling (fast). If TRUE, an approx. Point Spread Function (Gaussian
 # lowpass with FWHM = analysis resolution) is used to approximate the acquisition
 # of data at lower spatial resolution
 # Type: Logical. Valid values: {TRUE,FALSE}
-REDUCE_PSF = FALSE
+REDUCE_PSF = ${reduce_psf}
 # If you have spatially enhanced some Level 2 ARD using the FORCE Level 2 ImproPhe
 # module, this switch specifies whether the data are used at original (FALSE) or
 # enhanced spatial resolution (TRUE). If there are no improphe'd products, this
 # switch doesn't have any effect
 # Type: Logical. Valid values: {TRUE,FALSE}
-USE_L2_IMPROPHE = FALSE
+USE_L2_IMPROPHE = ${use_l2_improphe}
 
 # SENSOR ALLOW-LIST
 # ------------------------------------------------------------------------
@@ -138,21 +135,21 @@ USE_L2_IMPROPHE = FALSE
 # to the overlapping bands. Each sensor needs a sensor definition in the runtime-data
 # directory. New sensors can be added by the user. New bandnames can be added, too.
 # Type: Character list.
-SENSORS = SEN2A SEN2B SEN2C
+SENSORS = ${sensors}
 # Target sensor that represents the combination of input sensors.
 # A sensor definition for this target sensor needs to exist to make sure that processing
 # those outputs will be possible. For example, if you combine Landsat 8 and Sentinel-2,
 # the target sensor containing the overlapping bands could be LNDLG. If only using Sentinel-2
 # sensors, the target sensor could be SEN2L. Valid values are the same as for SENSORS.
 # Type: Character list.
-TARGET_SENSOR = SEN2L
+TARGET_SENSOR = ${target_sensor}
 # Main product type to be used. Usually, this is a reflectance product like BOA.
 # When using composites, you may use BAP. This can be anything, but make sure that
 # the string can uniquely identify your product. As an example, do not use LEVEL2.
 # Note that the product should contain the bands that are to be expected with the
 # sensor used, e.g. 10 bands when sensor is SEN2A.
 # Type: Character. Valid values: {BOA,TOA,IMP,BAP,SIG,...}
-PRODUCT_TYPE_MAIN = BOA
+PRODUCT_TYPE_MAIN = ${product_type_main}
 # Quality product type to be used. This should be a bit flag product like QAI.
 # When using composites, you may use INF. This can be anything, but make sure that
 # the product should contain quality bit flags as outputted by FORCE L2PS.
@@ -160,7 +157,7 @@ PRODUCT_TYPE_MAIN = BOA
 # In this case, FORCE will only be able to filter nodata values, but no other quality
 # flags as defined with SCREEN_QAI.
 # Type: Character. Valid values: {QAI,INF,NULL,...}
-PRODUCT_TYPE_QUALITY = QAI
+PRODUCT_TYPE_QUALITY = ${product_type_quality}
 # Perform a spectral adjustment to Sentinel-2?
 # This method can only be used with following sensors: SEN2A, SEN2B, SEN2C, SEN2D,LND04, LND05, LND07, 
 # LND08, LND09, MOD01, MOD02.
@@ -168,7 +165,7 @@ PRODUCT_TYPE_QUALITY = QAI
 # spectral response of any of these sensors to Sentinel-2A. Non-existent bands will be 
 # predicted, too.
 # Type: Logical. Valid values: {TRUE,FALSE}
-SPECTRAL_ADJUST = FALSE
+SPECTRAL_ADJUST = ${spectral_adjust}
 
 # QAI SCREENING
 # ------------------------------------------------------------------------
@@ -176,7 +173,7 @@ SPECTRAL_ADJUST = FALSE
 # Type: Character list. Valid values: {NODATA,CLOUD_OPAQUE,CLOUD_BUFFER,
 #   CLOUD_CIRRUS,CLOUD_SHADOW,SNOW,WATER,AOD_FILL,AOD_HIGH,AOD_INT,SUBZERO,
 #   SATURATION,SUN_LOW,ILLUMIN_NONE,ILLUMIN_POOR,ILLUMIN_LOW,SLOPED,WVP_NONE}
-SCREEN_QAI = NODATA CLOUD_OPAQUE CLOUD_BUFFER CLOUD_CIRRUS CLOUD_SHADOW SNOW SUBZERO SATURATION
+SCREEN_QAI = ${screen_qai}
 # Threshold for removing outliers. Triplets of observations are used to determine
 # the overall noise in the time series by computing linearly interpolating between
 # the bracketing observations. The RMSE of the residual between the middle value
@@ -189,15 +186,15 @@ SCREEN_QAI = NODATA CLOUD_OPAQUE CLOUD_BUFFER CLOUD_CIRRUS CLOUD_SHADOW SNOW SUB
 # sively/conservative. Give 0 to both parameters to disable the filtering.
 # ABOVE_NOISE = 3, BELOW_NOISE = 1 are parameters that have worked in some settings.
 # Type: Float. Valid range: [0,...
-ABOVE_NOISE = 0
-BELOW_NOISE = 0
+ABOVE_NOISE = ${above_noise}
+BELOW_NOISE = ${below_noise}
 
 # PROCESSING TIMEFRAME
 # ------------------------------------------------------------------------
 # Time extent for the analysis. All data between these dates will be used in
 # the analysis.
 # Type: Date list. Format: YYYY-MM-DD
-DATE_RANGE = ${DATE_RANGE_START} ${DATE_RANGE_END}
+DATE_RANGE = ${date_range}
 # DOY range for filtering the time extent. Day-of-Years that are outside of
 # the given interval will be ignored. Example: DATE_RANGE = 2010-01-01 
 # 2019-12-31, DOY_RANGE = 91 273 will use all April-September observations from
@@ -205,7 +202,7 @@ DATE_RANGE = ${DATE_RANGE_START} ${DATE_RANGE_END}
 # DOY max. Example: DATE_RANGE = 2010-01-01 2019-12-31, DOY_RANGE = 274 90 
 # will use all October-March observations from 2010-2019.
 # Type: Integer list. Valid values: [1,365]
-DOY_RANGE = 1 365
+DOY_RANGE = ${doy_range}
 # Landsat 7 was de-orbited in 2019. Landsat 7 data might be available
 # in your data cube even though you might not want to use it anymore.
 # This parameters sets the date after which Landsat 7 data should be ignored.
@@ -217,14 +214,14 @@ DATE_IGNORE_LANDSAT_7 = 2099-12-31
 # Any index defined in indices.json can be used, as well as SMA,
 # or any band name present in the SENSORS band combination
 # Type: Character list.
-INDEX = NDVI EVI NBR
+INDEX = ${index}
 # Standardize the TSS time series with pixel mean and/or standard deviation?
 # Type: Logical. Valid values: {NONE,NORMALIZE,CENTER}
-STANDARDIZE_TSS = NONE
+STANDARDIZE_TSS = ${standardize_tss}
 # Output the quality-screened Time Series Stack? This is a layer stack of
 # index values for each date.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_TSS = FALSE
+OUTPUT_TSS = ${output_tss}
 
 # SPECTRAL MIXTURE ANALYSIS
 # ------------------------------------------------------------------------
@@ -258,11 +255,11 @@ OUTPUT_RMS = FALSE
 # Radial Basis Function or harmonic Interpolation.
 # Harmonic interpolation can be used as a simple near-real time monitoring component.
 # Type: Character. Valid values: {NONE,LINEAR,MOVING,RBF,HARMONIC}
-INTERPOLATE = NONE
+INTERPOLATE = ${interpolate}
 # Max temporal distance for the moving average filter in days. For each
 # interpolation date, MOVING_MAX days before and after are considered.
 # Type: Integer. Valid range: [1,365]
-MOVING_MAX = 16
+MOVING_MAX = ${moving_max}
 # Sigma (width of the Gaussian bell) for the RBF filter in days. For each
 # interpolation date, a Gaussian kernel is used to smooth the observations.
 # The smoothing effect is stronger with larger kernels and the chance of
@@ -272,44 +269,44 @@ MOVING_MAX = 16
 # sizes. The kernels are weighted according to the data density within each
 # kernel.
 # Type: Integer list. Valid range: [1,365]
-RBF_SIGMA = 8 16 32
+RBF_SIGMA = ${rbf_sigma}
 # Cutoff density for the RBF filter. The Gaussian kernels have infinite width,
 # which is computationally slow, and doesn't make much sense as observations
 # that are way too distant (in terms of time) are considered. Thus, the
 # tails of the kernel are cut off. This parameter specifies, which percen-
 # tage of the area under the Gaussian should be used.
 # Type: Float. Valid range: ]0,1]
-RBF_CUTOFF = 0.95
+RBF_CUTOFF = ${rbf_cutoff}
 # Should a monotonic trend be considered in the harmonic interpolation?
 # Type: Logical. Valid values: {TRUE,FALSE}
-HARMONIC_TREND = TRUE
+HARMONIC_TREND = ${harmonic_trend}
 # Definition of how many modes per season are used for harmonic interpolation,
 # i.e. uni-modal (1), bi-modal (2), or tri-modal (3).
 # Type: Integer. Valid range: {1,2,3}
-HARMONIC_MODES = 3
+HARMONIC_MODES = ${harmonic_modes}
 # Subset of the time period to which the harmonic should be fitted.
 # For example, if the analysis timeframe is DATE_RANGE = 2015-01-01 2022-06-20,
 # all data from 2015-2022 will be considered. If HARMONIC_FIT_RANGE = 2015-01-01 2017-12-31,
 # the harmonic will only be fitted to the first 3 years of data.
 # Type: Date list. Format: YYYY-MM-DD
-HARMONIC_FIT_RANGE = 2015-01-01 2017-12-31
+HARMONIC_FIT_RANGE = ${harmonic_fit_range}
 # Output of the near-real time product?
 # The product will contain the residual between the extrapolated harmonic and the actual data
 # following the defined end of the harmonic fit range.
 # This option requires harmonic interpolation (INTERPOLATE) and a forecast period (HARMONIC_FIT_RANGE).
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_NRT = FALSE
+OUTPUT_NRT = ${output_nrt}
 # This parameter gives the interpolation step in days.
 # Type: Integer. Valid range: [1,...
-INT_DAY = 16
+INT_DAY = ${int_day}
 # Standardize the TSI time series with pixel mean and/or standard deviation?
 # Type: Logical. Valid values: {NONE,NORMALIZE,CENTER}
-STANDARDIZE_TSI = NONE
+STANDARDIZE_TSI = ${standardize_tsi}
 # Output the Time Series Interpolation? This is a layer stack of index
 # values for each interpolated date. Note that interpolation will be per-
 # formed even if OUTPUT_TSI = FALSE - unless you specify INTERPOLATE = NONE.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_TSI = FALSE
+OUTPUT_TSI = ${output_tsi}
 
 # PYTHON UDF PARAMETERS
 # ------------------------------------------------------------------------
@@ -358,14 +355,14 @@ OUTPUT_RSP = FALSE
 # Output Spectral Temporal Metrics? The remaining parameters in this block
 # are only evaluated if TRUE
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_STM = TRUE # FIXME only supported option, so can always be true
+OUTPUT_STM = ${output_stm}
 # Which Spectral Temporal Metrics should be computed? The STM output files
 # will have as many bands as you specify metrics (in the same order).
 # Currently available statistics are the average, standard deviation, mini-
 # mum, maximum, range, skewness, kurtosis, any quantile from 1-99%, and
 # interquartile range. Note that median is Q50.
 # Type: Character list. Valid values: {MIN,Q01-Q99,MAX,AVG,STD,RNG,IQR,SKW,KRT,NUM}
-STM = ${STM}
+STM = ${stm}
 
 # FOLDING PARAMETERS
 # ------------------------------------------------------------------------
@@ -376,37 +373,37 @@ STM = ${STM}
 # and interquartile range
 # Type: Character. Valid values: {MIN,Q10,Q25,Q50,Q75,Q90,MAX,AVG,STD,
 #   RNG,IQR,SKW,KRT,NUM}
-FOLD_TYPE = AVG
+FOLD_TYPE = ${fold_type}
 # Standardize the FB* time series with pixel mean and/or standard deviation?
 # Type: Logical. Valid values: {NONE,NORMALIZE,CENTER}
-STANDARDIZE_FOLD = NONE
+STANDARDIZE_FOLD = ${standardize_fold}
 # Output the Fold-by-Year/Quarter/Month/Week/DOY time series? These are layer
 # stacks of folded index values for each year, quarter, month, week or DOY.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_FBY = FALSE
-OUTPUT_FBQ = FALSE
-OUTPUT_FBM = FALSE
-OUTPUT_FBW = FALSE
-OUTPUT_FBD = FALSE
+OUTPUT_FBY = ${output_fby}
+OUTPUT_FBQ = ${output_fbq}
+OUTPUT_FBM = ${output_fbm}
+OUTPUT_FBW = ${output_fbw}
+OUTPUT_FBD = ${output_fbd}
 # Compute and output a linear trend analysis on any of the folded time series?
 # Note that the OUTPUT_FBX parameters don't need to be TRUE to do this.
 # See also the TREND PARAMETERS block below.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_TRY = FALSE
-OUTPUT_TRQ = FALSE
-OUTPUT_TRM = FALSE
-OUTPUT_TRW = FALSE
-OUTPUT_TRD = FALSE
+OUTPUT_TRY = ${output_try}
+OUTPUT_TRQ = ${output_trq}
+OUTPUT_TRM = ${output_trm}
+OUTPUT_TRW = ${output_trw}
+OUTPUT_TRD = ${output_trd}
 # Compute and output an extended Change, Aftereffect, Trend (CAT) analysis on
 # any of the folded time series?
 # Note that the OUTPUT_FBX parameters don't need to be TRUE to do this.
 # See also the TREND PARAMETERS block below.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_CAY = FALSE
-OUTPUT_CAQ = FALSE
-OUTPUT_CAM = FALSE
-OUTPUT_CAW = FALSE
-OUTPUT_CAD = FALSE
+OUTPUT_CAY = ${output_cay}
+OUTPUT_CAQ = ${output_caq}
+OUTPUT_CAM = ${output_cam}
+OUTPUT_CAW = ${output_caw}
+OUTPUT_CAD = ${output_cad}
 
 # LAND SURFACE PHENOLOGY PARAMETERS - POLAR-BASED
 # ------------------------------------------------------------------------
@@ -414,19 +411,19 @@ OUTPUT_CAD = FALSE
 # ------------------------------------------------------------------------
 # Threshold for detecing Start of Season in the cumulative time series.
 # Type: Float. Valid range: ]0,1[
-POL_START_THRESHOLD = 0.2
+POL_START_THRESHOLD = ${pol_start_threshold}
 # Threshold for detecing Mid of Season in the cumulative time series.
 # Type: Float. Valid range: ]0,1[
-POL_MID_THRESHOLD = 0.5
+POL_MID_THRESHOLD = ${pol_mid_threshold}
 # Threshold for detecing End of Season in the cumulative time series.
 # Type: Float. Valid range: ]0,1[
-POL_END_THRESHOLD = 0.8
+POL_END_THRESHOLD = ${pol_end_threshold}
 # Should the start of each phenological year be adapated?
 # If FALSE, the start is static, i.e. Date of Early Minimum and Date of Late
 # Minimum are the same for all years and 365 days apart. If TRUE, they differ
 # from year to year and a phenological year is not forced to be 365 days long.
 # Type: Logical. Valid values: {TRUE,FALSE}
-POL_ADAPTIVE = TRUE
+POL_ADAPTIVE = ${pol_adaptive}
 # Which Polarmetrics should be computed? There will be a POL output file for
 # each metric (with years as bands).
 # Currently available are the dates of the early minimum, late minimum, peak of season,
@@ -442,30 +439,30 @@ POL_ADAPTIVE = TRUE
 # Type: Character list. Valid values: {DEM,DLM,DPS,DSS,DMS,DES,DEV,DAV,DLV,LTS,
 #   LGS,LGV,VEM,VLM,VPS,VSS,VMS,VES,VEV,VAV,VLV,VBL,VGA,VSA,VPA,VGM,VGV,DPY,DPV,
 #   IST,IBL,IBT,IGS,IRR,IFR,RAR,RAF,RMR,RMF}
-POL = VSS VPS VES VSA RMR IGS
+POL = ${pol}
 # Standardize the POL time series with pixel mean and/or standard deviation?
 # Type: Logical. Valid values: {NONE,NORMALIZE,CENTER}
-STANDARDIZE_POL = NONE
+STANDARDIZE_POL = ${standardize_pol}
 # Output the polar-transformed time series? These are layer stack of cartesian X-
 # and Y-coordinates for each interpolated date. This results in two files, product
 # IDs are PCX and PCY.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_PCT = FALSE
+OUTPUT_PCT = ${output_pct}
 # Output the Polarmetrics? These are layer stacks per polarmetric with as many
 # bands as years.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_POL = FALSE
+OUTPUT_POL = ${output_pol}
 # Compute and output a linear trend analysis on the requested Polarmetric time
 # series? Note that the OUTPUT_POL parameters don't need to be TRUE to do this.
 # See also the TREND PARAMETERS block below.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_TRO = FALSE
+OUTPUT_TRO = ${output_tro}
 # Compute and output an extended Change, Aftereffect, Trend (CAT) analysis on
 # the requested Polarmetric time series?
 # Note that the OUTPUT_POL parameters don't need to be TRUE to do this.
 # See also the TREND PARAMETERS block below.
 # Type: Logical. Valid values: {TRUE,FALSE}
-OUTPUT_CAO = FALSE
+OUTPUT_CAO = ${output_cao}
 
 # TREND PARAMETERS
 # ------------------------------------------------------------------------
@@ -473,14 +470,14 @@ OUTPUT_CAO = FALSE
 # the slope in the trend analysis. A left-, two-, or right-tailed t-test
 # is performed.
 # Type: Character. Valid values: {LEFT,TWO,RIGHT}
-TREND_TAIL = TWO
+TREND_TAIL = ${trend_tail}
 # Confidence level for significance testing of the slope in the trend analysis
 # Type: Float. Valid range: [0,1]
-TREND_CONF = 0.95
+TREND_CONF = ${trend_conf}
 # In the Change, Aftereffect, Trend (CAT) analysis: do you want to 
 # put a penalty on non-permanent change for the change detection?
 # This can help to reduce the effect of outliers.
 # Type: Logical. Valid values: {TRUE,FALSE}
-CHANGE_PENALTY = FALSE
+CHANGE_PENALTY = ${change_penalty}
 
 ++PARAM_TSA_END++
