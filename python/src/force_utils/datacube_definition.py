@@ -51,7 +51,9 @@ class ForceDataCubeDefinition:
             self.tile_size = int(self._parse_data_cube_definition_entry(fp.readline(), float))
             self.block_size = int(self._parse_data_cube_definition_entry(fp.readline(), float))
         self.crs_rasterio = rasterio.CRS.from_wkt(self.projection_wkt)
-        self.layout_strategy = pystac.layout.CustomLayoutStrategy(item_func=lambda item,parent: item.id)
+        self.layout_strategy = pystac.layout.CustomLayoutStrategy(
+            item_func=lambda item, parent: Path(parent) / f"{item.id}.json"
+        )
 
     def compute_bounding_box(self) -> shapely.Polygon:
         tiles = list(self.iter_tiles())
@@ -97,7 +99,8 @@ class ForceDataCubeDefinition:
 
     def generate_stac(self, item_id: str) -> pystac.Catalog:
         catalog_id = "catalog"
-        catalog = pystac.Catalog(catalog_id, "description")
+        # TODO add description
+        catalog = pystac.Catalog(catalog_id, "description", strategy=self.layout_strategy)
         item = self._generate_stac_item(item_id=item_id)
         catalog.add_item(item, strategy=self.layout_strategy)
         return catalog
