@@ -2,4 +2,4 @@ cwltool:overrides:
   force-l2.cwl:
     requirements:
       DockerRequirement:
-        dockerImageId: "quay.io/bcdev/force-eoap:0.0.12"
+        dockerImageId: "quay.io/bcdev/force-eoap:0.0.13"

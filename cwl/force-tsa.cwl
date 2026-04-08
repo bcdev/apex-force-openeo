@@ -3,7 +3,7 @@ cwlVersion: v1.2
 class: CommandLineTool
 requirements:
   DockerRequirement:
-    dockerPull: quay.io/bcdev/force-eoap:0.0.12
+    dockerPull: quay.io/bcdev/force-eoap:0.0.13
   NetworkAccess:
     networkAccess: true # TODO is this needed, if we can download independently?
   ResourceRequirement:
