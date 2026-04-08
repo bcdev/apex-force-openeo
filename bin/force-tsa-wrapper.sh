@@ -149,16 +149,18 @@ export fail_if_empty=${fail_if_empty^^}
 default_name=cube-$(date -u +%Y%m%dT%H%M)
 export processing_name=${name:-$default_name}
 
-ls -l
-ls -l /tmp
-
-export output_dir="."
+export output_dir="outputs/force-tsa"
 export provenance_dir="/tmp/provenance"
+
+# use /tmp for all intermediates
+
+rm -f /tmp/outputs
+ln -s $(pwd) /tmp/outputs
+cd /tmp
 
 parameter_template="/opt/apex-force-wrapper/etc/force-tsa-parameters.template"
 filled_parameter_path="/tmp/force-tsa-parameters.prm"
-output_dir="."
-stac_output_dir="."
+stac_output_dir=$output_dir
 
 mkdir -p $(dirname "$filled_parameter_path")
 mkdir -p "$output_dir"
@@ -175,4 +177,4 @@ fi
 
 gen-stac "$output_dir" --output-path "$stac_output_dir" --item-id "$processing_name-tsa"
 
-find . -ls
+find $output_dir -ls

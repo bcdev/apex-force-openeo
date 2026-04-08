@@ -113,6 +113,7 @@ export output_ovv="${output_ovv^^}"
 
 # use /tmp for all intermediates
 
+rm -f /tmp/outputs
 ln -s $(pwd) /tmp/outputs
 cd /tmp
 

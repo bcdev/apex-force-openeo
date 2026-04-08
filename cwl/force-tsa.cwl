@@ -475,4 +475,4 @@ outputs:
   tsa_cube:
     type: Directory
     outputBinding:
-      glob: "."
+      glob: "force-tsa"
