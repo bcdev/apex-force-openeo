@@ -11,10 +11,6 @@ cwlVersion: v1.2
 
 class: CommandLineTool
 requirements:
-  DockerRequirement:
-#    dockerPull: registry.stag.warsaw.openeo.dataspace.copernicus.eu/rand/force-eoap:0.0.7
-    dockerPull: quay.io/bcdev/force-eoap:0.0.13
-#    dockerImageId: quay.io/bcdev/force-eoap:0.0.13
   NetworkAccess:
      networkAccess: true
   ResourceRequirement:
@@ -22,6 +18,10 @@ requirements:
     ramMax: 8192
     coresMin: 1
     coresMax: 4
+  DockerRequirement:
+    dockerPull:
+      $include: docker-requirement.yaml
+
 baseCommand: /opt/apex-force-wrapper/bin/force-level2-wrapper.sh
 inputs:
   input:

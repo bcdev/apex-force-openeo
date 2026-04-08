@@ -2,8 +2,6 @@ cwlVersion: v1.2
 
 class: CommandLineTool
 requirements:
-  DockerRequirement:
-    dockerPull: quay.io/bcdev/force-eoap:0.0.13
   NetworkAccess:
     networkAccess: true # TODO is this needed, if we can download independently?
   ResourceRequirement:
@@ -15,6 +13,10 @@ requirements:
   SchemaDefRequirement:
     types:
       - $import: force-enums.yml
+  DockerRequirement:
+    dockerPull:
+      $include: docker-requirement.yaml
+
 baseCommand: /opt/apex-force-wrapper/bin/force-tsa-wrapper.sh
 # Inputs are defined in the FORCE documentation: https://force-eo.readthedocs.io/en/stable/components/higher-level/tsa/param.html
 inputs:
