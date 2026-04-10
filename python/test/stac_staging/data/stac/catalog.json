@@ -13,6 +13,11 @@
       "rel": "item",
       "href": "./test_item/test_item.json",
       "type": "application/geo+json"
+    },
+    {
+      "rel": "self",
+      "href": "/home/hannes/code/apex-force-openeo/python/test/stac_staging/data/stac/catalog.json",
+      "type": "application/json"
     }
   ]
 }

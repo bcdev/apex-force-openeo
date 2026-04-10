@@ -1,4 +1,5 @@
-from typing import List
+import json
+from typing import List, Union
 
 import pystac
 
@@ -6,7 +7,7 @@ SUPPORTED_STAC_OBJECTS: List[str] = ["Item", "ItemCollection", "Catalog", "Colle
 
 
 def convert_stac_object_to_item_collection(
-    stac_obj: pystac.STACObject,
+    stac_obj: Union[pystac.STACObject, pystac.ItemCollection],
 ) -> pystac.ItemCollection:
     item_collection = None
     match type(stac_obj):
@@ -27,3 +28,33 @@ def convert_stac_object_to_item_collection(
             )
 
     return item_collection
+
+
+def try_read_stac_from_string(
+    string: str,
+) -> Union[pystac.ItemCollection, pystac.STACObject]:
+    """
+    Tries to interpret string either as an URL or as a json representation
+    of a STACObject or ItemCollection.
+    Raises RuntimeError if no reader succeeds.
+
+    :param string: url to a STAC document / ItemCollection or json representation of the same
+    :return: parsed STACObject or ItemCollection
+    """
+    stac_obj = None
+    for reader in [
+        pystac.read_file,
+        pystac.ItemCollection.from_file,
+        lambda s: pystac.read_dict(json.loads(s)),
+        lambda s: pystac.ItemCollection.from_dict(json.loads(s)),
+    ]:
+        try:
+            stac_obj = reader(string)
+        except (pystac.STACTypeError, FileNotFoundError, TypeError) as _e:
+            pass
+
+    if not stac_obj:
+        raise RuntimeError(
+            f"Could not interpret '{string}' as STAC object or ItemCollection"
+        )
+    return stac_obj

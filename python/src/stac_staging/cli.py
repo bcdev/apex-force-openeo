@@ -3,10 +3,12 @@ import logging
 from pathlib import Path
 
 import click
-import pystac
 
 from stac_staging.download import download_recursive, download_by_asset
-from stac_staging.util import convert_stac_object_to_item_collection
+from stac_staging.util import (
+    convert_stac_object_to_item_collection,
+    try_read_stac_from_string,
+)
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -42,14 +44,10 @@ def download_from_stac(
     """
     LOGGER.info(f"Hello there")
     output_path = Path(output_path)
-    try:
-        stac_obj = pystac.read_file(url)
-    except pystac.STACTypeError as _e:
-        stac_obj = pystac.ItemCollection.from_file(url)
-    LOGGER.info(f"Found STAC object '{stac_obj}' at '{url}'")
 
+    stac_obj = try_read_stac_from_string(url)
+    LOGGER.info(f"Found STAC object '{stac_obj}'")
     items = convert_stac_object_to_item_collection(stac_obj)
-
     LOGGER.info(f"Found {len(items)} items")
 
     # Generate list of items from Catalog/Item/ItemCollection

@@ -1,18 +1,13 @@
-from pathlib import Path
-
 import pystac
 import pytest
 
 from stac_staging.download import download_by_asset
 
-ASSETS_DIR = Path(__file__).parent / "data"
-
-ITEM_URL = ASSETS_DIR / "stac" / "test_item" / "test_item.json"
-
 
 @pytest.fixture
-def stac_item() -> pystac.Item:
-    item = pystac.read_file(ITEM_URL)
+def stac_item(item_path) -> pystac.Item:
+    item_url = str(item_path)
+    item = pystac.read_file(item_url)
     assert isinstance(item, pystac.Item)
     return item
 
