@@ -18,4 +18,4 @@ jobs:
       - name: install project
         run: uv sync --project "python" --locked --all-extras --dev
       - name: Run tests
-        run: uv run --project "python" pytest python/tests
+        run: uv run --project "python" pytest python/test
