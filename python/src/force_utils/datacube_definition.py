@@ -20,7 +20,7 @@ class ForceDataCubeDefinition:
     TARGET_BOUNDS_CRS: str = "EPSG:4326"
     DENSIFY_POINTS_DEFAULT: int = 21
 
-    _data_cube_root: Path | str
+    _data_cube_root: Path
     projection_wkt: str
     grid_origin_lon: float
     grid_origin_lat: float
@@ -101,7 +101,7 @@ class ForceDataCubeDefinition:
         return bounding_box
 
     @staticmethod
-    def _parse_data_cube_definition_entry(line, dtype: Optional[Callable] = None):
+    def _parse_data_cube_definition_entry(line, dtype: Optional[Callable] = None) -> str:
         entry = line.split("=")[-1].strip()
         if dtype:
             return dtype(entry)
