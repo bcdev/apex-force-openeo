@@ -41,7 +41,7 @@ def generate_stac(asset_dir: Path) -> Path:
     catalog.normalize_hrefs(str(target_dir))
     catalog.save(
         dest_href=str(target_dir),
-        catalog_type=pystac.CatalogType.RELATIVE_PUBLISHED,
+        catalog_type=pystac.CatalogType.SELF_CONTAINED,
     )
     item_collection = pystac.ItemCollection([item])
     item_collection.save_object(str(target_dir / "test_item_collection.json"))

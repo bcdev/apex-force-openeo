@@ -1,3 +1,6 @@
+import json
+
+import pystac
 import pytest
 
 from stac_staging.util import (
@@ -8,9 +11,9 @@ from stac_staging.util import (
 
 @pytest.fixture
 def catalog_json(catalog_path):
-    with open(catalog_path) as f:
-        content = f.read()
-    return content
+    catalog = pystac.Catalog.from_file(catalog_path)
+    catalog_dict = catalog.to_dict()
+    return json.dumps(catalog_dict)
 
 
 @pytest.fixture
@@ -52,7 +55,7 @@ def test_read_json(stac_json_fixture: str, request):
         "item_collection_path",
     ],
 )
-def test_read_catalog_url(stac_json_path: str, request):
+def test_read_url(stac_json_path: str, request):
     stac_path = request.getfixturevalue(stac_json_path)
     stac_obj = try_read_stac_from_string(stac_path)
     items = convert_stac_object_to_item_collection(stac_obj)
