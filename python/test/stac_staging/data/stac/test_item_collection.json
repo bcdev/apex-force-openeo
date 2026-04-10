@@ -1,0 +1,53 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "stac_version": "1.1.0",
+      "stac_extensions": [
+        "https://stac-extensions.github.io/file/v2.1.0/schema.json"
+      ],
+      "id": "test_item",
+      "geometry": null,
+      "properties": {
+        "datetime": "2025-06-23T00:00:00Z"
+      },
+      "links": [
+        {
+          "rel": "enclosure",
+          "href": "../enclosure",
+          "title": "Enclosure"
+        },
+        {
+          "rel": "root",
+          "href": "/home/hannes/code/apex-force-openeo/python/test/stac_staging/data/stac/catalog.json",
+          "type": "application/json"
+        },
+        {
+          "rel": "parent",
+          "href": "/home/hannes/code/apex-force-openeo/python/test/stac_staging/data/stac/catalog.json",
+          "type": "application/json"
+        },
+        {
+          "rel": "self",
+          "href": "/home/hannes/code/apex-force-openeo/python/test/stac_staging/data/stac/test_item/test_item.json",
+          "type": "application/json"
+        }
+      ],
+      "assets": {
+        "b": {
+          "href": "../../b.txt",
+          "type": "text/plain",
+          "title": "Asset B",
+          "file:local_path": "b.txt"
+        },
+        "c": {
+          "href": "../../c.txt",
+          "type": "text/plain",
+          "title": "Asset C",
+          "file:local_path": "c.txt"
+        }
+      }
+    }
+  ]
+}
