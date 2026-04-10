@@ -1,6 +1,9 @@
 name: Run Pytest
 
-on: [push]
+on:
+  push:
+    paths:
+      - "python/**"
 
 jobs:
   build:
