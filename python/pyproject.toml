@@ -17,8 +17,6 @@ dependencies = [
 ]
 
 [project.scripts]
-# TODO remove in favour of download-stac
-download-item = "stac_staging.main:main"
 download-stac = "stac_staging.cli:download_from_stac"
 force-aoi-converter = "force_utils.force_aoi_converter:main"
 datacube-bounding-box = "force_utils.datacube_definition:compute_datacube_bounding_box"
