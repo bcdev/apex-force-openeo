@@ -1,0 +1,52 @@
+# Action to build and push the docker image with a hand-defined tag.
+# Based on https://github.com/bcdev/service-xcube-viewer-apps/blob/main/.github/workflows/custom-xcube-viewer-images-workflow.yaml
+
+# WHEN ADDING ADDITIONAL JOBS:
+# make sure to guard against closed but rejected PRs:
+# if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+
+
+name: Publish Docker image (automatic tag)
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    types: [closed]
+env:
+  ORG_NAME: bcdev
+  IMAGE_NAME: force-eoap
+  IMG_REG_NAME: quay.io
+  APP_NAME: force-eoap
+jobs:
+  build-docker-image:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    name: build-docker-image
+    concurrency:
+      group: ${{ github.workflow }}
+    steps:
+      - name: git-checkout
+        uses: actions/checkout@v4
+      - name: Extract TAG
+        run: |
+          read -r DOCKER_REQUIREMENT < cwl/docker-requirement.yaml
+          TAG=${DOCKER_REQUIREMENT##*:}
+          echo "TAG=$TAG" >> $GITHUB_ENV
+      - name: info
+        id: info
+        run: |
+          echo "TAG: ${{ env.tag }}"
+          echo "EVENT NAME: ${{ github.event_name }}"
+      - name: Log in to Quay.io
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.IMG_REG_NAME }}
+          username: ${{ secrets.IMG_REG_USERNAME }} # quay.io username, must be in GitHub secrets
+          password: ${{ secrets.IMG_REG_PASSWORD }}
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.IMG_REG_NAME }}/${{ env.ORG_NAME }}/${{ env.APP_NAME }}:${{ env.TAG }} $(pwd)
+
+      - name: Push Docker image to quay.io
+        run: |
+          docker push ${{ env.IMG_REG_NAME }}/${{ env.ORG_NAME }}/${{ env.APP_NAME }}:${{ env.TAG }}

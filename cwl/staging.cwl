@@ -5,7 +5,8 @@ requirements:
   NetworkAccess:
     networkAccess: true
   DockerRequirement:
-    dockerPull: quay.io/bcdev/force-eoap:0.0.11
+    dockerPull:
+      $include: docker-requirement.yaml
 
 baseCommand: /opt/uv/uv
 arguments:

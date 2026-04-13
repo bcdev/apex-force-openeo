@@ -63,6 +63,9 @@ class ForceDataCubeDefinition:
                 self._parse_data_cube_definition_entry(fp.readline(), float)
             )
         self.crs_rasterio = rasterio.CRS.from_wkt(self.projection_wkt)
+        self.layout_strategy = pystac.layout.CustomLayoutStrategy(
+            item_func=lambda item, parent: Path(parent) / f"{item.id}.json"
+        )
 
     def compute_bounding_box(self) -> shapely.Polygon:
         tiles = list(self.iter_tiles())
@@ -110,21 +113,17 @@ class ForceDataCubeDefinition:
     def iter_tiles(self) -> Iterable[str]:
         return (t.name for t in self._data_cube_root.glob("X????_Y????"))
 
-    def generate_stac(self, id_prefix: str) -> pystac.Catalog:
-        catalog_id = f"{id_prefix}-catalog" if id_prefix else "catalog"
-        catalog = pystac.Catalog(catalog_id, "description")
-        item = self._generate_stac_item(id_prefix=id_prefix)
-        catalog.add_item(item)
+    def generate_stac(self, item_id: str) -> pystac.Catalog:
+        catalog_id = "catalog"
+        # TODO add description
+        catalog = pystac.Catalog(catalog_id, "description", strategy=self.layout_strategy)
+        item = self._generate_stac_item(item_id=item_id)
+        catalog.add_item(item, strategy=self.layout_strategy)
         return catalog
 
     # TODO make validate false by default
-    def _generate_stac_item(self, id_prefix: str, validate=True):
+    def _generate_stac_item(self, item_id: str, validate=True):
         bbox = self.compute_bounding_box()
-        item_id = (
-            f"{id_prefix}-{self._data_cube_root.stem}"
-            if id_prefix
-            else self._data_cube_root.stem
-        )
         now = datetime.now(tz=timezone.utc)
         now_iso = f"{now.isoformat()}Z"
 

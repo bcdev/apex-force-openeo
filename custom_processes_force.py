@@ -36,9 +36,9 @@ STAC_COLLECTION_URLS = {
 
 @non_standard_process(
     ProcessSpec(
-        id="force_query_item_collection",
-        description="Returns a list of S3 paths"
-        ).param(name="id", description="Collection to load", schema={"type": "string"}, required=True)
+        id="query_stac",
+        description="Returns an item collection"
+        ).param(name="url", description="URL to the stac collection", schema={"type": "string"}, required=True)
         .param(name="temporal_extent", description="The date range", schema=temporal_extent_schema, required=True)
         .param(name="spatial_extent", description="Area of interest", schema={'type': 'object', 'subtype': 'geojson'}, required=True)
     .returns(description="List of outputs", schema={
@@ -48,9 +48,9 @@ STAC_COLLECTION_URLS = {
         }
     })
 )
-def force_query_item_collection(args: ProcessArgs, env: EvalEnv):
-    collection_id = args.get_required(
-        "id",
+def query_stac(args: ProcessArgs, env: EvalEnv):
+    collection_url = args.get_required(
+        "url",
     )
 
     temporal_extent = None
@@ -64,12 +64,8 @@ def force_query_item_collection(args: ProcessArgs, env: EvalEnv):
             args, field="spatial_extent", process_id="force_query"
         )
 
-    url = STAC_COLLECTION_URLS.get(collection_id)
-    if url is None:
-        raise ValueError(f"Unknown collection '{collection_id}'. Known collections are '{STAC_COLLECTION_URLS.keys()}'")
-
     items = force_query_stac_catalog(
-        url=url,
+        url=collection_url,
         spatial_extent=spatial_extent,
         temporal_extent=temporal_extent,
     )
@@ -80,10 +76,10 @@ def force_query_item_collection(args: ProcessArgs, env: EvalEnv):
 @non_standard_process(
     ProcessSpec(
         id="force_query",
-        description="Returns an item_collection"
-    ).param(name="id", description="Collection to load", schema={"type": "string"}, required=True)
-    .param(name="temporal_extent", description="The date range", schema=temporal_extent_schema, required=True)
-    .param(name="spatial_extent", description="Area of interest", schema={'type': 'object', 'subtype': 'geojson'}, required=True)
+        description="Returns a list of S3 paths"
+        ).param(name="id", description="Collection to load", schema={"type": "string"}, required=True)
+        .param(name="temporal_extent", description="The date range", schema=temporal_extent_schema, required=True)
+        .param(name="spatial_extent", description="Area of interest", schema={'type': 'object', 'subtype': 'geojson'}, required=True)
     .returns(description="List of outputs", schema={
         "type": "array",
         "items": {
