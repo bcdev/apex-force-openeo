@@ -3,15 +3,14 @@ class: Workflow
 requirements:
   SchemaDefRequirement:
     types:
-      - $import: force-tsa-parameter-schema.yaml
+      - $import: force-enums.yml
 
 inputs:
   item_url:
     type: string
-  STM:
-    type: force-tsa-parameter-schema.yaml#STM_type[]
-    default:
-      - MIN
+  stm:
+    type: force-enums.yml#stm_type[]
+    default: NONE
   date_range:
     type: string[]
 
@@ -32,6 +31,6 @@ steps:
     run: force-tsa.cwl
     in:
       input_data_dir: staging/staged_root
-      STM: STM
+      stm: stm
       date_range: date_range
     out: [tsa_cube]
