@@ -49,7 +49,11 @@ def try_read_stac_from_string(
         lambda s: pystac.ItemCollection.from_dict(json.loads(s)),
     ]:
         try:
+            import sys
+
+            print(reader.__name__, file=sys.stderr)
             stac_obj = reader(string)
+            break
         except (pystac.STACTypeError, FileNotFoundError, TypeError) as _e:
             pass
 

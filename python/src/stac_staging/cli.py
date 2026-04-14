@@ -42,9 +42,9 @@ def download_from_stac(
     :param synchronous: Whether to download assets one-by-one. Useful for debugging, Default: False
     :return:
     """
-    LOGGER.info(f"Hello there")
     output_path = Path(output_path)
 
+    LOGGER.info(f"Reading from STAC document: {url:100}")
     stac_obj = try_read_stac_from_string(url)
     LOGGER.info(f"Found STAC object '{stac_obj}'")
     items = convert_stac_object_to_item_collection(stac_obj)
