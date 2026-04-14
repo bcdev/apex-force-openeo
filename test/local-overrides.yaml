@@ -3,3 +3,15 @@ cwltool:overrides:
     requirements:
       DockerRequirement:
         dockerImageId: "quay.io/bcdev/force-eoap:dev"
+  force-tsa-workflow.cwl:
+    requirements:
+      DockerRequirement:
+        dockerImageId: "quay.io/bcdev/force-eoap:dev"
+  force-tsa.cwl:
+    requirements:
+      DockerRequirement:
+        dockerImageId: "quay.io/bcdev/force-eoap:dev"
+  staging.cwl:
+    requirements:
+      DockerRequirement:
+        dockerImageId: "quay.io/bcdev/force-eoap:dev"
