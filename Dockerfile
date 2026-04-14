@@ -1,7 +1,7 @@
 # build image with
-# docker build -t quay.io/bcdev/force-eoap:0.0.13 .
+# docker build -t quay.io/bcdev/force-eoap:0.0.14 .
 # Push to registery that is available in openEO backend:
-# skopeo copy --multi-arch=all --format=oci docker-daemon:quay.io/bcdev/force-eoap:0.0.13 docker://registry.stag.warsaw.openeo.dataspace.copernicus.eu/rand/force-eoap:0.0.13
+# skopeo copy --multi-arch=all --format=oci docker-daemon:quay.io/bcdev/force-eoap:0.0.14 docker://registry.stag.warsaw.openeo.dataspace.copernicus.eu/rand/force-eoap:0.0.14
 
 FROM davidfrantz/force:3.10.04
 
