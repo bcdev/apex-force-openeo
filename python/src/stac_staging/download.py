@@ -8,9 +8,11 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Dict, Optional
 
+import aiohttp
 import pystac
 import stac_asset
 from stac_asset import blocking
+from stac_asset.client import Clients
 
 LOGGER = logging.getLogger(__name__)
 S5CMD = "s5cmd"
@@ -80,19 +82,29 @@ def _download_assets_sync(
 async def _download_assets_async(
     assets: Dict, output_path_base: Path, config: stac_asset.Config
 ):
-    tasks = []
-    for asset_key, asset in assets.items():
-        # TODO fails if no file:local_path attribute exists
-        download_path = (
-            output_path_base / asset.extra_fields["file:local_path"]
-        ).resolve()
-        LOGGER.info(f"Downloading {asset_key} to {download_path} (async)")
-        task = await stac_asset.download_asset(
-            asset_key, asset, path=download_path, config=config
-        )
-        tasks.append(task)
-
-    return tasks
+    async with aiohttp.ClientSession() as session:
+        async with asyncio.TaskGroup() as tg:
+            client_cache = Clients(
+                config=config,
+                clients=[
+                    stac_asset.http_client.HttpClient(session, assert_content_type=True)
+                ],
+            )
+            for asset_key, asset in assets.items():
+                # TODO fails if no file:local_path attribute exists
+                download_path = (
+                    output_path_base / asset.extra_fields["file:local_path"]
+                ).resolve()
+                LOGGER.info(f"Downloading {asset_key} to {download_path} (async)")
+                tg.create_task(
+                    stac_asset.download_asset(
+                        asset_key,
+                        asset,
+                        path=download_path,
+                        config=config,
+                        clients=client_cache,
+                    )
+                )
 
 
 def _extract_enclosure_link_url(item: pystac.Item) -> Optional[str]:
