@@ -12,21 +12,13 @@ inputs:
     type: force-tsa-parameter-schema.yaml#STM_type[]
     default:
       - MIN
-  DATE_RANGE_START:
-    type: string
-  DATE_RANGE_END:
-    type: string
+  date_range:
+    type: string[]
 
 outputs:
   tsa_cube:
     type: Directory
     outputSource: force_tsa/tsa_cube
-  stac_catalog:
-    type: File
-    outputSource: force_tsa/stac_catalog
-  stac_items:
-    type: Directory
-    outputSource: force_tsa/stac_items
 
 steps:
   staging:
@@ -39,8 +31,7 @@ steps:
   force_tsa:
     run: force-tsa.cwl
     in:
-      data_cube: staging/staged_root
+      input_data_dir: staging/staged_root
       STM: STM
-      DATE_RANGE_START: DATE_RANGE_START
-      DATE_RANGE_END: DATE_RANGE_END
-    out: [tsa_cube, stac_catalog, stac_items]
+      date_range: date_range
+    out: [tsa_cube]
