@@ -4,4 +4,7 @@ item_url: "https://s3.waw4-1.cloudferro.com/calrissian/pvc-91dd9cc8-952b-4f4a-ab
 stm:
   - Q50
   - Q25
+x_tile_range: [31, 32]
+y_tile_range: [29, 30]
+
 date_range: ["2024-01-01", "2024-12-31"]

@@ -13,6 +13,10 @@ inputs:
     default: NONE
   date_range:
     type: string[]
+  x_tile_range:
+    type: int[]
+  y_tile_range:
+    type: int[]
 
 outputs:
   tsa_cube:
@@ -33,4 +37,6 @@ steps:
       input_data_dir: staging/staged_root
       stm: stm
       date_range: date_range
+      x_tile_range: x_tile_range
+      y_tile_range: y_tile_range
     out: [tsa_cube]
