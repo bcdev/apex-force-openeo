@@ -1,8 +1,7 @@
 #item_url: "https://s3.waw4-1.cloudferro.com/calrissian/pvc-85434649-b4e1-4b9f-a44e-65533ed2e71f/j-2603161353374b4682-cal-cwl-7cb363e4/l2-ard/bologna-l2-ard.json"
 #item_url: "https://s3.waw4-1.cloudferro.com/calrissian/pvc-85434649-b4e1-4b9f-a44e-65533ed2e71f/j-26032413214843c79e-cal-cwl-760bd8d9/l2-ard/bologna-l2-ard.json"
 item_url: "https://s3.waw4-1.cloudferro.com/calrissian/pvc-91dd9cc8-952b-4f4a-abf9-77a9e32beb58/j-2604140757134493af-cal-cwl-83e463b8/l2-ard/cube-20260414T0809-l2-ard.json"
-STM:
+stm:
   - Q50
   - Q25
-DATE_RANGE_START: "2024-01-01"
-DATE_RANGE_END: "2024-12-31"
+date_range: ["2024-01-01", "2024-12-31"]
