@@ -1,0 +1,40 @@
+aoi: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.6,44.5],[10.6,44.8],[11.0,44.8],[11.0,44.5],[10.6,44.5]]] }, "properties": { "name": "Parma" } }'
+buffer_nodata: false
+cirrus_buffer: 30
+cloud_buffer: 300
+cloud_threshold: 0.1
+dem: "Copernicus_30m"
+do_adjacency: false
+do_aod: true
+do_atmo: true
+do_brdf: true
+do_multi_scattering: true
+do_topo: true
+erase_clouds: false
+impulse_noise: true
+input:
+    - "s3://eodata/Sentinel-2/MSI/L1C/2024/04/02/S2B_MSIL1C_20240402T100549_N0510_R022_T32TPQ_20240402T120845.SAFE"
+    - "s3://eodata/Sentinel-2/MSI/L1C/2024/04/07/S2A_MSIL1C_20240407T100551_N0510_R022_T32TPQ_20240407T135205.SAFE"
+max_cloud_cover_frame: 90
+max_cloud_cover_tile: 90
+nproc: 3
+nthread: 4
+origin_lon: -25
+origin_lat: 60
+output_aod: false
+output_dst: false
+output_format: "GTiff"
+output_hot: false
+output_ovv: false
+output_vzn: false
+output_wvp: false
+parallel_reads: false
+process_start_delay: 3
+projection: "GLANCE7"
+res_merge: "IMPROPHE"
+resampling: "CC"
+resolution: 20
+shadow_buffer: 90
+shadow_threshold: 0.02
+snow_buffer: 30
+timeout_zip: 30
