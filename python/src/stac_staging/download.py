@@ -60,8 +60,6 @@ def download_recursive(
     ) as tmpfile:
         tmpfile.write("\n".join(commands))
         tmpfile.seek(0)
-        if False:
-            raise ValueError(f"{tmpfile.read()=}")
 
         LOGGER.info(f"Running s5cmd with commands '{commands}'")
         _run_s5cmd(str(tmpfile.name))
