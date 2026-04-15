@@ -20,12 +20,12 @@
         },
         {
           "rel": "root",
-          "href": "/home/hannes/code/apex-force-openeo/python/test/stac_staging/data/stac/catalog.json",
+          "href": "../catalog.json",
           "type": "application/json"
         },
         {
           "rel": "parent",
-          "href": "/home/hannes/code/apex-force-openeo/python/test/stac_staging/data/stac/catalog.json",
+          "href": "../catalog.json",
           "type": "application/json"
         },
         {

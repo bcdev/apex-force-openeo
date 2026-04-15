@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -44,7 +45,10 @@ def generate_stac(asset_dir: Path) -> Path:
         catalog_type=pystac.CatalogType.SELF_CONTAINED,
     )
     item_collection = pystac.ItemCollection([item])
-    item_collection.save_object(str(target_dir / "test_item_collection.json"))
+    item_collection_dict = item_collection.to_dict(transform_hrefs=True)
+    (target_dir / "test_item_collection.json").write_text(
+        json.dumps(item_collection_dict, indent=2)
+    )
     return target_dir
 
 
