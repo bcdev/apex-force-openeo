@@ -14,7 +14,7 @@ arguments:
   - "--no-sync"        # use locked python environment from container
   - "--project"
   - "/opt/force-python-tools"
-  - "download-item"    # the actual executable
+  - "download-stac"    # the actual executable
 
 
 inputs:

@@ -1,13 +1,12 @@
 import logging
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union, List
+import pystac
 
 from openeo_driver.ProcessGraphDeserializer import non_standard_process, ProcessSpec, _extract_bbox_extent, _extract_temporal_extent
 from openeo_driver.processes import ProcessArgs
 from openeo_driver.utils import EvalEnv
 from openeo_driver.util.geometry import BoundingBox
 from openeogeotrellis.load_stac import _spatiotemporal_extent_from_load_params, construct_item_collection, ItemCollection
-
-import pystac
 
 logger = logging.getLogger("FORCE_custom_Processes")
 
@@ -77,10 +76,10 @@ def query_stac(args: ProcessArgs, env: EvalEnv):
 @non_standard_process(
     ProcessSpec(
         id="force_query",
-        description="Returns an item_collection"
-    ).param(name="id", description="Collection to load", schema={"type": "string"}, required=True)
-    .param(name="temporal_extent", description="The date range", schema=temporal_extent_schema, required=True)
-    .param(name="spatial_extent", description="Area of interest", schema={'type': 'object', 'subtype': 'geojson'}, required=True)
+        description="Returns a list of S3 paths"
+        ).param(name="id", description="Collection to load", schema={"type": "string"}, required=True)
+        .param(name="temporal_extent", description="The date range", schema=temporal_extent_schema, required=True)
+        .param(name="spatial_extent", description="Area of interest", schema={'type': 'object', 'subtype': 'geojson'}, required=True)
     .returns(description="List of outputs", schema={
         "type": "array",
         "items": {

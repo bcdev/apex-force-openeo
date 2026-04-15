@@ -1,0 +1,24 @@
+name: Run Pytest
+
+on:
+  push:
+    paths:
+      - "python/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: "python/pyproject.toml"
+      - name: Set up UV
+        uses: astral-sh/setup-uv@v7
+
+      - name: install project
+        run: uv sync --project "python" --locked --all-extras --dev
+      - name: Run tests
+        run: uv run --project "python" pytest python/test
