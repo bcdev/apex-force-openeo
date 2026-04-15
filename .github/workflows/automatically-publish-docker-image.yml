@@ -31,6 +31,8 @@ jobs:
         run: |
           read -r DOCKER_REQUIREMENT < cwl/docker-requirement.yaml
           TAG=${DOCKER_REQUIREMENT##*:}
+          TAG=$(echo "$TAG" | tr -d '\r')
+          echo $TAG
           echo "TAG=$TAG" >> $GITHUB_ENV
       - name: info
         id: info
