@@ -1,11 +1,12 @@
 import json
+from typing import Dict
 
 import pystac
 import pytest
 
 from stac_staging.util import (
-    try_read_stac_from_string,
     convert_stac_object_to_item_collection,
+    read_stac_from_dict,
 )
 
 
@@ -13,20 +14,20 @@ from stac_staging.util import (
 def catalog_json(catalog_path):
     catalog = pystac.Catalog.from_file(catalog_path)
     catalog_dict = catalog.to_dict()
-    return json.dumps(catalog_dict)
+    return catalog_dict
 
 
 @pytest.fixture
 def item_json(item_path):
     with open(item_path) as f:
-        content = f.read()
+        content = json.load(f)
     return content
 
 
 @pytest.fixture
 def item_collection_json(item_collection_path):
     with open(item_collection_path) as f:
-        content = f.read()
+        content = json.load(f)
     return content
 
 
@@ -38,26 +39,9 @@ def item_collection_json(item_collection_path):
         "item_collection_json",
     ],
 )
-def test_read_json(stac_json_fixture: str, request):
+def test_read_json(stac_json_fixture: Dict, request):
     stac_json = request.getfixturevalue(stac_json_fixture)
-    stac_obj = try_read_stac_from_string(stac_json)
-    items = convert_stac_object_to_item_collection(stac_obj)
-
-    assert stac_obj is not None
-    assert len(items) == 1
-
-
-@pytest.mark.parametrize(
-    "stac_json_path",
-    [
-        "catalog_path",
-        "item_path",
-        "item_collection_path",
-    ],
-)
-def test_read_url(stac_json_path: str, request):
-    stac_path = request.getfixturevalue(stac_json_path)
-    stac_obj = try_read_stac_from_string(stac_path)
+    stac_obj = read_stac_from_dict(stac_json)
     items = convert_stac_object_to_item_collection(stac_obj)
 
     assert stac_obj is not None
