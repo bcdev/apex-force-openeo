@@ -14,7 +14,6 @@ erase_clouds: false
 impulse_noise: true
 input:
     - "s3://eodata/Sentinel-2/MSI/L1C/2024/04/02/S2B_MSIL1C_20240402T100549_N0510_R022_T32TPQ_20240402T120845.SAFE"
-    - "s3://eodata/Sentinel-2/MSI/L1C/2024/04/07/S2A_MSIL1C_20240407T100551_N0510_R022_T32TPQ_20240407T135205.SAFE"
 max_cloud_cover_frame: 90
 max_cloud_cover_tile: 90
 nproc: 3
