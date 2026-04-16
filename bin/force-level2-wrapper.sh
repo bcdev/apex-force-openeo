@@ -145,7 +145,7 @@ if [ "$dem" == "" -o "$dem" == "NULL" ]; then
     fi
 elif [ "$dem" == "Copernicus_30m" ]; then
     mkdir -p /tmp/copernicus /tmp/mgrs-vrt
-    for safe_archive in "$inputs"*/; do
+    for safe_archive in "$inputs"/*/; do
         granule_filename=$(basename "$safe_archive")
         granule=${granule_filename:39:5}
         vrt_path=/opt/apex-force-wrapper/auxdata/MGRS_VRT/MGRS_T${granule}.vrt
@@ -187,7 +187,7 @@ mkdir inputs
 rm -f inputs/tds.txt
 touch inputs/tds.txt
 
-for safe_archive in "$inputs"*/; do
+for safe_archive in "$inputs"/*/; do
     # S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
     echo "$(realpath "$safe_archive") QUEUED" >> inputs/tds.txt
 done
