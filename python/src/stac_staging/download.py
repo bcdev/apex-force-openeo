@@ -18,6 +18,7 @@ LOGGER = logging.getLogger(__name__)
 S5CMD = "s5cmd"
 
 S3_ENDPOINT_URL = "S3_ENDPOINT_URL"
+AWS_ENDPOINT_URL_S3 = "AWS_ENDPOINT_URL_S3"
 
 
 def download_by_asset(
@@ -57,9 +58,15 @@ def download_recursive(
             "Recursive download depends on s5cmd. Make sure it is installed."
         )
     if os.getenv(S3_ENDPOINT_URL) is None:
-        raise RuntimeError(
-            f"Environment variable '{S3_ENDPOINT_URL}' is not set, but required by s5cmd."
+        if os.getenv(AWS_ENDPOINT_URL_S3) is None:
+            raise RuntimeError(
+                f"Environment variable '{S3_ENDPOINT_URL}' is not set, but required by s5cmd. "
+                f"Please set it or the fallback '{AWS_ENDPOINT_URL_S3}'"
+            )
+        LOGGER.info(
+            f"'{S3_ENDPOINT_URL}' not set. Setting '{S3_ENDPOINT_URL}={AWS_ENDPOINT_URL_S3}'"
         )
+        os.environ[S3_ENDPOINT_URL] = AWS_ENDPOINT_URL_S3
 
     commands = []
 
