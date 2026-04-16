@@ -16,14 +16,12 @@ if [[ -z "$AWS_SECRET_ACCESS_KEY" || -z "$AWS_ACCESS_KEY_ID" ]]; then
 fi
 set -x
 
-if [[ "$1" == "docker" ]]; then
+if [[ "${1:-}" == "docker" ]]; then
   echo "Building docker container ${docker_image_name}"
   docker build -t "$docker_image_name" "$repo_root"
 else
   echo "Reusing docker image ${docker_image_name}. Pass 'docker' as an argument to rebuild it"
 fi
-
-#TODO replace l2 with l2 workflow
 
 cwltool \
   --preserve-environment=AWS_ENDPOINT_URL_S3 \
