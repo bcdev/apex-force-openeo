@@ -26,7 +26,7 @@ ENV PATH=${PATH}:/opt/uv
 COPY python/src /opt/force-python-tools/src
 COPY python/pyproject.toml /opt/force-python-tools/
 COPY python/uv.lock /opt/force-python-tools/
-RUN uv --project /opt/force-python-tools sync --python 3.13
+RUN uv --project /opt/force-python-tools sync --python 3.13 --no-dev
 
 # copy the wrapper scripts to the container
 COPY bin/* /opt/apex-force-wrapper/bin/
