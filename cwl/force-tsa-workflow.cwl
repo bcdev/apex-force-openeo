@@ -6,8 +6,11 @@ requirements:
       - $import: force-enums.yml
 
 inputs:
-  item_url:
-    type: string
+  stac_url:
+    type: string?
+  # TODO add stringify stac tool to support this
+  #stac_document:
+  #  type: Any?
   name:
     type: string?
   date_range:

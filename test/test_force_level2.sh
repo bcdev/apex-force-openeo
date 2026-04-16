@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 repo_root=$(realpath "$(dirname "$0")/..")
-input_parameter_file="${repo_root}/test/force-level2-workflow-params.yml"
+input_parameter_file="${repo_root}/test/force-l2-params-reduced-number-of-items.yml"
 echo "repo_root: ${repo_root}"
 
 export AWS_ENDPOINT_URL_S3='https://eodata.dataspace.copernicus.eu'
