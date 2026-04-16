@@ -134,6 +134,7 @@ if [ "$aoi" != NULL ]; then
     export aoi=/tmp/aoi.shp
 fi
 
+s5cmd_command_file="/tmp/s5cmd_commands.txt"
 # retrieve DEM unless available
 # structure is
 #   required vrt go to /tmp/mgrs-vrt/...
@@ -158,11 +159,19 @@ elif [ "$dem" == "Copernicus_30m" ]; then
             if [ -e /tmp/copernicus/$dem_tile_name ]; then
                 echo $dem_tile_name exists
             else
-                s5cmd cp s3:/$eodata_tile_path /tmp/copernicus/
-                ls -l /tmp/copernicus/$dem_tile_name
+                echo "cp s3:/${eodata_tile_path} /tmp/copernicus/" >> "$s5cmd_command_file"
+                #s5cmd cp s3:/$eodata_tile_path /tmp/copernicus/ # download one by one
+                #ls -l /tmp/copernicus/$dem_tile_name
             fi
         done
     done
+    if [[ -e "$s5cmd_command_file" ]]; then
+      echo "Running s5cmd commands file"
+      cat "$s5cmd_command_file"
+      s5cmd run "$s5cmd_command_file"
+    else
+      echo "no dem tiles to download found"
+    fi
     find /tmp/mgrs-vrt
     find /tmp/copernicus
     export file_dem=/tmp/mgrs-vrt
@@ -181,6 +190,7 @@ mkdir inputs
 rm -f inputs/tds.txt
 touch inputs/tds.txt
 
+# TODO remove (replace by staging)
 for safeurl in $inputs; do
     # s3://EODATA/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
     if [ ! -e inputs/$(basename $safeurl) ]; then
@@ -192,6 +202,8 @@ for safeurl in $inputs; do
     fi
     echo ${PWD}/inputs/$(basename $safeurl) QUEUED >> inputs/tds.txt
 done
+# TODO remember to populate tds.txt
+# TODO evomer
 
 # create parameter file
 
