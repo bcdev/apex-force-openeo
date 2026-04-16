@@ -8,7 +8,7 @@ inputs:
   stac_url:
     type: string?
   stac_document:
-    type: Any
+    type: Any?
   aoi:
     type: string?
   block_size:
