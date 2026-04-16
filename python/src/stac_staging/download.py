@@ -64,9 +64,9 @@ def download_recursive(
                 f"Please set it or the fallback '{AWS_ENDPOINT_URL_S3}'"
             )
         LOGGER.info(
-            f"'{S3_ENDPOINT_URL}' not set. Setting '{S3_ENDPOINT_URL}={AWS_ENDPOINT_URL_S3}'"
+            f"'{S3_ENDPOINT_URL}' not set. Setting '{S3_ENDPOINT_URL}={os.getenv(AWS_ENDPOINT_URL_S3)}'"
         )
-        os.environ[S3_ENDPOINT_URL] = AWS_ENDPOINT_URL_S3
+        os.environ[S3_ENDPOINT_URL] = os.getenv(AWS_ENDPOINT_URL_S3)
 
     commands = []
 
