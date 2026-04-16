@@ -120,7 +120,7 @@ uv() {
   /opt/uv/uv "$@"
 }
 aoi-converter() {
-  uv run --project /opt/force-python-tools --no-sync force-aoi-converter "$@"
+  uv run --project /opt/force-python-tools --no-sync --no-cache force-aoi-converter "$@"
 }
 
 # convert AOI to file
