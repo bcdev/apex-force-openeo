@@ -26,6 +26,12 @@ inputs:
     type: string
     inputBinding:
       prefix: --output-path
+  method:
+    type: string?
+    inputBinding:
+      prefix: --method
+    default: ASSET
+
 
 outputs:
   staged_root:
