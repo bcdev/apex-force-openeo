@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 repo_root=$(realpath "$(dirname "$0")/..")
+input_parameter_file="${repo_root}/test/force-level2-workflow-params.yml"
 echo "repo_root: ${repo_root}"
 
 export AWS_ENDPOINT_URL_S3='https://eodata.dataspace.copernicus.eu'
@@ -19,8 +20,7 @@ set -x
 if [[ "${1:-}" == "docker" ]]; then
   echo "Building docker container ${docker_image_name}"
   docker build -t "$docker_image_name" "$repo_root"
-else
-  echo "Reusing docker image ${docker_image_name}. Pass 'docker' as an argument to rebuild it"
+else echo "Reusing docker image ${docker_image_name}. Pass 'docker' as an argument to rebuild it"
 fi
 
 cwltool \
@@ -31,5 +31,6 @@ cwltool \
   --outdir="${repo_root}/../target/level2" \
   --tmpdir-prefix="${HOME}/tmp" \
   --overrides "${repo_root}/test/local-overrides.yaml" \
-  "${repo_root}/cwl/force-l2.cwl" \
-  "${repo_root}/test/force-l2-params-reduced-number-of-items.yml"
+  "${repo_root}/cwl/force-l2-workflow.cwl" \
+  "$input_parameter_file"
+

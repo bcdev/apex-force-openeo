@@ -89,9 +89,6 @@ while [ "$1" != "" ]; do
         declare ${1:2}="$2"
         export ${1:2}
         shift 2
-    else
-        inputs="$inputs $1"
-        shift
     fi
 done
 
@@ -148,16 +145,16 @@ if [ "$dem" == "" -o "$dem" == "NULL" ]; then
     fi
 elif [ "$dem" == "Copernicus_30m" ]; then
     mkdir -p /tmp/copernicus /tmp/mgrs-vrt
-    for safeurl in $inputs; do
-        granule_filename=$(basename $safeurl)
+    for safe_archive in "$inputs"*/; do
+        granule_filename=$(basename "$safe_archive")
         granule=${granule_filename:39:5}
         vrt_path=/opt/apex-force-wrapper/auxdata/MGRS_VRT/MGRS_T${granule}.vrt
-        cp $vrt_path /tmp/mgrs-vrt/
+        cp "$vrt_path" /tmp/mgrs-vrt/
         for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
-            dem_tile_name=$(basename $dem_tile_path)
-            eodata_tile_path=$(ls -l /opt/apex-force-wrapper/auxdata/copernicus/$dem_tile_name|awk '{print $11}')
-            if [ -e /tmp/copernicus/$dem_tile_name ]; then
-                echo $dem_tile_name exists
+            dem_tile_name=$(basename "$dem_tile_path")
+            eodata_tile_path=$(ls -l "/opt/apex-force-wrapper/auxdata/copernicus/${dem_tile_name}" | awk '{print $11}')
+            if [ -e "/tmp/copernicus/${dem_tile_name}" ]; then
+                echo "$dem_tile_name exists"
             else
                 echo "cp s3:/${eodata_tile_path} /tmp/copernicus/" >> "$s5cmd_command_file"
                 #s5cmd cp s3:/$eodata_tile_path /tmp/copernicus/ # download one by one
@@ -190,20 +187,10 @@ mkdir inputs
 rm -f inputs/tds.txt
 touch inputs/tds.txt
 
-# TODO remove (replace by staging)
-for safeurl in $inputs; do
-    # s3://EODATA/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
-    if [ ! -e inputs/$(basename $safeurl) ]; then
-        echo staging $(basename $safeurl)
-        #s3cmd get -r $safeurl inputs
-        s5cmd cp $safeurl* inputs
-    else
-        echo $(basename $safeurl) already available
-    fi
-    echo ${PWD}/inputs/$(basename $safeurl) QUEUED >> inputs/tds.txt
+for safe_archive in "$inputs"*/; do
+    # S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
+    echo "$(realpath "$safe_archive") QUEUED" >> inputs/tds.txt
 done
-# TODO remember to populate tds.txt
-# TODO evomer
 
 # create parameter file
 
