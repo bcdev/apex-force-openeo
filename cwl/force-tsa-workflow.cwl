@@ -3,7 +3,7 @@ class: Workflow
 requirements:
   SchemaDefRequirement:
     types:
-      - $import: force-enums.yaml
+      - $import: force-enums.yml
 
 inputs:
   item_url:

@@ -12,7 +12,7 @@ do_multi_scattering: true
 do_topo: true
 erase_clouds: false
 impulse_noise: true
-stac_input: "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c/items/S2C_MSIL1C_20260416T035541_N0512_R004_T52XFF_20260416T055009"
+stac_url: "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c/items/S2C_MSIL1C_20260416T035541_N0512_R004_T52XFF_20260416T055009"
 max_cloud_cover_frame: 90
 max_cloud_cover_tile: 90
 nproc: 3

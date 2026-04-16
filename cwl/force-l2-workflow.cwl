@@ -5,8 +5,10 @@ requirements:
     types:
       - $import: force-level2-enums.yml
 inputs:
-  stac_input:
-    type: string
+  stac_url:
+    type: string?
+  stac_document:
+    type: Any
   aoi:
     type: string?
   block_size:
@@ -79,10 +81,26 @@ inputs:
     type: int?
 
 steps:
+  stringify_stac:
+    run:
+      cwlVersion: v1.2
+      class: ExpressionTool
+      requirements:
+        InlineJavascriptRequirement: {}
+      inputs:
+        cfg: Any
+      outputs:
+        cfg_json: string
+      expression: >
+        ${ return { cfg_json: JSON.stringify(inputs.cfg) }; }
+    in:
+      cfg: stac_document
+    out: [cfg_json]
   staging:
     run: staging.cwl
     in:
-      item_url: stac_input
+      stac_url: stac_url
+      stac_string: stringify_stac/cfg_json
       output_path_base:
         default: "staging"
       method:
