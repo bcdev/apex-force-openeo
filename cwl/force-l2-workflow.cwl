@@ -4,6 +4,7 @@ requirements:
   SchemaDefRequirement:
     types:
       - $import: force-level2-enums.yml
+  InlineJavascriptRequirement: {}
 inputs:
   stac_url:
     type: string?
@@ -88,11 +89,17 @@ steps:
       requirements:
         InlineJavascriptRequirement: {}
       inputs:
-        cfg: Any
+        cfg: Any?
       outputs:
         cfg_json: string
       expression: >
-        ${ return { cfg_json: JSON.stringify(inputs.cfg) }; }
+        ${
+          if (inputs.cfg === null || inputs.cfg === undefined) {
+            return { cfg_json: null };
+          } else {
+            return { cfg_json: JSON.stringify(inputs.cfg) }; 
+          }
+        }
     in:
       cfg: stac_document
     out: [cfg_json]
