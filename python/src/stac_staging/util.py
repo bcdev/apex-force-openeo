@@ -1,4 +1,4 @@
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Optional
 
 import pystac
 from pystac import ItemCollection
@@ -32,15 +32,19 @@ def convert_stac_object_to_item_collection(
 
 def read_stac_from_dict(
     d: Dict,
+    self_url: Optional[str],
 ) -> Union[pystac.ItemCollection, pystac.STACObject]:
     """
     Interpret dictionary either as an ItemCollection or a STAC object (Catalog, Collection, Item)
 
     :param d: Dictionary representation a STAC document / ItemCollection
+    :param self_url: URL to set as "self" href of the STAC object. Ignored if d is an ItemCollection or base_url is none
     :return: parsed STACObject or ItemCollection
     """
     if ItemCollection.is_item_collection(d):
         stac_obj_or_item_collection = ItemCollection.from_dict(d)
     else:
         stac_obj_or_item_collection = pystac.read_dict(d)
+        if self_url is not None:
+            stac_obj_or_item_collection.set_self_href(self_url)
     return stac_obj_or_item_collection

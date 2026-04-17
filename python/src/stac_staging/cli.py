@@ -66,7 +66,9 @@ def download_from_stac(
         stac_obj_or_item_collection_dict = json.loads(string)
     assert stac_obj_or_item_collection_dict is not None
 
-    stac_obj_or_item_collection = read_stac_from_dict(stac_obj_or_item_collection_dict)
+    stac_obj_or_item_collection = read_stac_from_dict(
+        stac_obj_or_item_collection_dict, url
+    )
     LOGGER.info(f"Found STAC object '{stac_obj_or_item_collection}'")
     items = convert_stac_object_to_item_collection(stac_obj_or_item_collection)
     LOGGER.info(f"Found {len(items)} items")
