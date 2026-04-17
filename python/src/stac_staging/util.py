@@ -1,3 +1,5 @@
+import shutil
+from pathlib import Path
 from typing import List, Union, Dict, Optional
 
 import pystac
@@ -48,3 +50,21 @@ def read_stac_from_dict(
         if self_url is not None:
             stac_obj_or_item_collection.set_self_href(self_url)
     return stac_obj_or_item_collection
+
+
+def unwrap_single_dir_level(base: Union[Path, str]):
+    """
+    Move contents of directories inside ``base`` one level up, deleting the containing directories.
+    Files in ``base`` are unaffected.
+    :param base: Base directory which will contain the contents of all its subdirectories directly after this operation.
+    """
+    base: Path = Path(base)
+    for subpath in base.iterdir():
+        if not subpath.is_dir():
+            # TODO remove (just for testing)
+            raise ValueError(f"{subpath} is not a directory")
+            # continue
+        for item in subpath.iterdir():
+            shutil.move(item, base / item.name)
+
+        subpath.rmdir()

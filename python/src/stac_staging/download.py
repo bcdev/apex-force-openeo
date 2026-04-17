@@ -14,6 +14,8 @@ import stac_asset
 from stac_asset import blocking
 from stac_asset.client import Clients
 
+from stac_staging.util import unwrap_single_dir_level
+
 LOGGER = logging.getLogger(__name__)
 S5CMD = "s5cmd"
 
@@ -22,13 +24,19 @@ AWS_ENDPOINT_URL_S3 = "AWS_ENDPOINT_URL_S3"
 
 
 def download_by_asset(
-    items: Iterable[pystac.Item], output_path: Path, synchronous: Optional[bool] = False
+    items: Iterable[pystac.Item],
+    output_path: Path,
+    *,
+    synchronous: Optional[bool] = False,
+    unwrap_toplevel_dir: bool = True,
 ):
     """
     Download all assets of the items in ``items``.
     :param items: Iterable of items for which to download the assets
     :param output_path: Base directory where assets should be placed
     :param synchronous: Whether to download synchronously, one by one. (Default: ``False``).
+    :param unwrap_toplevel_dir: If True, remove the first level of the directory hierarchy below ``output_path``.
+        This is useful, if everything will be contained in a single subdirectory (e.g. continent subdirs from FORCE level2)
     """
     output_path.mkdir(parents=True, exist_ok=True)
     config = stac_asset.Config()
@@ -38,6 +46,9 @@ def download_by_asset(
     else:
         for item in items:
             asyncio.run(_download_assets_async(item.assets, output_path, config))
+
+    if unwrap_toplevel_dir:
+        unwrap_single_dir_level(output_path)
 
 
 def download_recursive(
@@ -107,7 +118,9 @@ def _download_assets_sync(
 
 
 async def _download_assets_async(
-    assets: Dict, output_path_base: Path, config: stac_asset.Config
+    assets: Dict,
+    output_path_base: Path,
+    config: stac_asset.Config,
 ):
     """
     Download assets asynchronously to ``output_path_base/local/path`` where ``local/path`` is determined by
