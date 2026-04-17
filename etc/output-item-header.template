@@ -51,12 +51,5 @@
     "gsd": 10,
     "grid:code": "FORCE-GLANCE7"
   },
-  "links": [
-    {
-      "rel": "self",
-      "type": "application/geo+json",
-      "href": "file://${processing_name}-l2-ard.json",
-      "comment-href": "https://openeo.dataspace.copernicus.eu/home/user/${processing_name}-l2-ard.json"
-    }  
-  ],
+  "links": [],
   "assets": {
