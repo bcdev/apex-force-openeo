@@ -15,7 +15,6 @@ inputs:
     type: string?
   date_range:
     type: string[]
-    inputBinding:
   doy_range:
     type: int[]
     default:
@@ -169,7 +168,8 @@ inputs:
 
   stm:
     type: force-enums.yml#stm_type[]
-    default: NONE
+    default:
+      - NONE
 
   fold_type:
     type: force-enums.yml#fold_type_type[]

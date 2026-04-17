@@ -264,7 +264,8 @@ inputs:
     inputBinding:
       prefix: --stm
       itemSeparator: ","
-    default: NONE
+    default:
+      - NONE
 
   fold_type:
     type: force-enums.yml#fold_type_type[]
