@@ -192,6 +192,8 @@ for safe_archive in "$inputs"/*/; do
     echo "$(realpath "$safe_archive") QUEUED" >> inputs/tds.txt
 done
 
+cat inputs/tds.txt
+
 # create parameter file
 
 mkdir -p param
@@ -207,6 +209,7 @@ if [ ! -e outputs/l2-ard/CITEME* ]; then
     script -q /dev/stdout -c "force-level2 param/l2ps.prm"
 fi
 
+cat inputs/tds.txt
 # create stac catalogue for output
 
 rm -rf outputs/.parallel
