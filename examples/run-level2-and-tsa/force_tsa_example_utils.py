@@ -1,3 +1,8 @@
+import matplotlib.pyplot as plt
+import contextily as ctx
+import geopandas as gpd
+from shapely import Polygon
+
 def extract_catalog_url_from_job_logs(job_logs) -> str:
     log_with_catalog_url = next(
         iter(
