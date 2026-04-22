@@ -13,7 +13,8 @@ do_topo: true
 erase_clouds: false
 impulse_noise: true
 input:
-    - "s3://eodata/Sentinel-2/MSI/L1C/2024/04/02/S2B_MSIL1C_20240402T100549_N0510_R022_T32TPQ_20240402T120845.SAFE"
+    class: Directory
+    location: ../../inputs
 max_cloud_cover_frame: 90
 max_cloud_cover_tile: 90
 nproc: 3
