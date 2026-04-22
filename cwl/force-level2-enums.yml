@@ -23,7 +23,7 @@
   label: Digital Elevation Model
   symbols:
     - Copernicus_30m
-    - none
+    - NONE
 -
   type: enum
   name: res_merge

@@ -137,7 +137,7 @@ s5cmd_command_file="/tmp/s5cmd_commands.txt"
 #   required vrt go to /tmp/mgrs-vrt/...
 #   downloaded tiles go to /tmp/copernicus/...
 # only Copernicus DEM 30m is supported
-if [ "$dem" == "" -o "$dem" == "NULL" ]; then
+if [[ "$dem" == "" || "$dem" == "NULL" || "$dem" == "NONE" ]]; then
     export file_dem=NULL
     export dem_database=NULL
     if [ "$do_topo" = "TRUE" ]; then
