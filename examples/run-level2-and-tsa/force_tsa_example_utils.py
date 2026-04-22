@@ -2,11 +2,12 @@ import matplotlib.pyplot as plt
 import contextily as ctx
 import geopandas as gpd
 from shapely import Polygon
+import pystac
 
 def extract_catalog_url_from_job_logs(job_logs) -> str:
     log_with_catalog_url = next(
         iter(
-            l.message for l in force_l2_logs if "copy_asset(" in l.message and ("catalogue.json" in l.message or "catalog.json" in l.message)
+            l.message for l in job_logs if "copy_asset(" in l.message and ("catalogue.json" in l.message or "catalog.json" in l.message)
         )
     )
     catalog_url = log_with_catalog_url.removeprefix("URL: copy_asset(").removesuffix(")")
@@ -40,3 +41,20 @@ def plot_area_of_interest(
     ctx.add_basemap(axs[1], source=ctx.providers.OpenStreetMap.Mapnik, crs=gdf.crs);
     fig.suptitle(title)
     fig.tight_layout()
+
+
+def transform_item_collection_to_catalog_with_links(item_collection):
+    catalog = pystac.Catalog(
+        id="item-collection-catalog",
+        description="Catalog from item collection",
+    )
+    for item in item_collection.items:
+        href = item.self_href
+        item_link = pystac.Link(
+            rel=pystac.RelType.ITEM,
+            target=href,
+            media_type=pystac.MediaType.GEOJSON,
+            title=f"Item {item.id}",
+        )
+        catalog.add_link(item_link)
+    return catalog
