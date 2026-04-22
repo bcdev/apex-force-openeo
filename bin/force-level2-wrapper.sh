@@ -210,7 +210,6 @@ if [ ! -e outputs/l2-ard/CITEME* ]; then
     script -q /dev/stdout -c "force-level2 param/l2ps.prm"
 fi
 
-cat inputs/tds.txt
 # create stac catalogue for output
 
 rm -rf outputs/.parallel
