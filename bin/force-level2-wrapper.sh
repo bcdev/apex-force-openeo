@@ -132,6 +132,7 @@ if [ "$aoi" != NULL ]; then
 fi
 
 s5cmd_command_file="/tmp/s5cmd_commands.txt"
+touch "$s5cmd_command_file"
 # retrieve DEM unless available
 # structure is
 #   required vrt go to /tmp/mgrs-vrt/...
