@@ -34,7 +34,7 @@ def convert_stac_object_to_item_collection(
 
 def read_stac_from_dict(
     d: Dict,
-    self_url: Optional[str],
+    self_url: Optional[str]=None,
 ) -> Union[pystac.ItemCollection, pystac.STACObject]:
     """
     Interpret dictionary either as an ItemCollection or a STAC object (Catalog, Collection, Item)
