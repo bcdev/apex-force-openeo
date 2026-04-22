@@ -153,10 +153,11 @@ elif [ "$dem" == "Copernicus_30m" ]; then
         for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
             dem_tile_name=$(basename "$dem_tile_path")
             eodata_tile_path=$(ls -l "/opt/apex-force-wrapper/auxdata/copernicus/${dem_tile_name}" | awk '{print $11}')
-            if [ -e "/tmp/copernicus/${dem_tile_name}" ]; then
-                echo "$dem_tile_name exists"
+            s5cmd_string="cp s3:/${eodata_tile_path} /tmp/copernicus/"
+            if [ $(grep -q "$s5cmd_string" "$s5cmd_command_file") ]; then
+                echo "$dem_tile_name already scheduled for download"
             else
-                echo "cp s3:/${eodata_tile_path} /tmp/copernicus/" >> "$s5cmd_command_file"
+                echo "$s5cmd_string" >> "$s5cmd_command_file"
                 #s5cmd cp s3:/$eodata_tile_path /tmp/copernicus/ # download one by one
                 #ls -l /tmp/copernicus/$dem_tile_name
             fi
