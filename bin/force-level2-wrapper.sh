@@ -2,6 +2,8 @@
 set -e
 set -x
 
+grep MemTotal /proc/meminfo
+
 # This shell script is called as an entry point into the FORCE wrapper Docker container.
 # old: Parameters and the directory with the catalogue of inputs are passed as command line arguments with --key value syntax.
 # old: The last parameter is the input directory with catalogue.json with the URLs of inputs.
@@ -66,7 +68,7 @@ export shadow_threshold=0.02
 export res_merge=IMPROPHE
 export impulse_noise=FALSE
 export buffer_nodata=FALSE
-export nproc=3
+export nproc=1
 export nthread=4
 export parallel_reads=FALSE
 export process_start_delay=3
@@ -138,6 +140,9 @@ touch "$s5cmd_command_file"
 #   required vrt go to /tmp/mgrs-vrt/...
 #   downloaded tiles go to /tmp/copernicus/...
 # only Copernicus DEM 30m is supported
+
+find "$inputs"
+
 if [[ "$dem" == "" || "$dem" == "NULL" || "$dem" == "NONE" ]]; then
     export file_dem=NULL
     export dem_database=NULL
