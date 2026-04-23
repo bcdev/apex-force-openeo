@@ -2,6 +2,8 @@
 set -e
 set -x
 
+grep MemTotal /proc/meminfo
+
 # This shell script is called as an entry point into the FORCE wrapper Docker container.
 # old: Parameters and the directory with the catalogue of inputs are passed as command line arguments with --key value syntax.
 # old: The last parameter is the input directory with catalogue.json with the URLs of inputs.
@@ -66,7 +68,7 @@ export shadow_threshold=0.02
 export res_merge=IMPROPHE
 export impulse_noise=FALSE
 export buffer_nodata=FALSE
-export nproc=3
+export nproc=1
 export nthread=4
 export parallel_reads=FALSE
 export process_start_delay=3
@@ -89,9 +91,6 @@ while [ "$1" != "" ]; do
         declare ${1:2}="$2"
         export ${1:2}
         shift 2
-    else
-        inputs="$inputs $1"
-        shift
     fi
 done
 
@@ -123,7 +122,7 @@ uv() {
   /opt/uv/uv "$@"
 }
 aoi-converter() {
-  uv run --project /opt/force-python-tools --no-sync force-aoi-converter "$@"
+  uv run --project /opt/force-python-tools --no-sync --no-cache force-aoi-converter "$@"
 }
 
 # convert AOI to file
@@ -134,12 +133,17 @@ if [ "$aoi" != NULL ]; then
     export aoi=/tmp/aoi.shp
 fi
 
+s5cmd_command_file="/tmp/s5cmd_commands.txt"
+touch "$s5cmd_command_file"
 # retrieve DEM unless available
 # structure is
 #   required vrt go to /tmp/mgrs-vrt/...
 #   downloaded tiles go to /tmp/copernicus/...
 # only Copernicus DEM 30m is supported
-if [ "$dem" == "" -o "$dem" == "NULL" ]; then
+
+find "$inputs"
+
+if [[ "$dem" == "" || "$dem" == "NULL" || "$dem" == "NONE" ]]; then
     export file_dem=NULL
     export dem_database=NULL
     if [ "$do_topo" = "TRUE" ]; then
@@ -147,22 +151,29 @@ if [ "$dem" == "" -o "$dem" == "NULL" ]; then
     fi
 elif [ "$dem" == "Copernicus_30m" ]; then
     mkdir -p /tmp/copernicus /tmp/mgrs-vrt
-    for safeurl in $inputs; do
-        granule_filename=$(basename $safeurl)
+    for safe_archive in "$inputs"/*/; do
+        granule_filename=$(basename "$safe_archive")
         granule=${granule_filename:39:5}
         vrt_path=/opt/apex-force-wrapper/auxdata/MGRS_VRT/MGRS_T${granule}.vrt
-        cp $vrt_path /tmp/mgrs-vrt/
+        cp "$vrt_path" /tmp/mgrs-vrt/
         for dem_tile_path in $(xmlstarlet sel -t -v /VRTDataset/VRTRasterBand/ComplexSource/SourceFilename $vrt_path); do
-            dem_tile_name=$(basename $dem_tile_path)
-            eodata_tile_path=$(ls -l /opt/apex-force-wrapper/auxdata/copernicus/$dem_tile_name|awk '{print $11}')
-            if [ -e /tmp/copernicus/$dem_tile_name ]; then
-                echo $dem_tile_name exists
+            dem_tile_name=$(basename "$dem_tile_path")
+            eodata_tile_path=$(ls -l "/opt/apex-force-wrapper/auxdata/copernicus/${dem_tile_name}" | awk '{print $11}')
+            s5cmd_string="cp s3:/${eodata_tile_path} /tmp/copernicus/"
+            if [ $(grep -q "$s5cmd_string" "$s5cmd_command_file") ]; then
+                echo "$dem_tile_name already scheduled for download"
             else
-                s5cmd cp s3:/$eodata_tile_path /tmp/copernicus/
-                ls -l /tmp/copernicus/$dem_tile_name
+                echo "$s5cmd_string" >> "$s5cmd_command_file"
             fi
         done
     done
+    if [[ "$(wc -l $s5cmd_command_file)" -gt 0 ]]; then
+      echo "Running s5cmd commands file"
+      cat "$s5cmd_command_file"
+      s5cmd run "$s5cmd_command_file"
+    else
+      echo "no dem tiles to download found"
+    fi
     find /tmp/mgrs-vrt
     find /tmp/copernicus
     export file_dem=/tmp/mgrs-vrt
@@ -181,17 +192,12 @@ mkdir inputs
 rm -f inputs/tds.txt
 touch inputs/tds.txt
 
-for safeurl in $inputs; do
-    # s3://EODATA/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
-    if [ ! -e inputs/$(basename $safeurl) ]; then
-        echo staging $(basename $safeurl)
-        #s3cmd get -r $safeurl inputs
-        s5cmd cp $safeurl* inputs
-    else
-        echo $(basename $safeurl) already available
-    fi
-    echo ${PWD}/inputs/$(basename $safeurl) QUEUED >> inputs/tds.txt
+for safe_archive in "$inputs"/*/; do
+    # S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
+    echo "$(realpath "$safe_archive") QUEUED" >> inputs/tds.txt
 done
+
+cat inputs/tds.txt
 
 # create parameter file
 

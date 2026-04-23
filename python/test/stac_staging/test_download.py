@@ -14,6 +14,8 @@ def stac_item(item_path) -> pystac.Item:
 
 @pytest.mark.parametrize("synchronous", [True, False])
 def test_download_by_asset(stac_item, tmp_path, synchronous):
-    download_by_asset([stac_item], tmp_path, synchronous=synchronous)
+    download_by_asset(
+        [stac_item], tmp_path, synchronous=synchronous, unwrap_toplevel_dir=False
+    )
     downloaded = set(p.name for p in tmp_path.iterdir())
     assert {"b.txt", "c.txt"} == downloaded

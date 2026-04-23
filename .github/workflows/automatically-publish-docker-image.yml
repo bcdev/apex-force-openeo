@@ -26,7 +26,7 @@ jobs:
       group: ${{ github.workflow }}
     steps:
       - name: git-checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Extract TAG
         run: |
           DOCKER_REQUIREMENT=$(<cwl/docker-requirement.yaml)

@@ -169,6 +169,10 @@ mkdir -p "$stac_output_dir"
 
 envsubst < "$parameter_template" > "$filled_parameter_path"
 
+# Debugging output
+cat "$filled_parameter_path"
+find "$input_data_dir" -ls
+
 if [ ! -e "${output_dir}"/CITEME* ]; then
     script -q -e /dev/stdout -c "force-higher-level ${filled_parameter_path}"
 fi

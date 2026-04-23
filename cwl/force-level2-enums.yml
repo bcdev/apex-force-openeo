@@ -1,0 +1,42 @@
+-
+  type: enum
+  name: resampling
+  label: "Resampling option for reprojection"
+  symbols:
+    - NN
+    - BL
+    - CC
+    - CSP
+    - LZ
+    - AVG
+    - MODE
+    - MAX
+    - MIN
+    - MED
+    - Q1
+    - Q3
+    - SUM
+    - RMS
+-
+  type: enum
+  name: dem
+  label: Digital Elevation Model
+  symbols:
+    - Copernicus_30m
+    - NONE
+-
+  type: enum
+  name: res_merge
+  label: Method used for improving the spatial resolution of Sentinel-2's 20 m bands to 10 m.
+  symbols:
+    - IMPROPHE
+    - REGRESSION
+    - STARFM
+    - NONE
+-
+  type: enum
+  name: output_format
+  label: Output Format
+  symbols:
+    - GTiff
+    - COG

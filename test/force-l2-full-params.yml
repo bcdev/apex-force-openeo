@@ -1,0 +1,44 @@
+#aoi: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.6,44.5],[10.6,44.8],[11.0,44.8],[11.0,44.5],[10.6,44.5]]] }, "properties": { "name": "Parma" } }'
+input:
+    class: Directory
+    location: ../../inputs
+name: "Full_parameter_test"
+#aoi: NULL,
+tile_size: 30000
+block_size: 3000
+origin_lon: -25.0
+origin_lat: 60.0
+resolution: 20
+projection: "GLANCE7"
+resampling: "CC"
+dem: "Copernicus_30m"
+do_atmo: true
+do_topo: true
+do_brdf: true
+do_adjacency: false
+do_multi_scattering: true
+do_aod: true
+erase_clouds: false
+max_cloud_cover_frame: 90
+max_cloud_cover_tile: 90
+cloud_buffer: 300
+cirrus_buffer: 30
+shadow_buffer: 90
+snow_buffer: 30
+cloud_threshold: 0.1
+shadow_threshold: 0.02
+res_merge: "IMPROPHE"
+impulse_noise: true
+buffer_nodata: false
+output_format: "GTiff"
+output_dst: false
+output_aod: false
+output_wvp: false
+output_vzn: false
+output_hot: false
+output_ovv: false
+#nproc: 3
+#nthread: 4
+#parallel_reads: false
+#process_start_delay: 3
+#timeout_zip: 30

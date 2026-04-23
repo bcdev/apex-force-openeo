@@ -18,17 +18,27 @@ arguments:
 
 
 inputs:
-  item_url:
-    type: string
+  stac_url:
+    type: string?
     inputBinding:
       prefix: --url
+  stac_string:
+    type: string?
+    inputBinding:
+      prefix: --string
   output_path_base:
     type: string
     inputBinding:
       prefix: --output-path
+  method:
+    type: string?
+    inputBinding:
+      prefix: --method
+    default: ASSET
+
 
 outputs:
   staged_root:
     type: Directory
     outputBinding:
-      glob: $(inputs.output_path_base)/*
+      glob: $(inputs.output_path_base)

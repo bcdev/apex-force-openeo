@@ -1,0 +1,40 @@
+name: Run FORCE level2 test
+on:
+  workflow_dispatch
+
+env:
+  TAG: dev
+  ORG_NAME: bcdev
+  IMAGE_NAME: force-eoap
+  IMG_REG_NAME: quay.io
+  APP_NAME: force-eoap
+  CWLTOOL_VERSION: "3.2.20260411152607"
+
+jobs:
+  build-docker-image:
+    runs-on: ubuntu-latest
+    name: build-docker-image
+    concurrency:
+      group: ${{ github.workflow }}
+    steps:
+      - name: git-checkout
+        uses: actions/checkout@6
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.IMG_REG_NAME }}/${{ env.ORG_NAME }}/${{ env.APP_NAME }}:${{ env.TAG }} $(pwd)
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Set up cwltool
+        run: |
+          python -m pip install "cwltool==${{ env.CWLTOOL_VERSION }}"
+
+      - name: Run FORCE level2 test
+        run: |
+          ./test/test_force_level2.sh
+        env:
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.EODATA_AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCES_KEY_ID: ${{ secrets.EODATA_AWS_ACCESS_KEY_ID }}
+          AWS_ENDPOINT_URL_S3: ${{ env.EODATA_AWS_ENDPOINT_URL_S3 }}
+          S3_ENDPOINT_URL: ${{ env.EODATA_AWS_ENDPOINT_URL_S3 }}

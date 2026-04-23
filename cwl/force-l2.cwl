@@ -21,17 +21,16 @@ requirements:
   DockerRequirement:
     dockerPull:
       $include: docker-requirement.yaml
+  SchemaDefRequirement:
+    types:
+      - $import: force-level2-enums.yml
 
 baseCommand: /opt/apex-force-wrapper/bin/force-level2-wrapper.sh
 inputs:
   input:
-    type: string[]
+    type: Directory
     inputBinding:
-      position: 1
-    default:
-      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE"
-#      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TPQ_20241228T120532.SAFE"
-#      - "s3://EODATA/Sentinel-2/MSI/L1C/2024/12/28/S2B_MSIL1C_20241228T101339_N0511_R022_T32TQQ_20241228T120532.SAFE"
+      prefix: --inputs
   name:
     type: string?
     inputBinding:
@@ -72,34 +71,12 @@ inputs:
       prefix: --projection
     default: GLANCE7
   resampling:
-    type:
-      - "null"
-      - type: enum
-        symbols:
-          - NN
-          - BL
-          - CC
-          - CSP
-          - LZ
-          - AVG
-          - MODE
-          - MAX
-          - MIN
-          - MED
-          - Q1
-          - Q3
-          - SUM
-          - RMS
+    type: force-level2-enums.yml#resampling?
     inputBinding:
       prefix: --resampling
     default: CC
   dem:
-    type:
-      - "null"
-      - type: enum
-        symbols:
-          - Copernicus_30m
-          - none
+    type: force-level2-enums.yml#dem?
     inputBinding:
       prefix: --dem
     default: Copernicus_30m
@@ -170,14 +147,7 @@ inputs:
     inputBinding:
       prefix: --shadow_threshold
   res_merge:
-    type:
-      - "null"
-      - type: enum
-        symbols:
-          - IMPROPHE
-          - REGRESSION
-          - STARFM
-          - NONE
+    type: force-level2-enums.yml#res_merge?
     inputBinding:
       prefix: --res_merge
     default: IMPROPHE
@@ -191,12 +161,7 @@ inputs:
     inputBinding:
       prefix: --buffer_nodata
   output_format:
-    type:
-      - "null"
-      - type: enum
-        symbols:
-          - GTiff
-          - COG
+    type: force-level2-enums.yml#output_format?
     inputBinding:
       prefix: --output_format
   output_dst:
