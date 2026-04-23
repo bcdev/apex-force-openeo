@@ -164,12 +164,10 @@ elif [ "$dem" == "Copernicus_30m" ]; then
                 echo "$dem_tile_name already scheduled for download"
             else
                 echo "$s5cmd_string" >> "$s5cmd_command_file"
-                #s5cmd cp s3:/$eodata_tile_path /tmp/copernicus/ # download one by one
-                #ls -l /tmp/copernicus/$dem_tile_name
             fi
         done
     done
-    if [[ -e "$s5cmd_command_file" ]]; then
+    if [[ "$(wc -l $s5cmd_command_file)" -gt 0 ]]; then
       echo "Running s5cmd commands file"
       cat "$s5cmd_command_file"
       s5cmd run "$s5cmd_command_file"
