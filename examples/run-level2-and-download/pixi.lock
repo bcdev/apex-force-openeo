@@ -229,6 +229,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pyside6-6.11.0-py313hcd51b16_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pysocks-1.7.1-pyha55dd90_7.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pystac-1.14.3-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pystac-client-0.9.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.13.0-h9ebbce0_101_cp313.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/python-dateutil-2.9.0.post0-pyhe01879c_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/python-fastjsonschema-2.21.2-pyhe01879c_0.conda
@@ -3096,6 +3097,18 @@ packages:
   license_family: APACHE
   size: 138711
   timestamp: 1768070185564
+- conda: https://conda.anaconda.org/conda-forge/noarch/pystac-client-0.9.0-pyhd8ed1ab_0.conda
+  sha256: 0dbfe9e842ece00ab14736021f959db84663306ab2ffe44263991d30aa595106
+  md5: d10aaa4bf5c9fc88730007bf64cda768
+  depends:
+  - pystac >=1.10.0
+  - python >=3.10
+  - python-dateutil >=2.8.2
+  - requests >=2.28.2
+  license: Apache-2.0
+  license_family: APACHE
+  size: 36645
+  timestamp: 1752925370170
 - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.13.0-h9ebbce0_101_cp313.conda
   build_number: 101
   sha256: 66a7997b24b2dca636df11402abec7bd2199ddf6971eb47a3ee6b1d27d4faee9
