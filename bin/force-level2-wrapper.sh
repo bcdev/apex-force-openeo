@@ -2,6 +2,8 @@
 set -e
 set -x
 
+grep MemTotal /proc/meminfo
+
 # This shell script is called as an entry point into the FORCE wrapper Docker container.
 # Parameters are passed as --key value arguments.
 # Inputs are passed as positional parameters. There is no input directory any more.
@@ -11,6 +13,7 @@ set -x
 
 # trace
 grep MemTotal /proc/meminfo
+set +e; cat /sys/fs/cgroup/memory.max; set -e
 
 # parse parameter and replace defaults in env
 
@@ -147,7 +150,7 @@ elif [ "$dem" == "Copernicus_30m" ]; then
             fi
         done
     done
-    if [[ "$(cat $s5cmd_command_file|wc -l)" -gt 0 ]]; then
+    if [[ "$(wc -l < $s5cmd_command_file)" -gt 0 ]]; then
         if [ -z "${AWS_ACCESS_KEY_ID-}" -o -z ${AWS_SECRET_ACCESS_KEY-} ]; then
             echo "ERROR: missing env vars AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
             exit 1
