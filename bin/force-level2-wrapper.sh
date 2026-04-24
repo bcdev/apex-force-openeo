@@ -117,6 +117,29 @@ if [ "$aoi" != NULL ]; then
     export aoi=/tmp/aoi.shp
 fi
 
+# list inputs in FORCE queue
+
+mkdir inputs
+rm -f inputs/tds.txt
+touch inputs/tds.txt
+
+for safe_archive in "$inputs"/*/; do
+    # S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
+    if [[ "$(basename $safe_archive)" != S2*SAFE ]]; then
+        echo "ERROR: unexpected directory name $safe_archive . Expected .../S2*SAFE ."
+        exit 1
+    fi
+    echo "$(realpath "$safe_archive") QUEUED" >> inputs/tds.txt
+done
+
+# trace
+cat inputs/tds.txt
+
+if [ $(cat inputs/tds.txt|wc -l) == 0 ]; then
+    echo "ERROR: no inputs provided in $inputs"
+    exit 1
+fi
+
 # retrieve DEM unless available
 # structure is
 #   required vrt goes to /tmp/mgrs-vrt/...
@@ -143,7 +166,7 @@ elif [ "$dem" == "Copernicus_30m" ]; then
             dem_tile_name=$(basename "$dem_tile_path")
             eodata_tile_path=$(ls -l "/opt/apex-force-wrapper/auxdata/copernicus/${dem_tile_name}" | awk '{print $11}')
             s5cmd_string="cp s3:/${eodata_tile_path} /tmp/copernicus/"
-            if [ $(grep -q "$s5cmd_string" "$s5cmd_command_file") ]; then
+            if grep -q "$s5cmd_string" "$s5cmd_command_file"; then
                 echo "$dem_tile_name already scheduled for download"
             else
                 echo "$s5cmd_string" >> "$s5cmd_command_file"
@@ -157,7 +180,7 @@ elif [ "$dem" == "Copernicus_30m" ]; then
         fi
         if [ -z "${AWS_ENDPOINT_URL_S3-}" ]; then
             export AWS_ENDPOINT_URL_S3='https://eodata.dataspace.copernicus.eu'
-	          echo "Environmental variables AWS_ENDPOINT_URL_S3 not defined. Using default: $AWS_ENDPOINT_URL_S3"
+	    echo "Environmental variables AWS_ENDPOINT_URL_S3 not defined. Using default: $AWS_ENDPOINT_URL_S3"
         fi
         # for f5cmd:
         export S3_ENDPOINT_URL=$AWS_ENDPOINT_URL_S3
@@ -177,29 +200,6 @@ elif [ "$dem" == "Copernicus_30m" ]; then
     fi
 else
     echo ERROR: DEM other than Copernicus_30m not yet supported, but dem=$dem set as parameter
-    exit 1
-fi
-
-# list inputs in FORCE queue
-
-mkdir inputs
-rm -f inputs/tds.txt
-touch inputs/tds.txt
-
-for safe_archive in "$inputs"/*/; do
-    # S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
-    if [[ "$(basename $safe_archive)" != S2*SAFE ]]; then
-        echo "ERROR: unexpected directory name $safe_archive . Expected .../S2*SAFE ."
-        exit 1
-    fi
-    echo "$(realpath "$safe_archive") QUEUED" >> inputs/tds.txt
-done
-
-# trace
-cat inputs/tds.txt
-
-if [ $(cat inputs/tds.txt|wc -l) == 0 ]; then
-    echo "ERROR: no inputs provided in $inputs"
     exit 1
 fi
 
@@ -236,7 +236,7 @@ fi
 
 # create stac catalogue for output
 
-default_name=cube-$(date -u +%Y%m%dT%H%M)
+default_name=cube-$(date -u +%Y%m%dT%H%M%S)
 export processing_name=${name:-$default_name}
 # CITEME_0x65.txt
 export citeme_path=$(cd outputs/l2-ard; ls CITEME*)
