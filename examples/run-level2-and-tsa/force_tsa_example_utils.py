@@ -1,8 +1,11 @@
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import contextily as ctx
 import geopandas as gpd
 from shapely import Polygon
 import pystac
+import rioxarray
 
 def extract_catalog_url_from_job_logs(job_logs) -> str:
     log_with_catalog_url = next(
@@ -58,3 +61,22 @@ def transform_item_collection_to_catalog_with_links(item_collection):
         )
         catalog.add_link(item_link)
     return catalog
+
+
+def plot_asset_ndvi(asset_path):
+    ds = rioxarray.open_rasterio(asset_path, masked=True)
+    ds.load()
+    ds.close()
+    
+    fig, ax = plt.subplots(1, 1)
+    plot_args = dict(
+        cmap = "RdYlGn",
+        vmin=-1,
+        vmax=1,
+    )
+    
+    x_with_data = slice(ds.notnull().any("y").argmax(dim="x").item(), None, None)
+    y_with_data = slice(ds.notnull().any("x").argmin(dim="y").item(), None, None)
+    p = (ds.isel(x=x_with_data, y=y_with_data) * 0.0001).plot(ax=ax, **plot_args);
+    ax.set_title(Path(asset_path.name));
+    return fig, ax
