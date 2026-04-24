@@ -2,46 +2,20 @@
 set -e
 set -x
 
+# This shell script is called as an entry point into the FORCE wrapper Docker container.
+# Parameters are passed as --key value arguments.
+# Inputs are passed as path to a directory with .SAFE subdirectories.
+# The tmp directory shall be used for all intermediates.
+# The working directory shall be used for the output.
+# Environment variables AWS_ENDPOINT_URL_S3, AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are provided by the caller
+
+# trace
 grep MemTotal /proc/meminfo
 set +e; cat /sys/fs/cgroup/memory.max; set -e
 
-# This shell script is called as an entry point into the FORCE wrapper Docker container.
-# old: Parameters and the directory with the catalogue of inputs are passed as command line arguments with --key value syntax.
-# old: The last parameter is the input directory with catalogue.json with the URLs of inputs.
-# new: Parameters are passed as --key value arguments. Inputs are passed as positional parameters. There is no input directory any more.
-# new: The tmp directory shall be used for all intermediates. The working directory shall be used for the output.
-# new: environment variables AWS_ENDPOINT_URL_S3, AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are provided by the caller
-
-if [ -z "${AWS_ENDPOINT_URL_S3-}" ]; then
-  export AWS_ENDPOINT_URL_S3='https://eodata.dataspace.copernicus.eu'
-	echo "Environmental variables AWS_ENDPOINT_URL_S3 not defined. Using default: $AWS_ENDPOINT_URL_S3"
-fi
-# for f5cmd:
-export S3_ENDPOINT_URL=$AWS_ENDPOINT_URL_S3
-
-#input_catalogue_dir=${@:$#}
-#
-#mkdir -p inputs
-#rm -f inputs/tds.txt
-#touch inputs/tds.txt
-#
-## catalogue.json
-#catalogue=${input_catalogue_dir}/catalogue.json
-## ./S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE.json
-#for item in $(cat $catalogue|jq -r .links[].href); do
-#    # s3://eodata/Sentinel-2/MSI/L1C/2024/11/13/S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
-#    safeurl=$(cat ${input_catalogue_dir}/$item | jq -r .assets.product_metadata.href|xargs -n 1 dirname)
-#    if [ ! -e inputs/$(basename $safeurl) ]; then
-#        echo staging $(basename $safeurl)
-#        s3cmd -c ${input_catalogue_dir}/dot-s3cfg-cdsedata get -r $safeurl inputs
-#    else
-#        echo $(basename $safeurl) already available
-#    fi
-#    echo ${PWD}/inputs/$(basename $safeurl) QUEUED >> inputs/tds.txt
-#done
-
 # parse parameter and replace defaults in env
 
+export inputs=
 export aoi=NULL
 export resolution=10
 export projection=GLANCE7
@@ -82,7 +56,6 @@ export output_vzn=FALSE
 export output_hot=FALSE
 export output_ovv=TRUE
 
-inputs=
 while [ "$1" != "" ]; do
     if [ "${1:0:2}" = "--" -a "${2:0:2}" = "--" ]; then
         declare ${1:2}="TRUE"
@@ -92,6 +65,9 @@ while [ "$1" != "" ]; do
         declare ${1:2}="$2"
         export ${1:2}
         shift 2
+    else
+        echo unexpected positional parameter $1. Inputs shall be passed as directory in parameter --inputs.
+        exit 1
     fi
 done
 
@@ -111,13 +87,20 @@ export output_vzn="${output_vzn^^}"
 export output_hot="${output_hot^^}"
 export output_ovv="${output_ovv^^}"
 
+default_name=cube-$(date -u +%Y%m%dT%H%M%S)
+export processing_name=${name:-$default_name}
+
+# trace
+find "$inputs"
+
+# use working directory for outputs
 # use /tmp for all intermediates
 
 rm -f /tmp/outputs
 ln -s $(pwd) /tmp/outputs
 cd /tmp
 
-# shorthands
+# convert AOI geojson into shapefile
 
 uv() {
   /opt/uv/uv "$@"
@@ -126,31 +109,54 @@ aoi-converter() {
   uv run --project /opt/force-python-tools --no-sync --no-cache force-aoi-converter "$@"
 }
 
-# convert AOI to file
-
 if [ "$aoi" != NULL ]; then
-    # convert AOI geojson into shapefile
     aoi-converter "$aoi" aoi.shp
+    if [ ! -e aoi.shp ]; then
+        echo "ERROR: conversion of AOI $aoi to shapefile failed"
+        exit 1
+    fi
     export aoi=/tmp/aoi.shp
 fi
 
-s5cmd_command_file="/tmp/s5cmd_commands.txt"
-touch "$s5cmd_command_file"
+# list inputs in FORCE queue
+
+mkdir inputs
+rm -f inputs/tds.txt
+touch inputs/tds.txt
+
+for safe_archive in "$inputs"/*/; do
+    # S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
+    if [[ "$(basename $safe_archive)" != S2*SAFE ]]; then
+        echo "ERROR: unexpected directory name $safe_archive . Expected .../S2*SAFE ."
+        exit 1
+    fi
+    echo "$(realpath "$safe_archive") QUEUED" >> inputs/tds.txt
+done
+
+# trace
+cat inputs/tds.txt
+
+if [ $(cat inputs/tds.txt|wc -l) == 0 ]; then
+    echo "ERROR: no inputs provided in $inputs"
+    exit 1
+fi
+
 # retrieve DEM unless available
 # structure is
-#   required vrt go to /tmp/mgrs-vrt/...
+#   required vrt goes to /tmp/mgrs-vrt/...
 #   downloaded tiles go to /tmp/copernicus/...
 # only Copernicus DEM 30m is supported
 
-find "$inputs"
-
 if [[ "$dem" == "" || "$dem" == "NULL" || "$dem" == "NONE" ]]; then
+    if [ "$do_topo" = "TRUE" ]; then
+        echo "ERROR: do_topo set to TRUE but dem not set"
+        exit 1
+    fi
     export file_dem=NULL
     export dem_database=NULL
-    if [ "$do_topo" = "TRUE" ]; then
-        echo "WARNING: do_topo set to TRUE but dem not set"
-    fi
 elif [ "$dem" == "Copernicus_30m" ]; then
+    s5cmd_command_file="/tmp/s5cmd_commands.txt"
+    touch "$s5cmd_command_file"
     mkdir -p /tmp/copernicus /tmp/mgrs-vrt
     for safe_archive in "$inputs"/*/; do
         granule_filename=$(basename "$safe_archive")
@@ -161,7 +167,7 @@ elif [ "$dem" == "Copernicus_30m" ]; then
             dem_tile_name=$(basename "$dem_tile_path")
             eodata_tile_path=$(ls -l "/opt/apex-force-wrapper/auxdata/copernicus/${dem_tile_name}" | awk '{print $11}')
             s5cmd_string="cp s3:/${eodata_tile_path} /tmp/copernicus/"
-            if [ $(grep -q "$s5cmd_string" "$s5cmd_command_file") ]; then
+            if grep -q "$s5cmd_string" "$s5cmd_command_file"; then
                 echo "$dem_tile_name already scheduled for download"
             else
                 echo "$s5cmd_string" >> "$s5cmd_command_file"
@@ -169,11 +175,22 @@ elif [ "$dem" == "Copernicus_30m" ]; then
         done
     done
     if [[ "$(wc -l < $s5cmd_command_file)" -gt 0 ]]; then
-      echo "Running s5cmd commands file"
-      cat "$s5cmd_command_file"
-      s5cmd run "$s5cmd_command_file"
+        if [ -z "${AWS_ACCESS_KEY_ID-}" -o -z ${AWS_SECRET_ACCESS_KEY-} ]; then
+            echo "ERROR: missing env vars AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
+            exit 1
+        fi
+        if [ -z "${AWS_ENDPOINT_URL_S3-}" ]; then
+            export AWS_ENDPOINT_URL_S3='https://eodata.dataspace.copernicus.eu'
+	    echo "Environmental variables AWS_ENDPOINT_URL_S3 not defined. Using default: $AWS_ENDPOINT_URL_S3"
+        fi
+        # for f5cmd:
+        export S3_ENDPOINT_URL=$AWS_ENDPOINT_URL_S3
+
+        echo "Running s5cmd commands file"
+        cat "$s5cmd_command_file"
+        s5cmd run "$s5cmd_command_file"
     else
-      echo "no dem tiles to download found"
+        echo "no dem tiles to download"
     fi
     find /tmp/mgrs-vrt
     find /tmp/copernicus
@@ -183,46 +200,45 @@ elif [ "$dem" == "Copernicus_30m" ]; then
         echo "WARNING: dem set but do_topo is false"
     fi
 else
-    echo DEM other than Copernicus_30m not yet supported, but dem=$dem set as parameter
+    echo ERROR: DEM other than Copernicus_30m not yet supported, but dem=$dem set as parameter
     exit 1
 fi
-
-# retrieve inputs
-
-mkdir inputs
-rm -f inputs/tds.txt
-touch inputs/tds.txt
-
-for safe_archive in "$inputs"/*/; do
-    # S2A_MSIL1C_20241113T101251_N0511_R022_T32TPQ_20241113T121135.SAFE
-    echo "$(realpath "$safe_archive") QUEUED" >> inputs/tds.txt
-done
-
-cat inputs/tds.txt
 
 # create parameter file
 
 mkdir -p param
-cat /opt/apex-force-wrapper/etc/force-level2-parameters.template | envsubst > param/l2ps.prm
+envsubst < /opt/apex-force-wrapper/etc/force-level2-parameters.template > param/l2ps.prm
+
+#trace
 cat param/l2ps.prm
 
-# call of force-level2
+# call force-level2
 
 mkdir -p outputs/l2-ard log provenance temp
 
 # docker run -i -t -v `pwd`:/data -w /data --user "$(id -u):$(id -g)" --rm davidfrantz/force bash -c "force-level2 param/l2ps.prm"
-if [ ! -e outputs/l2-ard/CITEME* ]; then
-    script -q /dev/stdout -c "force-level2 param/l2ps.prm"
+script -q -e /dev/stdout -c "force-level2 param/l2ps.prm"
+
+# debug
+find outputs
+
+if [ ! -e outputs/l2-ard ]; then
+    echo "ERROR: no output directory found"
+    exit 1
 fi
+if ! ls outputs/l2-ard/*/datacube-definition.prj > /dev/null 2>&1; then
+    echo "ERROR: output does not contain a datacube definition"
+    exit 1
+fi
+if ! ls outputs/l2-ard/*/X*_Y* > /dev/null 2>&1; then
+    echo "ERROR: output does not contain any tile"
+    exit 1
+fi
+
+rm -rf outputs/.parallel
 
 # create stac catalogue for output
 
-rm -rf outputs/.parallel
-find outputs/
-
-# TODO introduce parameter processing_name
-default_name=cube-$(date -u +%Y%m%dT%H%M)
-export processing_name=${name:-$default_name}
 # CITEME_0x65.txt
 export citeme_path=$(cd outputs/l2-ard; ls CITEME*)
 cat /opt/apex-force-wrapper/etc/output-item-header.template | envsubst > outputs/l2-ard/$processing_name-l2-ard.json
