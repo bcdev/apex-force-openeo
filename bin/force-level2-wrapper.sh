@@ -3,7 +3,7 @@ set -e
 set -x
 
 grep MemTotal /proc/meminfo
-set +e; cat /sys/fs/cgroup/memory.max; set+e
+set +e; cat /sys/fs/cgroup/memory.max; set -e
 
 # This shell script is called as an entry point into the FORCE wrapper Docker container.
 # old: Parameters and the directory with the catalogue of inputs are passed as command line arguments with --key value syntax.
