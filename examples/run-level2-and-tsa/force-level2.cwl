@@ -553,7 +553,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.1\n",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.1",
                     "class": "DockerRequirement"
                 },
                 {
@@ -976,7 +976,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.1\n",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.1",
                     "class": "DockerRequirement"
                 },
                 {
