@@ -2,11 +2,9 @@
 set -e
 set -x
 
-grep MemTotal /proc/meminfo
-
 # This shell script is called as an entry point into the FORCE wrapper Docker container.
 # Parameters are passed as --key value arguments.
-# Inputs are passed as positional parameters. There is no input directory any more.
+# Inputs are passed as path to a directory with .SAFE subdirectories.
 # The tmp directory shall be used for all intermediates.
 # The working directory shall be used for the output.
 # Environment variables AWS_ENDPOINT_URL_S3, AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are provided by the caller
@@ -88,6 +86,9 @@ export output_wvp="${output_wvp^^}"
 export output_vzn="${output_vzn^^}"
 export output_hot="${output_hot^^}"
 export output_ovv="${output_ovv^^}"
+
+default_name=cube-$(date -u +%Y%m%dT%H%M%S)
+export processing_name=${name:-$default_name}
 
 # trace
 find "$inputs"
@@ -206,7 +207,9 @@ fi
 # create parameter file
 
 mkdir -p param
-cat /opt/apex-force-wrapper/etc/force-level2-parameters.template | envsubst > param/l2ps.prm
+envsubst < /opt/apex-force-wrapper/etc/force-level2-parameters.template > param/l2ps.prm
+
+#trace
 cat param/l2ps.prm
 
 # call force-level2
@@ -214,9 +217,7 @@ cat param/l2ps.prm
 mkdir -p outputs/l2-ard log provenance temp
 
 # docker run -i -t -v `pwd`:/data -w /data --user "$(id -u):$(id -g)" --rm davidfrantz/force bash -c "force-level2 param/l2ps.prm"
-script -q /dev/stdout -c "force-level2 param/l2ps.prm"
-
-rm -rf outputs/.parallel
+script -q -e /dev/stdout -c "force-level2 param/l2ps.prm"
 
 # debug
 find outputs
@@ -234,10 +235,10 @@ if ! ls outputs/l2-ard/*/X*_Y* > /dev/null 2>&1; then
     exit 1
 fi
 
+rm -rf outputs/.parallel
+
 # create stac catalogue for output
 
-default_name=cube-$(date -u +%Y%m%dT%H%M%S)
-export processing_name=${name:-$default_name}
 # CITEME_0x65.txt
 export citeme_path=$(cd outputs/l2-ard; ls CITEME*)
 cat /opt/apex-force-wrapper/etc/output-item-header.template | envsubst > outputs/l2-ard/$processing_name-l2-ard.json

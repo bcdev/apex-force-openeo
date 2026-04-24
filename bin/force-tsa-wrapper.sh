@@ -2,8 +2,14 @@
 set -e
 set -x
 
+# This shell script is called as an entry point into the FORCE wrapper Docker container.
+# Parameters are passed as --key value arguments.
+# List-valued parameters are passed as comma-separated values: MIN,MAX,Q50
+# The input is passed as path to a directory with a FORCE cube with a datacube-definition.prj
+# The tmp directory shall be used for all intermediates.
+# The working directory shall be used for the output.
+
 # parse parameter and replace defaults in env
-# list parameters are passed as comma-separated values: MIN,MAX,Q50
 
 export name=
 export input_data_dir=
@@ -75,18 +81,9 @@ export output_explode=false
 export output_subfolders=false
 export fail_if_empty=false
 
-ERROR_INCORRECT_INPUT=3
-
-# shorthands
-
-uv() {
-  /opt/uv/uv "$@"
-}
-gen-stac() {
-  uv run --project /opt/force-python-tools --no-sync gen-stac "$@"
-}
-
 # list parameters are passed as comma-separated values: MIN,MAX,Q50
+
+ERROR_INCORRECT_INPUT=3
 
 while [ "$1" != "" ]; do
     if [ "${1:0:2}" = "--" ]; then
@@ -111,6 +108,12 @@ if [ "$date_range" = "" ]; then
 elif [ "$input_data_dir" = "" ]; then
     echo "missing input_data_dir"
     exit 4
+elif ! ls $input_data_dir/datacube-definition.prj > /dev/null 2>&1; then
+    echo "ERROR: input does not contain a datacube definition"
+    exit 1
+elif ! ls $input_data_dir/X*_Y* > /dev/null 2>&1; then
+    echo "ERROR: input does not contain any tile"
+    exit 1
 fi
 
 export reduce_psf=${reduce_psf^^}
@@ -149,36 +152,50 @@ export fail_if_empty=${fail_if_empty^^}
 default_name=cube-$(date -u +%Y%m%dT%H%M)
 export processing_name=${name:-$default_name}
 
-export output_dir="outputs/force-tsa"
-export provenance_dir="/tmp/provenance"
-
 # use /tmp for all intermediates
 
 rm -f /tmp/outputs
 ln -s $(pwd) /tmp/outputs
 cd /tmp
 
+export output_dir="outputs/force-tsa"
+export provenance_dir="/tmp/provenance"
 parameter_template="/opt/apex-force-wrapper/etc/force-tsa-parameters.template"
 filled_parameter_path="/tmp/force-tsa-parameters.prm"
-stac_output_dir=$output_dir
 
 mkdir -p $(dirname "$filled_parameter_path")
 mkdir -p "$output_dir"
 mkdir -p "$provenance_dir"
-mkdir -p "$stac_output_dir"
 
 envsubst < "$parameter_template" > "$filled_parameter_path"
 
-# Debugging output
+# trace
 cat "$filled_parameter_path"
 find "$input_data_dir" -ls
 
-if [ ! -e "${output_dir}"/CITEME* ]; then
-    script -q -e /dev/stdout -c "force-higher-level ${filled_parameter_path}"
+# run FORCE higher level
+
+script -q -e /dev/stdout -c "force-higher-level $filled_parameter_path"
+
+if ! ls $output_dir/datacube-definition.prj > /dev/null 2>&1; then
+    echo "ERROR: output does not contain a datacube definition"
+    exit 1
+fi
+if ! ls $output_dir/X*_Y* > /dev/null 2>&1; then
+    echo "ERROR: output does not contain any tile"
+    exit 1
 fi
 
 # create stac catalog for outputs
 
+uv() {
+  /opt/uv/uv "$@"
+}
+gen-stac() {
+  uv run --project /opt/force-python-tools --no-sync gen-stac "$@"
+}
+
 gen-stac "$output_dir" --output-path "$stac_output_dir" --item-id "$processing_name-tsa"
 
+# trace
 find $output_dir -ls
