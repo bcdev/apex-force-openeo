@@ -3,6 +3,7 @@ set -e
 set -x
 
 grep MemTotal /proc/meminfo
+set +e; cat /sys/fs/cgroup/memory.max; set+e
 
 # This shell script is called as an entry point into the FORCE wrapper Docker container.
 # old: Parameters and the directory with the catalogue of inputs are passed as command line arguments with --key value syntax.
@@ -167,7 +168,7 @@ elif [ "$dem" == "Copernicus_30m" ]; then
             fi
         done
     done
-    if [[ "$(wc -l $s5cmd_command_file)" -gt 0 ]]; then
+    if [[ "$(wc -l < $s5cmd_command_file)" -gt 0 ]]; then
       echo "Running s5cmd commands file"
       cat "$s5cmd_command_file"
       s5cmd run "$s5cmd_command_file"
