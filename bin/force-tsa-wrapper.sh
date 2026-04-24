@@ -109,10 +109,10 @@ elif [ "$input_data_dir" = "" ]; then
     echo "missing input_data_dir"
     exit 4
 elif ! ls $input_data_dir/datacube-definition.prj > /dev/null 2>&1; then
-    echo "ERROR: input does not contain a datacube definition"
+    echo "ERROR: input $input_data_dir does not contain a datacube definition"
     exit 1
 elif ! ls $input_data_dir/X*_Y* > /dev/null 2>&1; then
-    echo "ERROR: input does not contain any tile"
+    echo "ERROR: input $input_data_dir does not contain any tile"
     exit 1
 fi
 
