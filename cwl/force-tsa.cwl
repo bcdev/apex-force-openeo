@@ -6,8 +6,10 @@ requirements:
     networkAccess: true # TODO is this needed, if we can download independently?
   ResourceRequirement:
     # TODO set reasonable limits
-    ramMin: 7000
-    ramMax: 7000
+    ramMin: 16384
+    ramMax: 16384
+    #ramMin: 7000
+    #ramMax: 7000
     coresMin: 1
     coresMax: 4
   SchemaDefRequirement:

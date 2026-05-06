@@ -9,11 +9,11 @@ from pathlib import Path
 from typing import Dict, Optional
 
 import aiohttp
-import pystac
 import stac_asset
 from stac_asset import blocking
 from stac_asset.client import Clients
 
+import pystac
 from stac_staging.util import unwrap_single_dir_level
 
 LOGGER = logging.getLogger(__name__)
@@ -69,7 +69,8 @@ def download_recursive(
             "Recursive download depends on s5cmd. Make sure it is installed."
         )
     if os.getenv(S3_ENDPOINT_URL) is None:
-        if os.getenv(AWS_ENDPOINT_URL_S3) is None:
+        aws_endpoint_url_s3 = os.getenv(AWS_ENDPOINT_URL_S3)
+        if aws_endpoint_url_s3 is None:
             raise RuntimeError(
                 f"Environment variable '{S3_ENDPOINT_URL}' is not set, but required by s5cmd. "
                 f"Please set it or the fallback '{AWS_ENDPOINT_URL_S3}'"
@@ -77,7 +78,7 @@ def download_recursive(
         LOGGER.info(
             f"'{S3_ENDPOINT_URL}' not set. Setting '{S3_ENDPOINT_URL}={os.getenv(AWS_ENDPOINT_URL_S3)}'"
         )
-        os.environ[S3_ENDPOINT_URL] = os.getenv(AWS_ENDPOINT_URL_S3)
+        os.environ[S3_ENDPOINT_URL] = aws_endpoint_url_s3
 
     commands = []
 

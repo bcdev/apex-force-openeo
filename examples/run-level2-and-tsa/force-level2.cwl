@@ -553,7 +553,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.1",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.2-dev1",
                     "class": "DockerRequirement"
                 },
                 {
@@ -561,8 +561,8 @@
                     "class": "NetworkAccess"
                 },
                 {
-                    "ramMin": 8192,
-                    "ramMax": 8192,
+                    "ramMin": 16384,
+                    "ramMax": 16384,
                     "coresMin": 1,
                     "coresMax": 4,
                     "class": "ResourceRequirement"
@@ -786,6 +786,17 @@
                 {
                     "type": [
                         "null",
+                        "int"
+                    ],
+                    "inputBinding": {
+                        "prefix": "--nproc"
+                    },
+                    "default": 4,
+                    "id": "#force-l2.cwl/nproc"
+                },
+                {
+                    "type": [
+                        "null",
                         "float"
                     ],
                     "inputBinding": {
@@ -976,7 +987,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.1",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.2-dev1",
                     "class": "DockerRequirement"
                 },
                 {

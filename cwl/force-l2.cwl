@@ -14,8 +14,10 @@ requirements:
   NetworkAccess:
      networkAccess: true
   ResourceRequirement:
-    ramMin: 8192
-    ramMax: 8192
+    ramMin: 16384
+    ramMax: 16384
+    #ramMin: 8192
+    #ramMax: 8192
     coresMin: 1
     coresMax: 4
   DockerRequirement:
@@ -188,6 +190,11 @@ inputs:
     type: boolean?
     inputBinding:
       prefix: --output_ovv
+  nproc:
+    type: int?
+    inputBinding:
+      prefix: --nproc
+    default: 4
 
 outputs:
   ## Alternative with a flat file list, breaks structure

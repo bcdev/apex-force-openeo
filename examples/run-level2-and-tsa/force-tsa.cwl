@@ -984,7 +984,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.1",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.2-dev1",
                     "class": "DockerRequirement"
                 },
                 {
@@ -992,8 +992,8 @@
                     "class": "NetworkAccess"
                 },
                 {
-                    "ramMin": 7000,
-                    "ramMax": 7000,
+                    "ramMin": 16384,
+                    "ramMax": 16384,
                     "coresMin": 1,
                     "coresMax": 4,
                     "class": "ResourceRequirement"
@@ -1699,7 +1699,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.1",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.2-dev1",
                     "class": "DockerRequirement"
                 },
                 {
