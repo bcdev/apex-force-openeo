@@ -21,6 +21,7 @@ download-stac = "stac_staging.cli:download_from_stac"
 force-aoi-converter = "force_utils.force_aoi_converter:main"
 datacube-bounding-box = "force_utils.datacube_definition:compute_datacube_bounding_box"
 gen-stac = "force_utils.cli:gen_stac"
+gen-stac-old = "force_utils.cli:gen_stac_old"
 
 [tool.setuptools.packages.find]
 where = ["src"]
