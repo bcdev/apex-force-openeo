@@ -1,10 +1,12 @@
+import importlib
 import json
 import re
 from abc import ABCMeta, abstractmethod
 from collections.abc import Set
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
 import multihash
 import numpy as np
@@ -61,9 +63,12 @@ class AbstractStacContributor(metaclass=ABCMeta):
 
 
 class Level2StacContributor(AbstractStacContributor):
-    EXTENSIONS: Set[EXTENSION_NAMES] = (
-        set()
-    )  # {"processing"} # processing extension is not supported by pystac (2026-05-07)
+    # processing and product extensions are not supported by pystac (2026-05-07)
+    # {
+    #      "processing",
+    #      "product"
+    # }
+    EXTENSIONS: Set[EXTENSION_NAMES] = {"eo"}
 
     ASSET_FILE_NAME_PATTERN = re.compile(
         # 20160823_LEVEL2  _SEN2A        _BOA        .tif # noqa
@@ -99,6 +104,13 @@ class Level2StacContributor(AbstractStacContributor):
     def process_store(
         cls, store: ForceDatacubeStore, catalog: pystac.Catalog, item: pystac.Item
     ) -> None:
+        # Needed, as long as extensions are not supported by pystac
+        item.stac_extensions.append(
+            "https://stac-extensions.github.io/product/v1.0.0/schema.json"
+        )
+        item.stac_extensions.append(
+            "https://stac-extensions.github.io/processing/v1.2.0/schema.json"
+        )
         item.properties["processing:level"] = "L2"
         # TODO
         # item.properties["processing:version"] =
@@ -109,6 +121,8 @@ class Level2StacContributor(AbstractStacContributor):
             "apex-force-openeo": force_utils.__version__
         }
         item.properties["processing:software"] = software
+        item.properties["product:type"] = "FORCE_L2_ARD"
+        item.ext.eo.bands = cls.get_bands()
 
     @classmethod
     def process_asset_path(
@@ -153,6 +167,9 @@ class Level2StacContributor(AbstractStacContributor):
         # TODO more sophisticated role handling. We could use the classification extension for QAI for example
         # https://github.com/stac-extensions/classification/blob/main/README.md
         asset.roles = cls.ROLES_MAPPING.get(file_extension, [])
+        assert asset.roles
+        if "data" in asset.roles:
+            asset.ext.eo.bands = cls.get_bands()
 
     @classmethod
     def needs_file_ds(cls, path: Path) -> bool:
@@ -170,6 +187,27 @@ class Level2StacContributor(AbstractStacContributor):
     ) -> None:
         pass
         # raise NotImplementedError()
+
+    @classmethod
+    @lru_cache(maxsize=1)
+    def _get_l2_bands_metadata(cls) -> List[Dict[str, Any]]:
+        band_metadata_resource = importlib.resources.files("force_utils.data").joinpath(
+            "sentinel-2-band-metadata.json"
+        )
+        with band_metadata_resource.open("r") as fp:
+            band_metadata = json.load(fp)
+
+        return band_metadata
+
+    @classmethod
+    def get_bands(cls) -> List[Dict[str, Any]]:
+        bands = [
+            pystac.extensions.eo.Band.create(
+                {k.removeprefix("eo:"): v for k, v in b.items()}
+            )
+            for b in cls._get_l2_bands_metadata()
+        ]
+        return bands
 
 
 class TsaStacContributor(AbstractStacContributor):
