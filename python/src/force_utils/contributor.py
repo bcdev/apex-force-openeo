@@ -30,13 +30,11 @@ class AbstractStacContributor(metaclass=ABCMeta):
     EXTENSIONS = set()
 
     @classmethod
-    @abstractmethod
     def process_store(
         cls, store: ForceDatacubeStore, catalog: pystac.Catalog, item: pystac.Item
     ) -> None: ...
 
     @classmethod
-    @abstractmethod
     def process_asset_path(
         cls, absolute: Path, relative: Path, tile: str, asset: pystac.Asset
     ) -> None: ...
@@ -46,13 +44,11 @@ class AbstractStacContributor(metaclass=ABCMeta):
     def needs_file_ds(cls, path: Path) -> bool: ...
 
     @classmethod
-    @abstractmethod
     def process_asset_ds(
         cls, ds: DatasetReader, tile: str, asset: pystac.Asset
     ) -> None: ...
 
     @classmethod
-    @abstractmethod
     def process_parameter_files(
         cls, l2_parameter_path: Optional[Path], parameter_path: Optional[Path]
     ) -> None: ...
@@ -176,19 +172,6 @@ class Level2StacContributor(AbstractStacContributor):
         return False
 
     @classmethod
-    def process_asset_ds(
-        cls, ds: DatasetReader, tile: str, asset: pystac.Asset
-    ) -> None:
-        raise NotImplementedError()
-
-    @classmethod
-    def process_parameter_files(
-        cls, l2_parameter_path: Optional[Path], parameter_path: Optional[Path]
-    ) -> None:
-        pass
-        # raise NotImplementedError()
-
-    @classmethod
     @lru_cache(maxsize=1)
     def _get_l2_bands_metadata(cls) -> List[Dict[str, Any]]:
         band_metadata_resource = importlib.resources.files("force_utils.data").joinpath(
@@ -262,27 +245,9 @@ class CommonMetadataStacContributor(AbstractStacContributor):
     def needs_file_ds(cls, path: Path) -> bool:
         return False
 
-    @classmethod
-    def process_asset_ds(
-        cls, ds: DatasetReader, tile: str, asset: pystac.Asset
-    ) -> None:
-        pass
-
-    @classmethod
-    def process_parameter_files(
-        cls, l2_parameter_path: Optional[Path], parameter_path: Optional[Path]
-    ) -> None:
-        pass
-
 
 class FileExtensionMetadataStacContributor(AbstractStacContributor):
     EXTENSIONS: Set[EXTENSION_NAMES] = {"file"}
-
-    @classmethod
-    def process_store(
-        cls, store: ForceDatacubeStore, catalog: pystac.Catalog, item: pystac.Item
-    ) -> None:
-        pass
 
     @classmethod
     def process_asset_path(
@@ -299,33 +264,9 @@ class FileExtensionMetadataStacContributor(AbstractStacContributor):
     def needs_file_ds(cls, path: Path) -> bool:
         return False
 
-    @classmethod
-    def process_asset_ds(
-        cls, ds: DatasetReader, tile: str, asset: pystac.Asset
-    ) -> None:
-        pass
-
-    @classmethod
-    def process_parameter_files(
-        cls, l2_parameter_path: Optional[Path], parameter_path: Optional[Path]
-    ) -> None:
-        pass
-
 
 class ProjExtensionMetadataStacContributor(AbstractStacContributor):
     EXTENSIONS: Set[EXTENSION_NAMES] = {"proj"}
-
-    @classmethod
-    def process_store(
-        cls, store: ForceDatacubeStore, catalog: pystac.Catalog, item: pystac.Item
-    ) -> None:
-        return None
-
-    @classmethod
-    def process_asset_path(
-        cls, absolute: Path, relative: Path, tile: str, asset: pystac.Asset
-    ) -> None:
-        pass
 
     # TODO more sophisticated selection?
     @classmethod
@@ -358,27 +299,9 @@ class ProjExtensionMetadataStacContributor(AbstractStacContributor):
             "lon": centroid_lon,
         }
 
-    @classmethod
-    def process_parameter_files(
-        cls, l2_parameter_path: Optional[Path], parameter_path: Optional[Path]
-    ) -> None:
-        pass
-
 
 class RasterExtensionMetadataStacContributor(AbstractStacContributor):
     EXTENSIONS: Set[EXTENSION_NAMES] = {"raster"}
-
-    @classmethod
-    def process_store(
-        cls, store: ForceDatacubeStore, catalog: pystac.Catalog, item: pystac.Item
-    ) -> None:
-        return None
-
-    @classmethod
-    def process_asset_path(
-        cls, absolute: Path, relative: Path, tile: str, asset: pystac.Asset
-    ) -> None:
-        return None
 
     @classmethod
     def needs_file_ds(cls, path: Path) -> bool:
@@ -400,9 +323,3 @@ class RasterExtensionMetadataStacContributor(AbstractStacContributor):
         asset.ext.raster.offset = offset
         asset.ext.raster.spatial_resolution = np.mean(ds.res)
         asset.ext.raster.sampling = "area"
-
-    @classmethod
-    def process_parameter_files(
-        cls, l2_parameter_path: Optional[Path], parameter_path: Optional[Path]
-    ) -> None:
-        pass
