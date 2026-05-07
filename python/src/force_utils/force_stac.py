@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Set
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,6 +13,8 @@ from force_utils.contributor import (
     CommonMetadataStacContributor,
 )
 from force_utils.datacube_store import ForceDatacubeStore
+
+logger = logging.getLogger(__name__)
 
 
 class ForceStacBuilder:
@@ -32,14 +35,10 @@ class ForceStacBuilder:
         store: ForceDatacubeStore,
         contributors: Iterable[AbstractStacContributor],
         layout_strategy: Optional[pystac.layout.HrefLayoutStrategy] = None,
-        l2_parameter_path: Optional[Path] = None,
-        parameter_path: Optional[Path] = None,
     ):
         self.store = store
         self.contributors = [self._get_default_contributor(), *contributors]
         self.layout_strategy = layout_strategy or self.DEFAULT_LAYOUT_STRATEGY
-        self.l2_parameter_path = l2_parameter_path
-        self.parameter_path = parameter_path
 
     def generate_stac(
         self,
@@ -96,11 +95,6 @@ class ForceStacBuilder:
                     with rasterio.open(asset_path) as ds:
                         for contributor in need_file_ds:
                             contributor.process_asset_ds(ds, asset=asset, tile=tile)
-
-        for contributor in self.contributors:
-            contributor.process_parameter_files(
-                self.l2_parameter_path, self.parameter_path
-            )
 
         return catalog
 

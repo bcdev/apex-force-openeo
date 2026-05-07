@@ -1,12 +1,13 @@
 import importlib
 import json
+import logging
 import re
 from abc import ABCMeta, abstractmethod
 from collections.abc import Set
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import List, Dict, Any
 
 import multihash
 import numpy as np
@@ -24,6 +25,8 @@ MEDIA_TYPES = {
     ".jpg": pystac.MediaType.JPEG,
     ".jpeg": pystac.MediaType.JPEG,
 }
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractStacContributor(metaclass=ABCMeta):
@@ -46,11 +49,6 @@ class AbstractStacContributor(metaclass=ABCMeta):
     @classmethod
     def process_asset_ds(
         cls, ds: DatasetReader, tile: str, asset: pystac.Asset
-    ) -> None: ...
-
-    @classmethod
-    def process_parameter_files(
-        cls, l2_parameter_path: Optional[Path], parameter_path: Optional[Path]
     ) -> None: ...
 
     @classmethod
@@ -210,15 +208,18 @@ class TsaStacContributor(AbstractStacContributor):
     def process_asset_ds(cls, ds: DatasetReader, asset: pystac.Asset) -> None:
         raise NotImplementedError()
 
-    @classmethod
-    def process_parameter_files(
-        cls, l2_parameter_path: Optional[Path], parameter_path: Optional[Path]
-    ) -> None:
-        raise NotImplementedError()
-
 
 class CommonMetadataStacContributor(AbstractStacContributor):
     EXTENSIONS: Set[EXTENSION_NAMES] = set()
+
+    PARAMETER_BLACKLIST: List[str] = [
+        # Level 2
+        "FILE_QUEUE",
+        "DIR_LEVEL2",
+        "DIR_LOG",
+        "DIR_PROVENANCE",
+        "DIR_TEMP",
+    ]
 
     @classmethod
     def process_store(
@@ -232,6 +233,55 @@ class CommonMetadataStacContributor(AbstractStacContributor):
         now_iso = f"{item.datetime.isoformat()}Z"
         item.properties["created"] = now_iso
         item.properties["updated"] = now_iso
+        parameter_files = store.get_parameter_files()
+        if parameter_files:
+            for parameter_path in parameter_files:
+                cls.process_parameter_file(parameter_path, store, item=item)
+
+    @classmethod
+    def process_parameter_file(
+        cls,
+        parameter_path: Path,
+        store: ForceDatacubeStore,
+        item: pystac.Item,
+    ):
+        with open(parameter_path) as fp:
+            # ++PARAM_LEVEL2_START++
+            parameter_type = (
+                fp.readline().strip().removeprefix("++PARAM_").removesuffix("_START++")
+            )
+            parameter_lines = filter(
+                lambda l: not (
+                    l.strip().startswith("#") or l.strip().startswith("+") or len(l) < 2
+                ),
+                fp.readlines(),
+            )
+
+        key = f"FORCE:{parameter_type}_parameters"
+        item.properties[key] = {}
+        for parameter_line in parameter_lines:
+            param_name, param_value = map(
+                lambda p: p.strip(), parameter_line.split("=")
+            )
+            if not param_name in cls.PARAMETER_BLACKLIST:
+                item.properties[key][param_name] = param_value
+
+        # TODO if parameter file is relative to datacube root, add as asset
+        try:
+            parameter_path_relative = store.get_relative_path(parameter_path)
+            parameter_asset = pystac.Asset(
+                href=str(parameter_path_relative),
+            )
+            item.add_asset(
+                key=key,
+                asset=parameter_asset,
+            )
+        except ValueError:
+            logger.warning(
+                f"Could not add parameter file '{parameter_path.name}' as asset, "
+                f"it must be relative to the data cube root '{store._data_cube_root}', "
+                f"but is located at '{parameter_path.resolve()}'"
+            )
 
     @classmethod
     def process_asset_path(

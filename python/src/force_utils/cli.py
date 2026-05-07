@@ -38,11 +38,14 @@ def gen_stac_old(datacube_root, output_path, item_id):
 @click.argument("datacube-root", type=click.Path(exists=True))
 @click.option("--output-path", "-o", type=click.Path(exists=True), default=Path.cwd())
 @click.option("--item-id", "-i", type=str, default="")
+@click.option(
+    "--parameter-path", "-p", type=click.Path(exists=True), default=None, multiple=True
+)
 @click.option("--validate", is_flag=True)
-def gen_stac(datacube_root, output_path, item_id, validate):
+def gen_stac(datacube_root, output_path, item_id, parameter_path, validate):
     output_path = Path(output_path)
     logger.info(f"Generating STAC catalog and item for {datacube_root}")
-    datacube_store = ForceDatacubeStore(datacube_root)
+    datacube_store = ForceDatacubeStore(datacube_root, parameter_files=parameter_path)
     stac_builder = ForceStacBuilder(
         datacube_store,
         contributors=[
