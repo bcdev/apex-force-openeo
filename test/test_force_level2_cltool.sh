@@ -28,9 +28,10 @@ cwltool \
   --preserve-environment=S3_ENDPOINT_URL \
   --preserve-environment=AWS_ACCESS_KEY_ID \
   --preserve-environment=AWS_SECRET_ACCESS_KEY \
+  --debug \
   --outdir="${repo_root}/../target/level2" \
   --tmpdir-prefix="${HOME}/tmp" \
   --overrides "${repo_root}/test/local-overrides.yaml" \
-  "${repo_root}/cwl/force-l2-workflow.cwl" \
+  "${repo_root}/cwl/force-l2.cwl" \
   "$input_parameter_file"
 
