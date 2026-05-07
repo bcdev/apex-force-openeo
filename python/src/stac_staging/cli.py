@@ -52,7 +52,7 @@ def download_from_stac(
     """
     if (not url and not string) or (url and string):
         raise ValueError(
-            f"Exactly one of 'url' or 'string' must be provided, found '{url=} and '{string=}'"
+            f"Exactly one of 'url' or 'string' must be provided, found '{url=}' and '{string=}'"
         )
     output_path = Path(output_path)
 
