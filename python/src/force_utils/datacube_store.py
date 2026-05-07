@@ -1,8 +1,8 @@
 from collections.abc import Iterable
 from pathlib import Path
+from typing import Union
 
 import pystac
-# TODO replace rasterio with pyproj
 import rasterio
 import shapely
 from rasterio import warp
@@ -103,3 +103,10 @@ class ForceDatacubeStore:
 
     def iter_tiles(self) -> Iterable[str]:
         return (t.name for t in self._data_cube_root.glob("X????_Y????"))
+
+    def iter_asset_paths(self, tile) -> Iterable[Path]:
+        return (self._data_cube_root / tile).iterdir()
+
+    def get_relative_path(self, abs_path: Union[str, Path]) -> Path:
+        abs_path: Path = Path(abs_path)
+        return abs_path.relative_to(self._data_cube_root)

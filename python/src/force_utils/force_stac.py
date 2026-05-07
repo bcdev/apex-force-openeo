@@ -1,34 +1,17 @@
-import json
+from collections.abc import Set
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Iterable
+from typing import Optional, Iterable, List
 
 import pystac
 import rasterio
-import shapely
+from pystac.extensions.ext import EXTENSION_NAMES
 
 from force_utils.contributor import (
     AbstractStacContributor,
     CommonMetadataStacContributor,
 )
 from force_utils.datacube_store import ForceDatacubeStore
-
-MEDIA_TYPES = {
-    "tif": pystac.MediaType.GEOTIFF,
-    "tiff": pystac.MediaType.GEOTIFF,
-}
-
-
-def get_media_type(path: Path) -> Optional[str]:
-    return MEDIA_TYPES.get(path.suffix)
-
-
-def get_asset_key(tile_id: str, asset_path: Path):
-    return f"{tile_id}.{asset_path.stem}"
-
-
-def get_asset_title(tile_id: str, asset_path: Path):
-    return f"{tile_id}_{asset_path.stem}".replace("_", " ")
 
 
 class ForceStacBuilder:
@@ -37,6 +20,12 @@ class ForceStacBuilder:
     DEFAULT_LAYOUT_STRATEGY = pystac.layout.CustomLayoutStrategy(
         item_func=lambda item, parent: Path(parent) / f"{item.id}.json"
     )
+
+    store: ForceDatacubeStore
+    contributors: List[AbstractStacContributor]
+    layout_strategy: Optional[pystac.layout.HrefLayoutStrategy]
+    l2_parameter_path: Optional[Path]
+    parameter_path: Optional[Path]
 
     def __init__(
         self,
@@ -53,45 +42,60 @@ class ForceStacBuilder:
         self.parameter_path = parameter_path
 
     def generate_stac(
-        self, item_id: str, description: str = DEFAULT_DESCRIPTION
+        self,
+        item_id: str,
+        description: str = DEFAULT_DESCRIPTION,
     ) -> pystac.Catalog:
         catalog = pystac.Catalog(
             self.CATALOG_ID, description, strategy=self.layout_strategy
         )
-
-        bbox = self.store.compute_bounding_box()
         now = datetime.now(tz=timezone.utc)
-        now_iso = f"{now.isoformat()}Z"
-
         item = pystac.Item(
             item_id,
-            geometry=json.loads(shapely.to_geojson(bbox)),
-            bbox=list(bbox.bounds),
+            geometry=None,
+            bbox=None,
             datetime=now,
-            properties={
-                "created": now_iso,
-                "updated": now_iso,
-            },
+            properties={},
         )
+        catalog.add_item(item, strategy=self.layout_strategy)
+
+        extensions: Set[EXTENSION_NAMES] = set().union(
+            *(contributor.get_extensions() for contributor in self.contributors)
+        )
+        for extension in extensions:
+            item.ext.add(extension)
 
         for contributor in self.contributors:
             contributor.process_store(self.store, catalog=catalog, item=item)
 
-        for asset_path in self.store.iter_asset_paths():
-            asset_path_relative = self.store.get_relative_path(asset_path)
+        for tile in self.store.iter_tiles():
+            for asset_path in self.store.iter_asset_paths(tile):
+                asset_path_relative = self.store.get_relative_path(asset_path)
 
-            asset = pystac.Asset(
-                href=str(asset_path_relative),
-            )
-
-            for contributor in self.contributors:
-                contributor.process_asset_filename(
-                    asset_path_relative.name, asset=asset
+                asset_key = self._get_asset_key(tile, asset_path_relative)
+                asset = pystac.Asset(
+                    href=str(asset_path_relative),
                 )
+                item.add_asset(asset_key, asset)
 
-            with rasterio.open(asset_path) as ds:
                 for contributor in self.contributors:
-                    contributor.process_asset_ds(ds, asset=asset)
+                    contributor.process_asset_path(
+                        asset_path,
+                        relative=asset_path_relative,
+                        asset=asset,
+                        tile=tile,
+                    )
+
+                need_file_ds = [
+                    contributor
+                    for contributor in self.contributors
+                    if contributor.needs_file_ds(asset_path)
+                ]
+
+                if need_file_ds:
+                    with rasterio.open(asset_path) as ds:
+                        for contributor in need_file_ds:
+                            contributor.process_asset_ds(ds, asset=asset, tile=tile)
 
         for contributor in self.contributors:
             contributor.process_parameter_files(
@@ -101,5 +105,9 @@ class ForceStacBuilder:
         return catalog
 
     @staticmethod
-    def _get_default_contributor():
+    def _get_default_contributor() -> AbstractStacContributor:
         return CommonMetadataStacContributor()
+
+    @staticmethod
+    def _get_asset_key(tile, asset_path) -> str:
+        return f"{tile}.{asset_path.stem}"
