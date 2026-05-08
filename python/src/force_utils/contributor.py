@@ -463,6 +463,18 @@ class CommonMetadataStacContributor(AbstractStacContributor):
             for parameter_path in parameter_files:
                 cls.process_parameter_file(parameter_path, store, item=item)
 
+        data_cube_definition_local_path = store.data_cube_definition_path.name
+        data_cube_definition_asset = pystac.Asset(
+            href=data_cube_definition_local_path,
+            title="Data Cube Definition",
+            media_type=pystac.MediaType.TEXT,
+            roles=["metadata"],
+            # TODO
+            # decription = ...,
+        )
+        data_cube_definition_asset.ext.file.local_path = data_cube_definition_local_path
+        item.add_asset("datacube-definition.prj", data_cube_definition_asset)
+
     @classmethod
     def process_parameter_file(
         cls,

@@ -40,12 +40,15 @@ class ForceDatacubeStore:
         self._parameter_files = (
             [Path(p).resolve() for p in parameter_files] if parameter_files else None
         )
+        self.data_cube_definition_path = (
+            self._data_cube_root / self.DATACUBE_DEFINITION_FILENAME
+        )
 
         if not self._data_cube_root.exists():
             raise ValueError(f"Path to datacube '{data_cube_root}' does not exist")
         if not self._data_cube_root.exists():
             raise ValueError(f"Path to datacube '{data_cube_root}' does not exist")
-        with open(self._data_cube_root / self.DATACUBE_DEFINITION_FILENAME) as fp:
+        with open(self.data_cube_definition_path) as fp:
             self.projection_wkt = self._parse_data_cube_definition_entry(fp.readline())
             self.grid_origin_lon = float(
                 self._parse_data_cube_definition_entry(fp.readline())

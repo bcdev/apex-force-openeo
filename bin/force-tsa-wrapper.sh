@@ -102,6 +102,8 @@ while [ "$1" != "" ]; do
     fi
 done
 
+find "$input_data_dir"
+
 if [ "$date_range" = "" ]; then
     echo "missing date_range"
     exit 4
