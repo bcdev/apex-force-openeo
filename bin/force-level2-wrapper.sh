@@ -183,7 +183,7 @@ elif [ "$dem" == "Copernicus_30m" ]; then
             export AWS_ENDPOINT_URL_S3='https://eodata.dataspace.copernicus.eu'
 	    echo "Environmental variables AWS_ENDPOINT_URL_S3 not defined. Using default: $AWS_ENDPOINT_URL_S3"
         fi
-        # for f5cmd:
+        # for s5cmd:
         export S3_ENDPOINT_URL=$AWS_ENDPOINT_URL_S3
 
         echo "Running s5cmd commands file"
@@ -239,43 +239,12 @@ rm -rf outputs/.parallel
 
 # create stac catalogue for output
 
-# CITEME_0x65.txt
-export citeme_path=$(cd outputs/l2-ard; ls CITEME*)
-cat /opt/apex-force-wrapper/etc/output-item-header.template | envsubst > outputs/l2-ard/$processing_name-l2-ard.json
-for continent_prj_path in $(cd outputs/l2-ard; ls */datacube-definition.prj); do
-    # europe
-    continent_dir=$(dirname $continent_prj_path)
-    for tile_dir in $(cd outputs/l2-ard; ls -d $continent_dir/X*_Y*); do
-        for boa_path in $(cd outputs/l2-ard; ls $tile_dir/*BOA.tif); do
-            export boa_path
-            export id=$(echo ${boa_path%.tif} | tr '/' '.' )
-            export size=$(ls -l outputs/l2-ard/$boa_path | cut -d ' ' -f 5)
-            export md5sum=$(md5sum outputs/l2-ard/$boa_path | cut -d ' ' -f 1)
-            export title="$(echo ${boa_path%.tif} | tr '/' ' ' | tr '_' ' ')"
-            cat /opt/apex-force-wrapper/etc/output-item-boa-asset.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
-        done
-        for qai_path in $(cd outputs/l2-ard; ls $tile_dir/*QAI.tif); do
-            export qai_path
-            export id=$(echo ${qai_path%.tif} | tr '/' '.' )
-            export size=$(ls -l outputs/l2-ard/$qai_path | cut -d ' ' -f 5)
-            export md5sum=$(md5sum outputs/l2-ard/$qai_path | cut -d ' ' -f 1)
-            export title="$(echo ${qai_path%.tif} | tr '/' ' ' | tr '_' ' ')"
-            cat /opt/apex-force-wrapper/etc/output-item-qai-asset.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
-        done
-        for ovv_path in $(cd outputs/l2-ard; ls $tile_dir/*OVV.jpg); do
-            export ovv_path
-            export id=$(echo ${ovv_path%.tif} | tr '/' '.' )
-            export size=$(ls -l outputs/l2-ard/$ovv_path | cut -d ' ' -f 5)
-            export md5sum=$(md5sum outputs/l2-ard/$ovv_path | cut -d ' ' -f 1)
-            export title="$(echo ${ovv_path%.jpg} | tr '/' ' ' | tr '_' ' ')"
-            cat /opt/apex-force-wrapper/etc/output-item-ovv-asset.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
-        done
-    done
-    export id=datacube-definition.prj
-    export continent_prj_path
-    export title="$continent_dir projection"
-    cat /opt/apex-force-wrapper/etc/output-item-continent.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
-done
-cat /opt/apex-force-wrapper/etc/output-item-footer.template | envsubst >> outputs/l2-ard/$processing_name-l2-ard.json
+uv() {
+  /opt/uv/uv "$@"
+}
+gen-stac() {
+  uv run --project /opt/force-python-tools --no-sync gen-stac "$@"
+}
 
-cat /opt/apex-force-wrapper/etc/output-catalogue.template | envsubst > outputs/l2-ard/catalogue.json
+# TODO instead of hardcoded europe, generate stac for each continent
+gen-stac outputs/l2-ard/europe --output-path outputs/l2-ard/europe --item-id "$processing_name-level2" --type level2
