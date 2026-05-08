@@ -314,7 +314,9 @@ class TsaStacContributor(AbstractStacContributor):
     ASSET_FILE_NAME_PATTERN = re.compile(
         # 1984-2020_182-274_HL_TSA_LNDLG_TCG_STM.tif
         # TODO ask FORCE to update documentation (8 digit dates, not just years as claimed by docs)
-        r"(\d{8}-\d{8})_(\d{3}-\d{3})_HL_TSA_([A-Z0-9-]{5})_([A-Z]{3})_([A-Z]+)\.(tif|dat|hdr)"
+        # TODO ask FORCE to update documentation (FORCE may generate 4 letter index short names (e.g., NDVI) not 3 letter
+        #  as in the docs)
+        r"(\d{8}-\d{8})_(\d{3}-\d{3})_HL_TSA_([A-Z0-9-]{5})_([A-Z]{3,4})_([A-Z]+)\.(tif|dat|hdr)"
     )
     PRODUCT_TYPE_FOLDING_PATTERN = re.compile(r"(FB|TR|CA)([YQMWD])")
     PRODUCT_TYPE_PHENOMETRICS_POLARMETRICS_PATTERN = re.compile(
