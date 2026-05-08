@@ -38,8 +38,8 @@ def download_from_stac(
     string: Optional[str],
     output_path: Path,
     method: DownloadMethod,
-    synchronous: bool=False,
-    unwrap_top_level: bool=False,
+    synchronous: bool = False,
+    unwrap_top_level: bool = False,
 ) -> None:
     """
     Download assets from a STAC item, catalog or item collection
@@ -82,4 +82,9 @@ def download_from_stac(
         case DownloadMethod.RECURSIVE:
             download_recursive(items, output_path)
         case DownloadMethod.ASSET:
-            download_by_asset(items, output_path, synchronous=synchronous, unwrap_toplevel_dir=unwrap_top_level)
+            download_by_asset(
+                items,
+                output_path,
+                synchronous=synchronous,
+                unwrap_toplevel_dir=unwrap_top_level,
+            )
