@@ -194,7 +194,7 @@ inputs:
     type: int?
     inputBinding:
       prefix: --nproc
-    default: 4
+    default: 2
 
 outputs:
   ## Alternative with a flat file list, breaks structure

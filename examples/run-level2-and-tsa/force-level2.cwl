@@ -791,7 +791,7 @@
                     "inputBinding": {
                         "prefix": "--nproc"
                     },
-                    "default": 4,
+                    "default": 2,
                     "id": "#force-l2.cwl/nproc"
                 },
                 {
