@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+from warnings import deprecated
 
 import multihash
 import numpy as np
@@ -58,11 +59,14 @@ class AbstractStacContributor(metaclass=ABCMeta):
 
 class Level2StacContributor(AbstractStacContributor):
     # processing and product extensions are not supported by pystac (2026-05-07)
+    # eo extension 2.0.0 is not yet supported, but required for common names such as rededge071
     # {
     #      "processing",
     #      "product"
+    #       "eo"
     # }
-    EXTENSIONS: Set[EXTENSION_NAMES] = {"eo"}
+    # EXTENSIONS: Set[EXTENSION_NAMES] = {"eo"}
+    EXTENSIONS: Set[EXTENSION_NAMES] = set()
 
     ASSET_FILE_NAME_PATTERN = re.compile(
         # 20160823_LEVEL2  _SEN2A        _BOA        .tif # noqa
@@ -89,10 +93,6 @@ class Level2StacContributor(AbstractStacContributor):
         "VZN": "View zenith",
         "HOT": "Haze Optimized Transformation",
     }
-    ROLES_MAPPING = {
-        "tif": ["data"],
-        "jpg": ["thumbnail"],
-    }
 
     @classmethod
     def process_store(
@@ -105,6 +105,9 @@ class Level2StacContributor(AbstractStacContributor):
         item.stac_extensions.append(
             "https://stac-extensions.github.io/processing/v1.2.0/schema.json"
         )
+        item.stac_extensions.append(
+            "https://stac-extensions.github.io/eo/v2.0.0/schema.json"
+        )
         item.properties["processing:level"] = "L2"
         # TODO
         # item.properties["processing:version"] =
@@ -116,7 +119,7 @@ class Level2StacContributor(AbstractStacContributor):
         }
         item.properties["processing:software"] = software
         item.properties["product:type"] = "FORCE_L2_ARD"
-        item.ext.eo.bands = cls.get_bands()
+        item.properties["bands"] = cls._get_l2_bands_metadata()
 
     @classmethod
     def process_asset_path(
@@ -160,10 +163,11 @@ class Level2StacContributor(AbstractStacContributor):
             asset.extra_fields["product_type"] = product_type_long
         # TODO more sophisticated role handling. We could use the classification extension for QAI for example
         # https://github.com/stac-extensions/classification/blob/main/README.md
-        asset.roles = cls.ROLES_MAPPING.get(file_extension, [])
+        asset.roles = cls._get_roles(product_type, file_extension)
         assert asset.roles
         if "data" in asset.roles:
-            asset.ext.eo.bands = cls.get_bands()
+            # asset.ext.eo.bands = cls.get_bands()
+            asset.extra_fields["bands"] = cls._get_l2_bands_metadata()
 
     @classmethod
     def needs_file_ds(cls, path: Path) -> bool:
@@ -181,14 +185,37 @@ class Level2StacContributor(AbstractStacContributor):
         return band_metadata
 
     @classmethod
+    @deprecated(
+        "Bands objects have been removed from the eo extension v2.0.0. Use _get_l2_bands_metadata instead."
+    )
     def get_bands(cls) -> List[Dict[str, Any]]:
         bands = [
             pystac.extensions.eo.Band.create(
-                {k.removeprefix("eo:"): v for k, v in b.items()}
+                **{k.removeprefix("eo:"): v for k, v in b.items()}
             )
             for b in cls._get_l2_bands_metadata()
         ]
         return bands
+
+    @classmethod
+    def _get_roles(
+        cls, product_type_key: Optional[str], file_extension: str
+    ) -> List[str]:
+        match (product_type_key, file_extension):
+            case ("OVV", "jpg"):
+                roles = ["thumbnail"]
+            case ("BOA", "tif"):
+                roles = ["data"]
+            case ("QAI", "tif"):
+                roles = ["data-mask", "water-mask", "data-mask", "land-water"]
+            case _:
+                roles = []
+
+        if not roles:
+            logger.warning(
+                f"Could not determine roles for asset with '{product_type_key=}' and '{file_extension=}'"
+            )
+        return roles
 
 
 class TsaStacContributor(AbstractStacContributor):
@@ -494,7 +521,7 @@ class CommonMetadataStacContributor(AbstractStacContributor):
                 fp.readlines(),
             )
 
-        key = f"FORCE:{parameter_type}_parameters"
+        key = f"FORCE_{parameter_type}_parameters"
         item.properties[key] = {}
         for parameter_line in parameter_lines:
             param_name, param_value = map(
@@ -503,11 +530,13 @@ class CommonMetadataStacContributor(AbstractStacContributor):
             if not param_name in cls.PARAMETER_BLACKLIST:
                 item.properties[key][param_name] = param_value
 
-        # TODO if parameter file is relative to datacube root, add as asset
         try:
             parameter_path_relative = store.get_relative_path(parameter_path)
             parameter_asset = pystac.Asset(
                 href=str(parameter_path_relative),
+                title="FORCE parameter file",
+                media_type=pystac.MediaType.TEXT,
+                roles=["metadata"],
             )
             item.add_asset(
                 key=key,
