@@ -413,12 +413,6 @@ class TsaStacContributor(AbstractStacContributor):
         return False
 
     @classmethod
-    def process_asset_ds(
-        cls, ds: DatasetReader, tile: str, asset: pystac.Asset
-    ) -> None:
-        raise NotImplementedError()
-
-    @classmethod
     def _get_product_type_long_name(cls, product_type_key) -> Optional[str]:
         # Case 1: Three-letter simple product type, e.g TSS
         simple_product_type_long = cls.PRODUCT_TYPE_MAPPING.get(product_type_key)
@@ -599,6 +593,15 @@ class FileExtensionMetadataStacContributor(AbstractStacContributor):
 
 class ProjExtensionMetadataStacContributor(AbstractStacContributor):
     EXTENSIONS: Set[EXTENSION_NAMES] = {"proj"}
+
+    @classmethod
+    def process_store(
+        cls, store: ForceDatacubeStore, catalog: pystac.Catalog, item: pystac.Item
+    ):
+        item.ext.proj.wkt2 = store.projection_wkt
+        crs_authority = store.crs_rasterio.to_authority()
+        if crs_authority:
+            item.ext.proj.code = ":".join(crs_authority)
 
     # TODO more sophisticated selection?
     @classmethod
