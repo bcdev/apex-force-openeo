@@ -47,7 +47,18 @@ def gen_stac_old(datacube_root, output_path, item_id):
 def gen_stac(datacube_root, output_path, item_id, type, parameter_path, validate):
     output_path = Path(output_path)
     logger.info(f"Generating STAC catalog and item for {datacube_root}")
-    datacube_store = ForceDatacubeStore(datacube_root, parameter_files=parameter_path)
+
+    citeme_path_candidates = list(Path(datacube_root).parent.glob(r"CITEME*.txt"))
+    if len(citeme_path_candidates) != 1:
+        raise ValueError(
+            f"No CITEME files found in {list(Path(datacube_root).parent.iterdir())}"
+        )
+
+    citeme_path = next(iter(citeme_path_candidates))
+    datacube_store = ForceDatacubeStore(
+        datacube_root, parameter_files=parameter_path, citeme_path=citeme_path
+    )
+
     type_contributor = dict(
         level2=Level2StacContributor,
         tsa=TsaStacContributor,
