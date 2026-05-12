@@ -29,5 +29,5 @@ include = ["stac_staging", "force_utils"]
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.2",
+    "pytest>=9.0.3",
 ]
