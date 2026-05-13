@@ -154,9 +154,12 @@ class Level2StacContributor(AbstractStacContributor):
                         f"Provenance file '{provenance_file}' did not match provenance file pattern '{cls.PROVENANCE_FILE_NAME_PATTERN}'"
                     )
                 else:
-                    provenance_asset.extra_fields["datetime"] = datetime(
+                    provenance_date = datetime(
                         int(m.group(1)), int(m.group(2)), int(m.group(3))
-                    ).isoformat()
+                    )
+                    provenance_asset.extra_fields["datetime"] = (
+                        f"{provenance_date.isoformat()}Z"
+                    )
                 item.add_asset(title, provenance_asset)
 
         # logfile # https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/format.html#logfile
