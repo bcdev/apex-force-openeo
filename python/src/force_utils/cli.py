@@ -43,8 +43,19 @@ def gen_stac_old(datacube_root, output_path, item_id):
 @click.option(
     "--parameter-path", "-p", type=click.Path(exists=True), default=None, multiple=True
 )
+@click.option("--provenance-path", type=click.Path(exists=True), default=None)
+@click.option("--logs-path", type=click.Path(exists=True), default=None)
 @click.option("--validate", is_flag=True)
-def gen_stac(datacube_root, output_path, item_id, type, parameter_path, validate):
+def gen_stac(
+    datacube_root,
+    output_path,
+    item_id,
+    type,
+    parameter_path,
+    validate,
+    provenance_path,
+    logs_path,
+):
     output_path = Path(output_path)
     logger.info(f"Generating STAC catalog and item for {datacube_root}")
 
@@ -56,7 +67,11 @@ def gen_stac(datacube_root, output_path, item_id, type, parameter_path, validate
 
     citeme_path = next(iter(citeme_path_candidates))
     datacube_store = ForceDatacubeStore(
-        datacube_root, parameter_files=parameter_path, citeme_path=citeme_path
+        datacube_root,
+        parameter_files=parameter_path,
+        citeme_path=citeme_path,
+        provenance_path=provenance_path,
+        logs_path=logs_path,
     )
 
     type_contributor = dict(

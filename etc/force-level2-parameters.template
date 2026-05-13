@@ -18,10 +18,10 @@ FILE_QUEUE = ${PWD}/inputs/tds.txt
 DIR_LEVEL2 = ${PWD}/outputs/l2-ard
 # This is the directory where logfiles should be saved.
 # Type: full directory path
-DIR_LOG = ${PWD}/log
+DIR_LOG = ${PWD}/outputs/l2-ard/log
 # This is the directory where provenance files should be saved.
 # Type: full directory path
-DIR_PROVENANCE = ${PWD}/provenance
+DIR_PROVENANCE = ${PWD}/outputs/l2-ard/provenance
 # This is a temporary directory that is used to extract compressed images
 # for force-level2. Note that images already need to be extracted when using
 # force-l2ps directly. The extracted data will be deleted once they were

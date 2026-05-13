@@ -214,7 +214,7 @@ cat param/l2ps.prm
 
 # call force-level2
 
-mkdir -p outputs/l2-ard log provenance temp
+mkdir -p outputs/l2-ard outputs/l2-ard/log outputs/l2-ard/provenance temp
 
 # docker run -i -t -v `pwd`:/data -w /data --user "$(id -u):$(id -g)" --rm davidfrantz/force bash -c "force-level2 param/l2ps.prm"
 script -q -e /dev/stdout -c "force-level2 param/l2ps.prm"
@@ -247,4 +247,4 @@ gen-stac() {
 }
 
 # TODO instead of hardcoded europe, generate stac for each continent
-gen-stac outputs/l2-ard/europe --output-path outputs/l2-ard/europe --item-id "$processing_name-level2" --type level2
+gen-stac outputs/l2-ard/europe --output-path outputs/l2-ard/europe --item-id "$processing_name-level2" --type level2 --provenance-path "outputs/l2-ard/provenance" --logs-path "outputs/l2-ard/log"

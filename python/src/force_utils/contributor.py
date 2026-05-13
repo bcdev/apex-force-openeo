@@ -7,7 +7,7 @@ from collections.abc import Set
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 from warnings import deprecated
 
 import multihash
@@ -20,11 +20,12 @@ from rasterio.io import DatasetReader
 import force_utils
 from force_utils.datacube_store import ForceDatacubeStore
 
-MEDIA_TYPES = {
+MEDIA_TYPES: Dict[str, Union[pystac.MediaType, str]] = {
     ".tif": pystac.MediaType.GEOTIFF,
     ".tiff": pystac.MediaType.GEOTIFF,
     ".jpg": pystac.MediaType.JPEG,
     ".jpeg": pystac.MediaType.JPEG,
+    ".csv": "text/csv",
 }
 
 logger = logging.getLogger(__name__)
@@ -71,6 +72,10 @@ class Level2StacContributor(AbstractStacContributor):
     ASSET_FILE_NAME_PATTERN = re.compile(
         # 20160823_LEVEL2  _SEN2A        _BOA        .tif # noqa
         r"(\d{8})_(LEVEL2)_([A-Z0-9]{5})_([A-Z]{3})\.(jpg|tif)"
+    )
+    PROVENANCE_FILE_NAME_PATTERN = re.compile(
+        # provenance_20250505                      .csv
+        r"provenance_([0-9]{4})([0-9]{2})([0-9]{2}).csv"
     )
     DATE_FORMAT = "%Y%m%d"
     SENSOR_ID_MAPPING = {
@@ -120,6 +125,60 @@ class Level2StacContributor(AbstractStacContributor):
         item.properties["processing:software"] = software
         item.properties["product:type"] = "FORCE_L2_ARD"
         item.properties["bands"] = cls._get_l2_bands_metadata()
+
+        # provenance # https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/format.html#provenance
+        provenance_local_path = store.provenance_path
+        csv_media_type = MEDIA_TYPES.get(".csv", pystac.MediaType.TEXT)
+        if provenance_local_path is None:
+            logger.info(
+                f"No provenance path provided, not adding any provenance assets"
+            )
+        else:
+            if next(provenance_local_path.iterdir(), None) is None:
+                logger.warning(f"Provenance path {provenance_local_path} is empty.")
+            for provenance_file in provenance_local_path.iterdir():
+                title = f"provenance.{provenance_file.stem}"
+                provenance_asset = pystac.Asset(
+                    href=str(provenance_file),
+                    title=title,
+                    media_type=csv_media_type,
+                    roles=["metadata"],
+                )
+                # Local Path is set inside the data cube even though it comes from one level higher
+                provenance_asset.ext.file.local_path = (
+                    f"provenance/{provenance_file.name}"
+                )
+                m = cls.PROVENANCE_FILE_NAME_PATTERN.match(provenance_file.name)
+                if m is None:
+                    logger.warning(
+                        f"Provenance file '{provenance_file}' did not match provenance file pattern '{cls.PROVENANCE_FILE_NAME_PATTERN}'"
+                    )
+                else:
+                    provenance_asset.extra_fields["datetime"] = datetime(
+                        int(m.group(1)), int(m.group(2)), int(m.group(3))
+                    ).isoformat()
+                item.add_asset(title, provenance_asset)
+
+        # logfile # https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/format.html#logfile
+        logs_local_path = store.logs_path
+        logs_media_type = pystac.MediaType.TEXT
+
+        if logs_local_path is None:
+            logger.info(f"No logs path provided, not adding the log assets")
+        else:
+            if next(logs_local_path.iterdir(), None) is None:
+                logger.warning(f"Log path {logs_local_path} is empty.")
+            for log_file in logs_local_path.iterdir():
+                title = f"logs.{log_file.stem}"
+                log_asset = pystac.Asset(
+                    href=str(log_file),
+                    title=title,
+                    media_type=logs_media_type,
+                    roles=["metadata"],
+                )
+                # Local Path is set inside the data cube even though it comes from one level higher
+                log_asset.ext.file.local_path = f"logs/{log_file.name}"
+                item.add_asset(title, log_asset)
 
     @classmethod
     def process_asset_path(
