@@ -1,0 +1,6 @@
+.git
+.github
+examples
+notebooks
+**/.pixi
+**/.venv
