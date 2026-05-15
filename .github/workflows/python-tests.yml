@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "python/**"
+  workflow_call:
 
 jobs:
   build:
@@ -14,7 +15,7 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@v6
         with:
-          python-version-file: "python/pyproject.toml"
+          python-version-file: ".python-version"
       - name: Set up UV
         uses: astral-sh/setup-uv@v7
 

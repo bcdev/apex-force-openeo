@@ -1,0 +1,57 @@
+name: Test Build Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: 'Create as pre-release'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  python-tests:
+    uses: ./.github/workflows/python-tests.yml
+
+  integration-tests-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          lfs: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: '.python-version'
+      - name: Set up UV
+        uses: astral-sh/setup-uv@v7
+      - name: download input products from lfs
+        run: |
+          git lfs install
+          git lfs pull --include="test/data/S2B_MSIL1C_20260303T101019_N0512_R022_T32TPQ_20260303T152416.SAFE.zip
+          unzip test/data/*.SAFE.zip -d ../inputs
+      - name: FORCE level 2 test
+        id: force_level2_test
+        run: |
+          uv run --with cwltool bash test/test_force_level2_cltool.sh
+      - name: Run second bash script
+        id: force_tsa_test
+        run: |
+          uv run --with cwltool bash test/test_force_tsa_cltool.sh
+      - name: Generate Full Workflow files
+        run: |
+          uv run --with cwltool tools/compile-workflows.sh "."
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            force-level2.cwl
+            force-tsa.cwl
+            README.md
+            LICENSE
+            CHANGELOG.md
+          prerelease: ${{ github.event.inputs.prerelease || false }}
