@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euxo pipefail
+
 repo_root=$(realpath "$(dirname "$0")/..")
 input_parameter_file="${repo_root}/test/force-l2-params-relative.yml"
+outdir="${repo_root}/../target/level2"
 echo "repo_root: ${repo_root}"
 
 export AWS_ENDPOINT_URL_S3='https://eodata.dataspace.copernicus.eu'
@@ -29,9 +31,24 @@ cwltool \
   --preserve-environment=AWS_ACCESS_KEY_ID \
   --preserve-environment=AWS_SECRET_ACCESS_KEY \
   --debug \
-  --outdir="${repo_root}/../target/level2" \
+  --outdir="$outdir"\
   --tmpdir-prefix="${HOME}/tmp" \
   --overrides "${repo_root}/test/local-overrides.yaml" \
   "${repo_root}/cwl/force-l2.cwl" \
   "$input_parameter_file"
 
+
+# check that asset links can be found
+cd "$outdir/l2-ard/europe" # must check relative paths in the assets from outdir
+pwd
+missing=0
+find . -name 'cube-*.json' -print0 |
+    xargs -0 jq -r '
+  .assets // {} | to_entries[].value.href
+  ' | while read -r f; do
+        [[ -e "$f" ]] || {
+          echo "Missing asset: $f (tested $(realpath $f))"
+          missing=1
+        }
+done
+exit $missing
