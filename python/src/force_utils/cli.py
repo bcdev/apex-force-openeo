@@ -3,7 +3,6 @@ from pathlib import Path
 
 import click
 import pystac
-
 from force_utils.contributor import (
     FileExtensionMetadataStacContributor,
     ProjExtensionMetadataStacContributor,
@@ -48,10 +47,10 @@ def gen_stac(datacube_root, output_path, item_id, type, parameter_path, validate
     output_path = Path(output_path)
     logger.info(f"Generating STAC catalog and item for {datacube_root}")
 
-    citeme_path_candidates = list(Path(datacube_root).parent.glob(r"CITEME*.txt"))
+    citeme_path_candidates = list(Path(datacube_root).glob(r"CITEME*.txt"))
     if len(citeme_path_candidates) != 1:
         raise ValueError(
-            f"No CITEME files found in {list(Path(datacube_root).parent.iterdir())}"
+            f"No CITEME files found in {list(Path(datacube_root).iterdir())}"
         )
 
     citeme_path = next(iter(citeme_path_candidates))

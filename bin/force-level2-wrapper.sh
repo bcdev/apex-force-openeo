@@ -247,4 +247,6 @@ gen-stac() {
 }
 
 # TODO instead of hardcoded europe, generate stac for each continent
+mv outputs/l2-ard/CITEME* outputs/l2-ard/europe/
+
 gen-stac outputs/l2-ard/europe --output-path outputs/l2-ard/europe --item-id "$processing_name-level2" --type level2

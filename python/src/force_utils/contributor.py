@@ -11,14 +11,14 @@ from typing import List, Dict, Any, Optional
 from warnings import deprecated
 
 import multihash
+
+import force_utils
 import numpy as np
 import pystac
 import shapely
+from force_utils.datacube_store import ForceDatacubeStore
 from pystac.extensions.ext import EXTENSION_NAMES
 from rasterio.io import DatasetReader
-
-import force_utils
-from force_utils.datacube_store import ForceDatacubeStore
 
 MEDIA_TYPES = {
     ".tif": pystac.MediaType.GEOTIFF,
@@ -498,7 +498,7 @@ class CommonMetadataStacContributor(AbstractStacContributor):
         item.add_asset("datacube-definition.prj", data_cube_definition_asset)
 
         # citeme
-        citeme_local_path = store._citeme_path
+        citeme_local_path = store.get_relative_path(store._citeme_path)
         if citeme_local_path is not None:
             citeme_asset = pystac.Asset(
                 href=str(citeme_local_path),
