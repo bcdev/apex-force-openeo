@@ -8,8 +8,8 @@ requirements:
     # TODO set reasonable limits
     #ramMin: 24576
     #ramMax: 24576
-    ramMin: 18000
-    ramMax: 18000
+    ramMin: 22000
+    ramMax: 22000
     #ramMin: 7000
     #ramMax: 7000
     coresMin: 1
