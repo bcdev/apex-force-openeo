@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 repo_root=$(realpath "$(dirname "$0")/..")
-input_parameter_file="${repo_root}/test/force-l2-params-relative.yml"
+input_parameter_file="${repo_root}/test/force-tsa/force-tsa-params-relative.yml"
 echo "repo_root: ${repo_root}"
 
 export AWS_ENDPOINT_URL_S3='https://eodata.dataspace.copernicus.eu'
@@ -23,14 +23,15 @@ if [[ "${1:-}" == "docker" ]]; then
 else echo "Reusing docker image ${docker_image_name}. Pass 'docker' as an argument to rebuild it"
 fi
 
+  #--preserve-environment=AWS_ENDPOINT_URL_S3 \
+  #--preserve-environment=S3_ENDPOINT_URL \
+  #--preserve-environment=AWS_ACCESS_KEY_ID \
+  #--preserve-environment=AWS_SECRET_ACCESS_KEY \
+
 cwltool \
-  --preserve-environment=AWS_ENDPOINT_URL_S3 \
-  --preserve-environment=S3_ENDPOINT_URL \
-  --preserve-environment=AWS_ACCESS_KEY_ID \
-  --preserve-environment=AWS_SECRET_ACCESS_KEY \
-  --outdir="${repo_root}/../target/level2" \
+  --outdir="${repo_root}/../target/tsa" \
   --tmpdir-prefix="${HOME}/tmp" \
   --overrides "${repo_root}/test/local-overrides.yaml" \
-  "${repo_root}/cwl/force-l2-workflow.cwl" \
+  "${repo_root}/cwl/force-tsa.cwl" \
   "$input_parameter_file"
 

@@ -1,4 +1,4 @@
-aoi: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.6,44.5],[10.6,44.8],[11.0,44.8],[11.0,44.5],[10.6,44.5]]] }, "properties": { "name": "Parma" } }'
+#aoi: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.6,44.5],[10.6,44.8],[11.0,44.8],[11.0,44.5],[10.6,44.5]]] }, "properties": { "name": "Parma" } }'
 buffer_nodata: false
 cirrus_buffer: 30
 cloud_buffer: 300

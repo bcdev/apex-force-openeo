@@ -1,0 +1,9 @@
+name: emilia-romagna
+input_data_dir:
+  class: Directory
+  path: ../../../target/level2/l2-ard/europe
+date_range: [2026-03-01,2026-04-30]
+x_tile_range: [31,32]
+y_tile_range: [29,30]
+output_stm: true
+stm: [MIN,AVG]

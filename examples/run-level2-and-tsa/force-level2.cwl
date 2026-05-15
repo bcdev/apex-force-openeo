@@ -553,7 +553,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.2-dev1",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.6",
                     "class": "DockerRequirement"
                 },
                 {
@@ -791,7 +791,7 @@
                     "inputBinding": {
                         "prefix": "--nproc"
                     },
-                    "default": 4,
+                    "default": 2,
                     "id": "#force-l2.cwl/nproc"
                 },
                 {
@@ -987,7 +987,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.2-dev1",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.6",
                     "class": "DockerRequirement"
                 },
                 {

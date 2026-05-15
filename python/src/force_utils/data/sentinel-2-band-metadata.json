@@ -1,0 +1,62 @@
+[
+  {
+    "eo:center_wavelength": 0.493,
+    "eo:full_width_half_max": 0.065,
+    "name": "B2",
+    "eo:common_name": "blue"
+  },
+  {
+    "eo:center_wavelength": 0.560,
+    "eo:full_width_half_max": 0.035,
+    "name": "B3",
+    "eo:common_name": "green"
+  },
+  {
+    "eo:center_wavelength": 0.665,
+    "eo:full_width_half_max": 0.031,
+    "name": "B4",
+    "eo:common_name": "red"
+  },
+  {
+    "eo:center_wavelength": 0.704,
+    "eo:full_width_half_max": 0.015,
+    "name": "B5",
+    "eo:common_name": "rededge071"
+  },
+  {
+    "eo:center_wavelength": 0.740,
+    "eo:full_width_half_max": 0.014,
+    "name": "B6",
+    "eo:common_name": "rededge075"
+  },
+  {
+    "eo:center_wavelength": 0.783,
+    "eo:full_width_half_max": 0.02,
+    "name": "B7",
+    "eo:common_name": "rededge078"
+  },
+  {
+    "eo:center_wavelength": 0.833,
+    "eo:full_width_half_max": 0.115,
+    "name": "B8",
+    "eo:common_name": "nir08"
+  },
+  {
+    "eo:center_wavelength": 0.865,
+    "eo:full_width_half_max": 0.02,
+    "name": "B8A",
+    "eo:common_name": "nir"
+  },
+  {
+    "eo:center_wavelength": 1.614,
+    "eo:full_width_half_max": 0.093,
+    "name": "B11",
+    "eo:common_name": "swir16"
+  },
+  {
+    "eo:center_wavelength": 2.202,
+    "eo:full_width_half_max": 0.181,
+    "name": "B12",
+    "eo:common_name": "swir22"
+  }
+]
