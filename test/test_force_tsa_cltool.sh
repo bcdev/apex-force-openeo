@@ -23,11 +23,6 @@ if [[ "${1:-}" == "docker" ]]; then
 else echo "Reusing docker image ${docker_image_name}. Pass 'docker' as an argument to rebuild it"
 fi
 
-  #--preserve-environment=AWS_ENDPOINT_URL_S3 \
-  #--preserve-environment=S3_ENDPOINT_URL \
-  #--preserve-environment=AWS_ACCESS_KEY_ID \
-  #--preserve-environment=AWS_SECRET_ACCESS_KEY \
-
 cwltool \
   --outdir="${repo_root}/../target/tsa" \
   --tmpdir-prefix="${HOME}/tmp" \
