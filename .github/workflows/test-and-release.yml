@@ -38,6 +38,11 @@ jobs:
         id: force_level2_test
         run: |
           uv run --with cwltool bash test/test_force_level2_cltool.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.EODATA_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.EODATA_AWS_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT_URL_S3: https://eodata.dataspace.copernicus.eu
+          S3_ENDPOINT_URL: https://eodata.dataspace.copernicus.eu
       - name: Run second bash script
         id: force_tsa_test
         run: |
