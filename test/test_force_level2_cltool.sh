@@ -25,6 +25,8 @@ if [[ "${1:-}" == "docker" ]]; then
 else echo "Reusing docker image ${docker_image_name}. Pass 'docker' as an argument to rebuild it"
 fi
 
+# TODO add overrides back on for local tests (or make a parameter)
+#--overrides "${repo_root}/test/local-overrides.yaml" \
 cwltool \
   --preserve-environment=AWS_ENDPOINT_URL_S3 \
   --preserve-environment=S3_ENDPOINT_URL \
@@ -33,7 +35,6 @@ cwltool \
   --debug \
   --outdir="$outdir"\
   --tmpdir-prefix="${HOME}/tmp" \
-  --overrides "${repo_root}/test/local-overrides.yaml" \
   "${repo_root}/cwl/force-l2.cwl" \
   "$input_parameter_file"
 

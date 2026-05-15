@@ -23,10 +23,11 @@ if [[ "${1:-}" == "docker" ]]; then
 else echo "Reusing docker image ${docker_image_name}. Pass 'docker' as an argument to rebuild it"
 fi
 
+# TODO add back in
+# --overrides "${repo_root}/test/local-overrides.yaml" \
 cwltool \
   --outdir="${repo_root}/../target/tsa" \
   --tmpdir-prefix="${HOME}/tmp" \
-  --overrides "${repo_root}/test/local-overrides.yaml" \
   "${repo_root}/cwl/force-tsa.cwl" \
   "$input_parameter_file"
 
