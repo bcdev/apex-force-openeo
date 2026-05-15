@@ -32,7 +32,7 @@ jobs:
       - name: download input products from lfs
         run: |
           git lfs install
-          git lfs pull --include="test/data/S2B_MSIL1C_20260303T101019_N0512_R022_T32TPQ_20260303T152416.SAFE.zip"
+          git lfs pull --include="test/data/S2A_MSIL1C_20260310T101051_N0512_R022_T32TPQ_20260310T152637.SAFE.zip"
           unzip test/data/*.SAFE.zip -d ../inputs
       - name: FORCE level 2 test
         id: force_level2_test
@@ -43,7 +43,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.EODATA_AWS_SECRET_ACCESS_KEY }}
           AWS_ENDPOINT_URL_S3: https://eodata.dataspace.copernicus.eu
           S3_ENDPOINT_URL: https://eodata.dataspace.copernicus.eu
-      - name: Run second bash script
+      - name: FORCE TSA test
         id: force_tsa_test
         run: |
           uv run --with cwltool bash test/test_force_tsa_cltool.sh
