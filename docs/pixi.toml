@@ -10,3 +10,5 @@ version = "0.1.0"
 [dependencies]
 quarto = ">=1.9.37,<2"
 jupyter = ">=1.1.1,<2"
+typst = ">=0.14.2,<0.15"
+openeo = ">=0.49.0,<0.50"
