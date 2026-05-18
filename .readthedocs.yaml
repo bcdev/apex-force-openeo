@@ -17,5 +17,6 @@ build:
     install:
       - pixi install --manifest-path docs/pixi.toml -e docs
     build:
-      - pixi run --manifest-path docs/pixi.toml --output-dir $READTHEDOCS_OUTPUT/html
+      html:
+        - pixi run --manifest-path docs/pixi.toml --output-dir $READTHEDOCS_OUTPUT/html
 
