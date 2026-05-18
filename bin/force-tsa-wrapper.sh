@@ -102,6 +102,8 @@ while [ "$1" != "" ]; do
     fi
 done
 
+find "$input_data_dir"
+
 if [ "$date_range" = "" ]; then
     echo "missing date_range"
     exit 4
@@ -197,7 +199,7 @@ gen-stac() {
   uv run --project /opt/force-python-tools --no-sync gen-stac "$@"
 }
 
-gen-stac "$output_dir" --output-path "$stac_output_dir" --item-id "$processing_name-tsa"
+gen-stac "$output_dir" --output-path "$stac_output_dir" --item-id "$processing_name-tsa" --type tsa
 
 # trace
 find $output_dir -ls
