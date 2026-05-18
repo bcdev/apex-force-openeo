@@ -15,7 +15,7 @@ build:
       - asdf install pixi latest
       - asdf global pixi latest
     install:
-      - pixi install --manifest-path docs/pixi.toml -e docs
+      - pixi install --manifest-path docs/pixi.toml
     build:
       html:
         - pixi run --manifest-path docs/pixi.toml --output-dir $READTHEDOCS_OUTPUT/html
