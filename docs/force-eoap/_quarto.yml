@@ -4,12 +4,24 @@ project:
     - typst compile img/src/onion-concrete.typ img/onion-concrete.svg
 
 website:
-  title: "force-eoap"
+  title: "FORCE on CDSE"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - href: guide/intro.qmd
+        text: Guide
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - section: "Guide"
+        href: guide/intro.qmd
+        contents:
+          - guide/processes.qmd
+          - guide/query.qmd
+          - guide/level2.qmd
+          - guide/tsa.qmd
 
 format:
   html:
