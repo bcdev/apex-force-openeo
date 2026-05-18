@@ -19,11 +19,12 @@ if [[ -z "$AWS_SECRET_ACCESS_KEY" || -z "$AWS_ACCESS_KEY_ID" ]]; then
 fi
 set -x
 
-if [[ "${1:-}" == "docker" ]]; then
-  echo "Building docker container ${docker_image_name}"
-  docker build -t "$docker_image_name" "$repo_root"
-else echo "Reusing docker image ${docker_image_name}. Pass 'docker' as an argument to rebuild it"
-fi
+# Does nothing until overrides are included again
+#if [[ "${1:-}" == "docker" ]]; then
+#  echo "Building docker container ${docker_image_name}"
+#  docker build -t "$docker_image_name" "$repo_root"
+#else echo "Reusing docker image ${docker_image_name}. Pass 'docker' as an argument to rebuild it"
+#fi
 
 # TODO add overrides back on for local tests (or make a parameter)
 #--overrides "${repo_root}/test/local-overrides.yaml" \
