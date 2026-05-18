@@ -1,0 +1,168 @@
+style {
+    fill: transparent
+}
+(*** -> ***)[*]: {
+    style {
+        stroke-width: 6
+        font-size: 30
+        stroke: "#111F3D"
+        font-color: black
+    }
+}
+(*** <- ***)[*]: {
+    style {
+        stroke-width: 6
+        font-size: 30
+        stroke: "#47B149"
+        font-color: black
+    }
+}
+
+vars: {
+ d2-config: {
+    layout-engine: ELK
+ }
+}
+#direction: right
+
+classes: {
+    stop: {
+        style: {
+            font-size: 30
+            fill: "#EAC868"
+            border-radius: 10
+            bold: true
+        }
+    }
+    CLT: {
+        style {
+            fill:  "#f7e9c3"
+            font-size: 30
+            border-radius: 10
+        }
+    }
+    eoap: {
+        style {
+            fill: "#B5E0B6"
+            font-size: 30
+        }
+    }
+    force: {
+        style {
+            fill: "#47B149"
+            font-size: 30
+            #font-color: white
+        }
+    }
+    group: {
+        style {
+            fill: "#BCE6F8"
+            font-size: 30
+        }
+    }
+    main: {
+        style {
+            fill:  "#21ACE9"
+            bold: true
+            font-size: 40
+        }
+    }
+}
+
+
+py-client {
+    class: stop
+    label: openEO Python client
+}
+py-parameters: |python
+    stac_resource = openeo.rest.stac_resource.StacResource(
+        graph=openeo.internal.graph_building.PGNode(
+            process_id="force_level2",
+            # Pass any parameters accepted by FORCE level 2 here
+            arguments={
+                "stac_document": query_pg,
+                "do_brdf": True,
+                "output_ovv": True,
+                # ...
+            }
+        ),
+    connection=connection,
+    )
+|
+
+process-graph {
+    class: stop
+    label: Process Graph
+}
+pg-parameters: |json
+    {
+        "force_level2" {
+            "stac_document": "query_stac_1",
+            "do_brdf": true,
+            "output_ovv": true,
+            ...
+        }
+    }
+    |
+
+CWL {
+    class: stop
+    label: CWL input specification
+}
+cwl-parameters:|json
+{
+    "stac_document": "query_stac_1",
+    "do_brdf": true,
+    "output_ovv": true,
+    ...
+}
+|
+
+
+EOAP {
+    class: eoap
+    staging {
+        class: stop
+        label: Staging tool
+
+    }
+    wrapper {
+        class: stop
+        label: Level 2 wrapper script
+    }
+    staging-parameters: |bash
+            stac-staging \
+                --string '{"stac_document": {"features": [{"assets": {"B01":[...]' \
+                --method recursive
+        |
+
+    wrapper-parameters: |bash
+        force-l2-wrapper.sh \
+        --do_brdf true \
+        --output_ovv true \
+        # ...
+    |
+
+    prm {
+        class: stop
+        label: FORCE parameter file
+    }
+    prm-parameters:|bash
+        FILE_QUEUE=inputs/tds.txt
+        DO_BRDF=TRUE
+        OUTPUT_OVV=TRUE
+        # ...
+    |
+    wrapper -> prm: wrapper
+}
+
+py-client -> process-graph: "create_job"
+process-graph -> cwl: "openEO CWL runner integration"
+cwl -> EOAP.staging: "force-l2-workflow.cwl"
+cwl -> EOAP.wrapper: "force-l2-workflow.cwl"
+
+py-parameters -> pg-parameters
+pg-parameters -> cwl-parameters
+cwl-parameters -> EOAP.staging-parameters
+cwl-parameters -> EOAP.wrapper-parameters
+EOAP.wrapper-parameters -> EOAP.prm-parameters

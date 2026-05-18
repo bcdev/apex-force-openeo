@@ -1,5 +1,7 @@
 project:
   type: website
+  pre-render: 
+    - typst compile img/src/onion-concrete.typ img/onion-concrete.svg
 
 website:
   title: "force-eoap"
@@ -12,10 +14,9 @@ website:
 format:
   html:
     theme:
-      - cosmo
-      - brand
+      dark: darkly
+      light: flatly
+    respect-user-color-scheme: true
     css: styles.css
     toc: true
-
-
 
