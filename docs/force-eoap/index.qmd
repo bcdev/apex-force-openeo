@@ -17,7 +17,7 @@ The integration has been performed by [Brockmann Consult GmbH](https://www.brock
 ![Official FORCE logo, [https://force-eo.readthedocs.io/en/latest/_images/force.png](https://force-eo.readthedocs.io/en/latest/_images/force.png)](https://force-eo.readthedocs.io/en/latest/_images/force.png)
 
 FORCE (Framework for Operational Radiometric Correction for Environmental Monitoring) is an EO processing engine developed by [Prof. Dr. David Frantz](https://www.uni-trier.de/universitaet/fachbereiche-faecher/fachbereich-vi/faecher/geoinformatik/team/prof-dr-d-frantz)
-(*Geoinformatics - Spatial Data Science* - Trier University).
+(*Geoinformatics - Spatial Data Science*, Trier University).
 
 FORCE includes a large number of processing features, including the generation of Analysis Ready Data (ARD) Data Cubes and higher level data analysis processes. See the FORCE ['About' page](https://force-eo.readthedocs.io/en/latest/about.html) page for a full overview of FORCE's features.
 

@@ -1,0 +1,46 @@
+---
+format:
+    html:
+        code-fold: false
+        panel: fill
+---
+
+# openEO processes
+
+Using an openEO client, we can control FORCE through a number of [openEO processes](https://openeo.org/documentation/1.0/datacubes.html). The FORCE openEO integration is specific to the backend deployed on CDSE, so the processes described here are not listed among the [standard processes](https://openeo.org/documentation/1.0/processes.html) and are generally experimental.
+
+To discover the processes, we must first connect to the CDSE openEO backend
+```{python}
+import openeo
+connection = openeo.connect("https://openeo-staging.dataspace.copernicus.eu")
+connection.authenticate_oidc()
+```
+
+
+## Query
+
+
+```{python}
+connection.describe_process("query_stac")
+```
+
+## Level 2
+
+```{python}
+connection.describe_process("force_level2")
+```
+
+## Time Series Analysis
+
+
+:::{.callout-warning}
+The `force_tsa` process is not yet deployed
+:::
+<!-- TODO: set eval to true force TSA once it is available -->
+
+```{python}
+#| eval: false
+connection.describe_process("force_tsa")
+```
+
+# openEO job management

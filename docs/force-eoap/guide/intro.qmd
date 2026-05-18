@@ -1,0 +1,43 @@
+# Introduction
+
+The FORCE integration on CDSE makes it possible to use selected functionality of the FORCE processing engine on the CDSE infrastructure through the openEO API.
+
+Instead of installing FORCE locally, manually downloading data and annotating your results with metadata, the FORCE integration runs on cloud hardware, takes care of the input data staging and automatically generates a STAC catalog and item from the resulting FORCE data cube.
+
+
+## Prerequisites
+
+This guide assumes basic familiarity with the FORCE processing engine.
+You do not need to be an expert FORCE user to make use of the CDSE deployment.
+
+::: {.callout-tip title="What to read if you are unfamiliar with FORCE"}
+If you are an openEO user who wants to get familiar with FORCE, we recommend to have a look at the FORCE documentation pages for
+
+- **The [data cube](https://force-eo.readthedocs.io/en/latest/howto/datacube.html) concept and organization**: This is the file structure you will receive when running FORCE processing modules
+- **The [level 2 processing system](https://force-eo.readthedocs.io/en/latest/howto/l2-ard.html#level-2-ard)**: the basic FORCE module to generate analysis ready data cubes from raw Satellite input products
+- (Optional) **The [Time Series Analysis (TSA)](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/index.html#time-series-analysis) module**: This is the higher level processing module made available through openEO
+:::
+
+::: {.callout-tip title="What to read if you are unfamiliar with openEO"}
+If you are a FORCE user curious how to process in the cloud and the openEO interface, it will be helpful to be familiar with
+
+- The [openEO vocabulary](https://openeo.org/documentation/1.0/glossary.html#processes)
+- **The [openEO Python client](https://open-eo.github.io/openeo-python-client/api.html)**: The main interface used to interact with the openEO backend. You may want to use the [R client](https://open-eo.github.io/openeo-r-client/) or [Javascript client](https://open-eo.github.io/openeo-js-client/latest/) instead, if you prefer. However, in this guide, examples will be given with the Python client.
+:::
+
+::: {.callout-important title="Data cube representation"}
+Please note that the FORCE integration does not make use of [openEO's data cube concept](https://openeo.org/documentation/1.0/datacubes.html), processing is done on FORCE's native data cubes.
+:::
+
+## Scope
+
+In this guide, you will learn how to create a full processing pipeline using FORCE and openEO:
+
+1. Discover inputs: Query a STAC catalog to determine input products
+2. Generate an Analysis Ready (ARD) data cube with the FORCE level 2 processing system
+3. Analyze time series with FORCE's higher level processing system
+
+On the way, we will cover how to
+
+- Download data cubes for local processing / visualization / permanent storage
+- Apply higher level processing without having to download intermediate results

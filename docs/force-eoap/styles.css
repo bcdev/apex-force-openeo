@@ -1,1 +1,14 @@
 /* css styles */
+.cell-output-pre {
+  background: #f6f8fa;
+  border-left: 4px solid #6c757d;
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.cell-output {
+  margin-bottom: 1rem;
+  border-left: 4px solid #6c757d;
+  padding: 0.75rem 1rem;
+}
