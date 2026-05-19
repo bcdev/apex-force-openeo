@@ -18,6 +18,7 @@ website:
       - section: "Guide"
         href: guide/intro.qmd
         contents:
+          - guide/intro.qmd
           - guide/processes.qmd
           - guide/query.qmd
           - guide/level2.qmd
