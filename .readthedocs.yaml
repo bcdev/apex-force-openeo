@@ -18,5 +18,5 @@ build:
       - pixi install --manifest-path docs/pixi.toml
     build:
       html:
-        - cd docs/force-eoap && pixi run quarto render docs/force-eoap --output-dir $READTHEDOCS_OUTPUT/html
+        - pixi run --manifest-path docs/pixi.toml quarto render docs/force-eoap --output-dir $READTHEDOCS_OUTPUT/html
 
