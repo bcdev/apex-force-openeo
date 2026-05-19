@@ -3,6 +3,9 @@ format:
     html:
         code-fold: false
         panel: fill
+execute:
+    # Cache is necessary to avoid having to authenticate 
+    freeze: true
 ---
 
 # openEO processes
@@ -15,7 +18,6 @@ import openeo
 connection = openeo.connect("https://openeo-staging.dataspace.copernicus.eu")
 connection.authenticate_oidc()
 ```
-
 
 ## Query
 
