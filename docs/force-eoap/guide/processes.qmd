@@ -3,6 +3,7 @@ format:
     html:
         code-fold: false
         panel: fill
+        page-navigation: true
 execute:
     # Cache is necessary to avoid having to authenticate 
     freeze: true
@@ -13,13 +14,17 @@ execute:
 Using an openEO client, we can control FORCE through a number of [openEO processes](https://openeo.org/documentation/1.0/datacubes.html). The FORCE openEO integration is specific to the backend deployed on CDSE, so the processes described here are not listed among the [standard processes](https://openeo.org/documentation/1.0/processes.html) and are generally experimental.
 
 To discover the processes, we must first connect to the CDSE openEO backend
+
 ```{python}
 import openeo
 connection = openeo.connect("https://openeo-staging.dataspace.copernicus.eu")
 connection.authenticate_oidc()
 ```
 
-## Query
+## Another title
+
+
+We can use either the openEO process `query_stac` or another method to select input products for processing with FORCE. See the [next section](query.qmd) for an in depth discussion on how to access inputs.
 
 
 ```{python}
@@ -46,3 +51,6 @@ connection.describe_process("force_tsa")
 ```
 
 # openEO job management
+
+- 
+

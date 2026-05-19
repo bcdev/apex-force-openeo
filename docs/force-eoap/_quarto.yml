@@ -15,6 +15,9 @@ website:
     style: "docked"
     search: true
     contents:
+      #- section: "Home"
+      #  href: index.qmd
+      #  contents:
       - section: "Guide"
         href: guide/intro.qmd
         contents:
