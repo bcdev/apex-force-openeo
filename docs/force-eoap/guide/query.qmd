@@ -2,8 +2,185 @@
 format:
     html:
         page-navigation: true
+execute:
+    freeze: true
 ---
 
 # Selecting input data
 
+When running FORCE level 2 locally, we are responsible to manually provide the necessary input data and reference their full path in the `FILE_QUEUE` parameter of the [FORCE level 2 parameter file](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html).
 
+When running on CDSE, we do not have access to the excuting environment and its filesystem directly.
+Downloads, file management and creation of the file queue are managed by the integration. 
+To specify which files should be processed, we provide a [STAC](https://stacspec.org/en) document ([Catalog](https://github.com/radiantearth/stac-spec/blob/master/catalog-spec/catalog-spec.md), [Collection](https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md), [Item](https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md) or [ItemCollection](https://github.com/radiantearth/stac-api-spec/blob/main/fragments/itemcollection/README.md)) to the process. 
+
+:::{.callout-warning}
+Make sure that the STAC document provided to `force_level2` only references the files that should actually be processed. The FORCE integration will attempt to download all products referenced in the document, so it is inadvisable to provide a reference to the entire Sentinel-2 L1C collection on CDSE for example
+:::
+
+## STAC
+
+The integrated FORCE and openEO more generally uses the [SpatioTemporal Asset Catalog (STAC) specification](https://stacspec.org/en) to identify (groups of) EO products and annotate them with metadata. 
+
+If you are unfamiliar with STAC, we recommend that you familiarize yourself with the basic components of the specification (What are catalogs, items and feature collections?) [on the official STAC specification website](https://stacspec.org/en) before proceeding.
+
+
+**The CDSE Sentinel-2 L1C STAC collection which we use as input for FORCE level 2 processing, is hosted at [https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c](https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c)**
+
+In the following, we show how this collection may be queried to to obtain inputs for FORCE level 2 processing.
+
+
+## Querying STAC catalogs/collections
+
+### Area of interest
+
+As an example, we selected an area in northern Italy, around the city of Modena.
+
+
+```{python}
+w,s,e,n = 10.386, 44.437, 11.423, 44.973
+spatial_extent = { "west": w, "south": s, "east": e, "north": n}
+# ATTENTION: Inclusion of the second date in the search depends on the query method (see below).
+temporal_extent=["2026-04-17", "2026-05-01"]
+```
+
+:::{.callout-warning}
+When defining the temporal extent as shown above, be aware that different methods may interpret time ranges differently. OpenEO's `query_stac` behaves just like [`load_collection`](https://openeo.org/documentation/1.0/processes.html#load_collection): The second instant is **excluded** from the search.
+
+Contrarily, `pystac_client`'s [`search`](https://pystac-client.readthedocs.io/en/stable/api.html#pystac_client.Client.search) method **includes** the second date when given as a list. Note that `pystac_client`'s search has many more options for specifying time ranges.
+:::
+
+```{python}
+#| code-fold: true
+#| code-summary: "AOI plot"
+import matplotlib.pyplot as plt
+import contextily as ctx
+import geopandas as gpd
+from shapely import Polygon
+
+def plot_area_of_interest(
+    w, s, e, n, *, 
+    context=5,
+    color="red",
+    linewidth=2,
+    title="Spatial Extent",
+    figsize=(12, 8),
+    show_tick_labels=True,
+    ):
+    polygon = Polygon([(w, s), (e, s), (e, n), (w, n)])
+    gdf = gpd.GeoDataFrame(geometry=[polygon], crs="EPSG:4326")
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
+    gdf.plot(edgecolor=color, facecolor="none", linewidth=linewidth, ax=ax)
+    gdf.plot(edgecolor=color, facecolor="none", linewidth=linewidth, ax=ax)
+    ax.set_xlim(w - context, e + context)
+    ax.set_ylim(s - context, n + context)
+    if not show_tick_labels:
+        ax.set_xticks([])
+        ax.set_yticks([])
+    ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, crs=gdf.crs)
+    fig.suptitle(title)
+    fig.tight_layout()
+
+plot_area_of_interest(
+    w=w,
+    s=s,
+    e=e,
+    n=n,
+    context=3,
+    figsize=(10, 6),
+    title=f"Spatial Extent: Modena",
+    show_tick_labels=False
+)
+```
+
+### Querying a catalog
+
+:::{.panel-tabset group="query_engine"}
+
+#### openEO
+
+```{python}
+import openeo
+
+L1C_COLLECTION_URL = "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c"
+STAC_ROOT_URL = "https://stac.dataspace.copernicus.eu/v1"
+
+connection = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
+# Even though the method is called `datacube_from_process`, we receive FeatureCollection as a result, not a datacube 
+query_pg = connection.datacube_from_process(
+    "query_stac",
+    url=L1C_COLLECTION_URL,
+    temporal_extent=temporal_extent,
+    spatial_extent=spatial_extent
+)
+```
+
+We can directly use `query_pg` as a parameter for FORCE level 2, using openEO's process chaining.
+To inspect the query results ahead of time, we may want to execute it ahead of time.
+If we do not do this, execution of the query will be delayed until we submit the entire process graph (including processing with FORCE).
+
+```{python}
+query_res = connection.execute(query_pg)
+
+print(f"Found products ({len(query_res['features'])}):")
+print("\n".join([f["id"] for f in query_res["features"]]), "\n")
+```
+
+
+#### Pystac client
+
+
+```{python}
+import pystac_client
+
+L1C_COLLECTION_URL = "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c"
+STAC_ROOT_URL = "https://stac.dataspace.copernicus.eu/v1"
+
+client = pystac_client.Client.open("https://stac.dataspace.copernicus.eu/v1")
+search = client.search(
+    datetime=temporal_extent,
+    collections=["sentinel-2-l1c"],
+    bbox=[w, s, e, n]
+)
+item_collection = search.item_collection()
+
+print("Found items:")
+for item in search.items():
+    print(item.id)
+
+```
+
+:::
+
+:::{.content-visible when-format="html"}
+
+### Inspecting query results
+
+We may use pystac to inspect or process the feature collection further. In this example, we inspect the first of the returned items:
+
+
+:::{.panel-tabset group="query_engine"}
+
+#### openEO
+
+
+```{python}
+import pystac
+
+item = pystac.Item.from_dict(query_res["features"][0])
+item
+```
+
+#### Pystac client
+
+```{python}
+next(iter(search.items()))
+```
+
+:::
+:::
+
+
+## Other methods
+
+CDSE provides a [graphical STAC browser](https://browser.stac.dataspace.copernicus.eu/collections/sentinel-2-l1c) that can be used to search for and select singular items.

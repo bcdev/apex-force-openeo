@@ -1,0 +1,12 @@
+{
+  "hash": "022f19f714a3830b15ad0bdb6c418d37",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\nformat:\n    html:\n        code-fold: false\n        panel: fill\n        page-navigation: true\nexecute:\n    # Cache is necessary to avoid having to authenticate \n    freeze: true\n---\n\n# openEO processes\n\nUsing an openEO client, we can control FORCE through a number of [openEO processes](https://openeo.org/documentation/1.0/datacubes.html). The FORCE openEO integration is specific to the backend deployed on CDSE, so the processes described here are not listed among the [standard processes](https://openeo.org/documentation/1.0/processes.html) and are generally experimental.\n\nTo discover the processes, we must first connect to the CDSE openEO backend\n\n::: {#e2240125 .cell execution_count=1}\n``` {.python .cell-code}\nimport openeo\n#connection = openeo.connect(\"https://openeo-staging.dataspace.copernicus.eu\")\n#connection.authenticate_oidc()\n```\n:::\n\n\nCannot end with a code block...\n\n## Another title\n\n\nWe can use either the openEO process `query_stac` or another method to select input products for processing with FORCE. See the [next section](query.qmd) for an in depth discussion on how to access inputs.\n\n\n## Level 2\n\n\n## Time Series Analysis\n\n\n:::{.callout-warning}\nThe `force_tsa` process is not yet deployed\n:::\n<!-- TODO: set eval to true force TSA once it is available -->\n\n\n# openEO job management\n\n",
+    "supporting": [
+      "processes_alt_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}

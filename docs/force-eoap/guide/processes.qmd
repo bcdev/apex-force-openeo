@@ -2,7 +2,6 @@
 format:
     html:
         code-fold: false
-        panel: fill
         page-navigation: true
 execute:
     # Cache is necessary to avoid having to authenticate 
@@ -13,6 +12,9 @@ execute:
 
 Using an openEO client, we can control FORCE through a number of [openEO processes](https://openeo.org/documentation/1.0/datacubes.html). The FORCE openEO integration is specific to the backend deployed on CDSE, so the processes described here are not listed among the [standard processes](https://openeo.org/documentation/1.0/processes.html) and are generally experimental.
 
+The processes wrapping FORCE functionality support most of the options that can be set in the FORCE parameter file ([level2](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html), [TSA](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)). See the article on [parametrization](parametrization.qmd) for more details on the (un-)supported options and defaults.
+
+
 To discover the processes, we must first connect to the CDSE openEO backend
 
 ```{python}
@@ -21,36 +23,71 @@ connection = openeo.connect("https://openeo-staging.dataspace.copernicus.eu")
 connection.authenticate_oidc()
 ```
 
-## Another title
+<!-- TODO: link documentation -->
+
+If you don't have your [credentials set as environment variables](https://open-eo.github.io/openeo-python-client/auth.html#oidc-client-credentials-using-environment-variables), you will be prompted to log in in a browser window by default. See also the openEO documentation on authentication using Open ID connect ([overview](https://openeo.org/documentation/1.0/authentication.html#device-flow), [Python client](https://openeo.org/documentation/1.0/authentication.html))
 
 
-We can use either the openEO process `query_stac` or another method to select input products for processing with FORCE. See the [next section](query.qmd) for an in depth discussion on how to access inputs.
+## Query
 
 
+We can use either the openEO process `query_stac` or another method to select input products for processing with FORCE. See the [next section](query.qmd) for an in depth discussion on the different methods how inputs may be specified.
+
+
+:::{.callout-note collapse="true" title="query_stac process definition"}
 ```{python}
 connection.describe_process("query_stac")
 ```
+:::
+
+<!-- TODO link docs-->
+
+We can use openEO's `describe_process` API call to discover the parameters of an openEO process.
+
 
 ## Level 2
 
+<!-- TODO  force-level2 link -->
+The openEO integration of FORCE provides a `force_level2` process wrapping the [FORCE level 2 processing system](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/).
+
+:::{.callout-note collapse="true" title="force_level2 process definition"}
 ```{python}
 connection.describe_process("force_level2")
 ```
+:::
+
+The openEO processes exposes most of the options that can be set in the FORCE parameter file.
+
+<!-- TOOD link to document describing, how parameters differ between the FORCE parameter files and the openEO versions-->
 
 ## Time Series Analysis
 
+The `force_tsa` process wraps the Time Series Analysis module.
 
-:::{.callout-warning}
-The `force_tsa` process is not yet deployed
-:::
-<!-- TODO: set eval to true force TSA once it is available -->
-
+:::{.callout-note collapse="true" title="force_tsa process definition"}
 ```{python}
-#| eval: false
 connection.describe_process("force_tsa")
 ```
+:::
 
 # openEO job management
 
-- 
+Besides the openEO processes which make up the process graph, the openEO client provides functionality to submit, schedule and control jobs.
+Please refer to the [Python client documentation](https://open-eo.github.io/openeo-python-client/batch_jobs.html) (or the documentation of your preferred openEO client) for a detailed explanation of job management using openEO.
 
+
+Name | Qualified name (Python client) | Purpose
+-----|----------------|--------
+`create_job` | [`openeo.rest.connection.Connection.create_job`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.create_job) | Submit a Process Graph to the backend 
+`start_and_wait` | [`openeo.rest.job.BatchJob.start_and_wait`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.BatchJob.start_and_wait) | Start a submitted job and block until completion
+`start` | [`openeo.rest.job.BatchJob.start`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.BatchJob.start) | Same as `start_and_wait` but do not block execution
+`get_results` | [`openeo.rest.job.BatchJob.get_results`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.BatchJob.get_results) | Get a `JobResults` object from a completed Job  (contains references to output files)
+`download_files` | [`openeo.rest.job.JobResults.download_files`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_files) | Download all assets (files) produced by a job
+`download_file` | [`openeo.rest.job.JobResults.download_file`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_file) | Download a singular asset (file) produced by a job
+
+
+## Monitoring progress
+
+When using `start_and_wait` to start a job, status updates will automatically be printed to the command line or jupyter output cell.
+
+Alternatively, progress and logs can be monitored using the openEO web interface at [https://openeo.dataspace.copernicus.eu](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_files) or use the client as explained e.g., in the [Python client documentation](https://open-eo.github.io/openeo-python-client/batch_jobs.html#create-a-batch-job).
