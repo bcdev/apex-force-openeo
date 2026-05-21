@@ -26,6 +26,7 @@ website:
           - guide/query.qmd
           - guide/level2.qmd
           - guide/tsa.qmd
+          - guide/parametrization.qmd
 
 format:
   html:
@@ -35,4 +36,5 @@ format:
     respect-user-color-scheme: true
     css: styles.css
     toc: true
+    link-external-icon: true
 
