@@ -1,0 +1,8 @@
+---
+format:
+    html:
+        code-fold: false
+        page-navigation: true
+---
+
+# Parametrization

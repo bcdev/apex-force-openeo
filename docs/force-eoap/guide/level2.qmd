@@ -1,0 +1,218 @@
+---
+format:
+    html:
+        page-navigation: true
+execute:
+    freeze: true
+---
+
+# FORCE level 2
+
+## Recap
+
+:::{.callout-tip collapse="true" title="Selecting input products"}
+
+```{python}
+
+L1C_COLLECTION_URL = "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c"
+STAC_ROOT_URL = "https://stac.dataspace.copernicus.eu/v1"
+
+w,s,e,n = 10.386, 44.437, 11.423, 44.973
+spatial_extent = { "west": w, "south": s, "east": e, "north": n}
+# ATTENTION: Inclusion of the second date in the search depends on the query method (see below).
+temporal_extent=["2026-04-17", "2026-05-01"]
+
+```
+
+
+:::{.panel-tabset group="query_engine"}
+
+## openEO
+
+```{python}
+import openeo
+connection = openeo.connect("openeo-staging.dataspace.copernicus.eu").authenticate_oidc()
+
+query_pg = openeo.processes.process(
+    "query_stac",
+    arguments={
+        "url": L1C_COLLECTION_URL,
+        "temporal_extent": temporal_extent,
+        "spatial_extent": spatial_extent,
+    }
+)
+```
+
+## Pystac client
+
+```{python}
+import pystac_client
+
+client = pystac_client.Client.open(STAC_ROOT_URL)
+search = client.search(
+    datetime=temporal_extent,
+    collections=["sentinel-2-l1c"],
+    bbox=[w, s, e, n]
+)
+item_collection = search.item_collection()
+```
+
+:::
+:::
+
+## Level 2 processing
+
+
+The [openeo Process](processes.qmd) is straightforwardly named `force_level2`. It takes most of the parameters that can be specified in the FORCE level 2 parameter file. See the article on [parametrization](parametrization.qmd) for more details which parameters are (not) exposed by the process.
+
+:::{.callout-tip}
+The FORCE parameter file format uses [`SCREAMING_SNAKE_CASE`](https://en.wikipedia.org/wiki/screaming_snake_case) to name its parameters.
+The integrated FORCE uses (lowercase) [`snake_case`](https://en.wikipedia.org/wiki/Snake_case) instead, to be consistent with openEO conventions. Otherwise, the parameter names are unchanged, so it is straightforward to determine the openEO name if you are familiar with the FORCE parameters.
+:::
+
+The parameters are documented in the process description. We can inspect it using the Python client's [`describe_processes()`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.describe_process).
+
+
+:::{.callout-note collapse="true" title="FORCE level 2 parameters"}
+```{python}
+connection.describe_process("force_level2")
+
+```
+:::
+
+### Building the Process Graph
+
+We can run the `force_level2` process like any other process using [`openeo.processes.process`](https://open-eo.github.io/openeo-python-client/api.html#openeo.processes.process). In order to interpret the backend response, we wrap the resulting process graph as a [`StacResource`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.stac_resource.StacResource).
+This makes it possible to render the backend response nicely in Jupyter environments and gives us convenient methods to access our results when the process is done.
+
+
+```{python}
+from openeo.rest.stac_resource import StacResource
+
+force_l2_stac_resource = StacResource(
+    graph=openeo.processes.process(
+        process_id="force_level2",
+        arguments={
+            "stac_url": item_collection.items[0].get_self_href(),
+            "do_brdf": True
+        }
+    ),
+    connection=connection,
+)
+```
+
+You can (optionally) inspect the process graph to visualize it.
+
+```{python}
+print(force_l2_stac_resource.to_json())
+```
+
+### Executing the Process Graph
+
+With the process graph in place, we can submit it and wait for it to complete.
+You can [monitor the progress](processes.qmd#monitoring-progress) through the client library or the web interface.
+
+
+```{.python}
+l2_job = stac_resource.create_job.create_job(title="FORCE level 2")
+l2_job.start() # use start_and_wait instead to block until the job is done
+```
+
+## Accessing results
+
+When the job has completed, we can inspect the generated STAC metadata of the FORCE data cube and download it.
+
+**Downloading is optional**, if you wish to proceed with [higher level processing](tsa.qmd). If your processing chain is complete after the level 2 module, you may download the results to continue your analysis.
+
+The data cube is persistent on cloud storage, so you may download it at a later time or run multiple higher level processes with the same level 2 cube.
+The data cube is referenced by the URL to its STAC catalog (or item) when passing it to other processes.
+
+<!-- TODO confirm the amount of time that cubes stay stored -->
+:::{.callout-warning}
+While the cube will stay in place for multiple days, eventually the storage will be cleared. So please **make sure to download your processing results for long term storage**.
+:::
+
+
+<!-- 
+    We use a succeeded job instead of the one created above to avoid having to run and
+    wait for an entire job every time the documentation is re-generated 
+    (happens only when the freeze cache is invalidated:
+    https://quarto.org/docs/projects/code-execution.html#freeze).
+
+    However, jobs can only be accessed by the person who created them and the results
+    invalidate after some time. Therefore, this job id must be manually kept up to date.
+
+    MAKE SURE THAT THE JOB CONFIGURATION MATCHES WHAT IS DESCRIBED IN THE DOCUMENTATION!
+    (processed products, title, etc)
+
+    Furthermore, at time of writing (2026-05-22) the `force_level2` custom process does
+    not complete as a success (pending deployment of https://github.com/Open-EO/openeo-geotrellis-kubernetes/pull/51)
+
+-->
+
+
+<!-- TODO job configuration does not match description in the text -->
+```{python}
+#| echo: false
+l2_job = connection.job("j-260522150213483593fc822ce7d32f7d")
+```
+
+### Inspect STAC metadata
+
+<!--
+:::{.panel-tabset}
+
+### Outdated version
+
+```{python}
+from openeo.rest.stac_resource import StacResource
+
+force_l2_stac_resource = StacResource(
+    graph=openeo.processes.process(
+        process_id="run_cwl_to_stac",
+        arguments=dict(
+            cwl="https://github.com/bcdev/apex-force-openeo/releases/latest/download/force-level2.cwl",
+            
+            context={
+                "stac_url": item_collection.items[0].get_self_href(),
+                "do_brdf": True
+            }
+        )
+    ),
+    connection=connection,
+)
+```
+
+```{.python}
+l2_job = force_l2_stac_resource.create_job(title="FORCE level 2")
+l2_job.start()
+print(l2_job.job_id)
+```
+
+:::
+
+```{{python}}
+from pystac.catalog import Catalog
+import json
+
+l2_results = l2_job.get_results()
+catalog_request = connection.get(f"/jobs/{l2_job.job_id}/results/assets/catalog.json")
+l2_catalog = Catalog.from_dict(json.loads(response.text))
+print(response.url)
+l2_catalog.set_self_href(reponse.url)
+
+```
+
+```{python}
+# TODO remove
+l2_results = l2_job.get_results()
+print(l2_results.get_metadata()["links"])
+#print(next(l for l in l2_results.get_metadata()["links"] if l["rel"] == "child")["href"])
+try:
+    catalog_request = connection.get(f"/jobs/{l2_job.job_id}/results/assets/l2-ard/europe/catalog.json")
+    print(catalog_request)
+except Exception as e:
+    print(e)
+
+```
+-->

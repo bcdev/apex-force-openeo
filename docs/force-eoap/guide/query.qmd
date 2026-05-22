@@ -106,12 +106,13 @@ L1C_COLLECTION_URL = "https://stac.dataspace.copernicus.eu/v1/collections/sentin
 STAC_ROOT_URL = "https://stac.dataspace.copernicus.eu/v1"
 
 connection = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
-# Even though the method is called `datacube_from_process`, we receive FeatureCollection as a result, not a datacube 
-query_pg = connection.datacube_from_process(
+query_pg = openeo.processes.process(
     "query_stac",
-    url=L1C_COLLECTION_URL,
-    temporal_extent=temporal_extent,
-    spatial_extent=spatial_extent
+    arguments={
+        "url": L1C_COLLECTION_URL,
+        "temporal_extent": temporal_extent,
+        "spatial_extent": spatial_extent,
+    }
 )
 ```
 
