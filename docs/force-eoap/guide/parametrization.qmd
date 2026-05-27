@@ -3,6 +3,8 @@ format:
     html:
         code-fold: false
         page-navigation: true
+execute:
+    freeze: true
 ---
 
 # Parametrization
