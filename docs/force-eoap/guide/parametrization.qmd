@@ -6,3 +6,73 @@ format:
 ---
 
 # Parametrization
+
+The [FORCE openEO processes](processes.qmd) (`force_level2` and `force_tsa`) accept most of the parameters that can be passed using FORCE's native parametrization files ([level 2](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html), [TSA](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)). The exceptions to this rule are explained below.
+
+There are 4 types of parameters that do not correspond exactly to the FORCE parameter files 
+
+1. Special parameters that require translation (e.g., the area of interest)
+1. Additional parameters of the openEO integration (e.g., the processing name)
+1. FORCE parameters that are not exposed through the openEO API (e.g., the number of processes used for processing)
+1. Parameters that support only a subset of the possible values
+
+Parameter names follow the openEO convention and have `snake_case`. Otherwise, the names are unchanged from those of the original parameter files.
+It is possible to inspect the processes (and see their parameters) using openEO's [`describe_process`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.describe_process) method. See [processes.qmd] for more.
+
+Parameter values may be strings (the same as in FORCE parameter files) or native python values which can be serialized to JSON. Values are converted to UPPERCASE before being passed into the parameter file.
+
+Parameter values are passed as a dictionary to the `arguments` parameter of `openeo.processes.process`:
+
+
+```{.python}
+graph = openeo.processes.process(
+    process_id="force_level2",
+    arguments=dict(
+        stac_document=stac_catalog,
+        name="Modena",
+        do_brdf=True,
+        # ... <--- more parameters
+    }
+)
+
+```
+
+## Examples
+
+| FORCE parameter file | openEO |
+|----------------------|--------|
+| `PROJECTION = GLANCE7` | `projection = GLANCE7`|
+| `DO_BRDF = TRUE`  | `do_brdf=True`
+| `CLOUD_THRESHOLD = 0.225` | `cloud_threshold=0.255`
+
+## FORCE Level 2
+
+### Special parameters
+
+- `aoi`: replaces the `FILE_AOI` parameter. Pass a geojson feature (instead of a shapefile)
+- `dem`: replaces digital elevation model specific parameters (`FILE_DEM`, `DEM_RESAMPLING`, `DEM_NODATA`). Only possible value is `Copernicus_30m`
+
+### openEO specific parameters
+
+### Partially supported parameters
+
+- `projection`: Only GLANCE7 (the default) is tested.
+- `output_format`: Supports `GTiff`, `COG`
+
+### Unsupported parameters
+
+Input/Output directories (managed by the integration)
+
+- `FILE_QUEUE`
+- `DIR_LEVEL2`
+- `DIR_LOG`
+- `DIR_PROVENANCE`
+- `DIR_TEMP`
+
+Parallel processing parameters (managed by the integration)
+
+- `NPROC` 
+- `NTHREAD`
+- `PARALLEL_READS`
+- `DELAY`
+- `TIMEOUT_ZIP`

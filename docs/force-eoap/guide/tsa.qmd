@@ -1,0 +1,295 @@
+# FORCE Time Series Analysis
+
+## Recap
+
+:::{.callout-tip collapse="true" title="Selecting input products"}
+
+```{python}
+
+L1C_COLLECTION_URL = "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c"
+STAC_ROOT_URL = "https://stac.dataspace.copernicus.eu/v1"
+
+w,s,e,n = 10.386, 44.437, 11.423, 44.973
+spatial_extent = { "west": w, "south": s, "east": e, "north": n}
+# ATTENTION: Inclusion of the second date in the search depends on the query method (see below).
+temporal_extent=["2026-04-17", "2026-05-01"]
+
+```
+
+:::{.panel-tabset group="query_engine"}
+
+## openEO
+
+```{python}
+import openeo
+connection = openeo.connect("openeo-staging.dataspace.copernicus.eu").authenticate_oidc()
+
+query_pg = openeo.processes.process(
+    "query_stac",
+    arguments={
+        "url": L1C_COLLECTION_URL,
+        "temporal_extent": temporal_extent,
+        "spatial_extent": spatial_extent,
+    }
+)
+```
+
+## Pystac client
+
+```{python}
+import pystac_client
+
+client = pystac_client.Client.open(STAC_ROOT_URL)
+search = client.search(
+    datetime=temporal_extent,
+    collections=["sentinel-2-l1c"],
+    bbox=[w, s, e, n]
+)
+item_collection = search.item_collection()
+```
+ <!-- tabset -->
+:::
+ <!-- callout -->
+:::
+
+:::{.callout-tip collapse="true" title="level2 processing"}
+:::{.panel-tabset group="query_engine"}
+
+#### openEO
+
+```{python}
+from openeo.rest.stac_resource import StacResource
+
+force_l2_stac_resource = StacResource(
+    graph=openeo.processes.process(
+        process_id="force_level2",
+        arguments={
+            "stac_document": query_pg,
+            "name": "Modena",
+            "do_brdf": True,
+        }
+    ),
+    connection=connection,
+)
+```
+
+```{python}
+#| echo: false
+force_l2_stac_resource_openeo = force_l2_stac_resource
+```
+
+#### Pystac client
+
+```{python}
+#| echo: false
+import pystac
+
+def transform_item_collection_to_catalog_with_links(item_collection):
+    catalog = pystac.Catalog(
+        id="item-collection-catalog",
+        description="Catalog from item collection",
+    )
+    for item in item_collection.items:
+        item_link = pystac.Link(
+            rel=pystac.RelType.ITEM,
+            target=item.self_href,
+            media_type=pystac.MediaType.GEOJSON,
+            title=f"Item {item.id}",
+        )
+        catalog.add_link(item_link)
+    return catalog
+
+query_catalog = transform_item_collection_to_catalog_with_links(item_collection)
+```
+
+
+```{python}
+query_catalog = transform_item_collection_to_catalog_with_links(item_collection)
+
+force_l2_stac_resource = StacResource(
+    graph=openeo.processes.process(
+        process_id="force_level2",
+        arguments={
+            "stac_document": query_catalog.to_dict(),
+            "name": "Modena",
+            "do_brdf": True,
+        }
+    ),
+    connection=connection,
+)
+```
+
+ <!-- tabset -->
+:::
+
+```{.python}
+l2_job = force_l2_stac_resource.create_job()
+l2_job.start()
+```
+
+```{python}
+#| echo: false
+l2_job = connection.job("j-260527114522498d959f20eff3fc9b78")
+```
+
+ <!-- callout -->
+:::
+
+:::{.callout-tip title="Extracting output catalog" collapse="true"}
+```{python}
+def extract_catalog_url_from_job_logs(job_logs) -> str:
+    prefix = r"result 'l2-ard/catalog.json': v.generate_public_url()='"
+    log_with_catalog_url = next(
+        iter(l.message for l in job_logs if "catalog.json" in l.message)
+    )
+    catalog_url = log_with_catalog_url.removeprefix(prefix).split("'")[0]
+    return catalog_url
+```
+
+```{python}
+from pystac.catalog import Catalog
+import json
+
+l2_logs = l2_job.logs()
+l2_catalog_url = extract_catalog_url_from_job_logs(l2_logs)
+l2_catalog = Catalog.from_file(l2_catalog_url)
+l2_catalog.set_self_href(l2_catalog_url)
+```
+:::
+
+## Time Series Analysis
+
+The openEO process for FORCE Time Series Analysis (TSA) is called `force_tsa`. Like the [level 2](level2.qmd) process, it takes most of the parameters usually passed to the [TSA module of FORCE](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/) using the [parameter file](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html). Parameters use `snake_case` format instead of `SCREAMING_SNAKE_CASE` (used in FORCE parameter files).
+
+Details of parametrization are discussed in the [dedicated article](parametrization.qmd).
+
+:::{.callout-note collapse="true" title="FORCE TSA parameters"}
+```{python}
+connection.describe_process("force_tsa")
+```
+:::
+
+### Using FORCE level 2 results as an input
+
+The process graph for FORCE TSA built in the same way as the level 2 process graph is built.
+The main input for FORCE TSA is the STAC catalog (or item) from the level 2 processing.
+
+We can access the catalog from the level 2 job as described in [level 2 processing article](level2.qmd#Accessing results).
+
+We can re-use a job that has run previously using the job ID (which you can find out through the web interface or using) [`list_jobs`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.list_jobs)
+
+```{.python}
+jobs = connection.list_jobs() # extract job id of your level 2 job
+l2_job = connection.job("<job-id>")
+```
+
+```{python}
+#| echo: false
+l2_job = connection.job("j-260527114522498d959f20eff3fc9b78")
+
+def extract_catalog_url_from_job_logs(job_logs) -> str:
+    prefix = r"result 'l2-ard/catalog.json': v.generate_public_url()='"
+    log_with_catalog_url = next(
+        iter(l.message for l in job_logs if "catalog.json" in l.message)
+    )
+    catalog_url = log_with_catalog_url.removeprefix(prefix).split("'")[0]
+    return catalog_url
+
+```
+
+### TSA Parameters
+
+Some parameters can be set a-priori or from prior knowledge of our level 2 processing parameters
+```{python}
+temporal_extent=["2026-02-01", "2026-02-20"]
+```
+
+For other parameters, we may want to inspect the metadata of the level 2 processing.
+For example, we can extract the tiles from the asset names of the STAC item describing the level 2 datacube. 
+
+```{python}
+# See the level 2 article for the definition of this function
+l2_catalog_url = extract_catalog_url_from_job_logs(l2_job.logs())
+l2_catalog = pystac.Catalog.from_file(l2_catalog_url)
+l2_item = next(l2_catalog.get_items()) # there is just one item
+l2_item
+```
+
+We can extract the tiles manually or programmatically
+```{python}
+tiles = set([k.split(".")[0] for k in l2_item.assets.keys() if k.endswith("BOA")])
+tile_x = set(int(tile[1:5]) for tile in tiles)
+tile_y = set(int(tile[7:]) for tile in tiles)
+tile_x, tile_y
+```
+
+### Process Graph
+
+The main process is `force_tsa`.
+
+```{python}
+from openeo.rest.stac_resource import StacResource
+
+
+force_tsa_stac_resource = StacResource(
+    graph=openeo.processes.process(
+        process_id="force_tsa",
+        arguments={
+            "stac_url": l2_catalog_url,
+            "name": "Modena_TSA",
+            "date_range": temporal_extent,
+            "x_tile_range": [min(tile_x), min(tile_x)],
+            "y_tile_range": [min(tile_y), max(tile_y)],
+            "stm": ["AVG"],
+            "output_stm": True,
+            # ... more TSA parameters (optional)
+        }
+    ),
+    connection=connection,
+)
+```
+
+We can then create and start the job as before:
+
+```{.python}
+tsa_job = force_tsa_stac_resource.create_job()
+tsa_job.start() # use start_and_wait to block until finished
+```
+
+Inspecting STAC metadata and downloading results works in the same way as for level 2 processing:
+
+```{python}
+#| echo: false
+tsa_job = connection.job("j-260515103226413e919ee5d9934c9693")
+```
+
+```{.python}
+tsa_catalog_url = extract_catalog_url_from_job_logs(tsa_job.logs())
+tsa_catalog = pystac.Catalog.from_file(tsa_catalog_url)
+tsa_item = next(tsa_catalog.get_items())
+tsa_item
+```
+
+Downloading assets as well:
+
+```{.python}
+l2_results = l2_job.get_results()
+l2_results
+```
+
+```{.python}
+l2_results.download_files("force-tsa-results")
+```
+
+<!--
+```{.bash}
+tree force-tsa-results
+```
+-->
+
+### Further processing
+
+Because level 2 results are provided by a STAC URL to the TSA process, it is possible run multiple TSA jobs with the same level 2 input, without expensively reprocessing the level 2 data.
+We just create a new TSA process graph and submit it, passing the same level 2 data cube URL.
+
+Remember that the job assets will be stored for some time on the backend which allows you to do processing over a span of a few days, but will not be stored permanently. Please download and archive results you wish to keep on your own infrastructure.
