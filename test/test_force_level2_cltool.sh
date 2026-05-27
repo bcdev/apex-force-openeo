@@ -41,7 +41,7 @@ cwltool \
 
 
 # check that asset links can be found
-cd "$outdir/l2-ard/europe" # must check relative paths in the assets from outdir
+cd "$outdir/l2-ard" # must check relative paths in the assets from outdir
 pwd
 missing=0
 find . -name 'cube-*.json' -print0 |

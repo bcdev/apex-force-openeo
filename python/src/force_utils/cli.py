@@ -73,6 +73,7 @@ def gen_stac(datacube_root, output_path, item_id, type, parameter_path, validate
     )
     catalog = stac_builder.generate_stac(item_id=item_id)
     catalog.normalize_hrefs(str(output_path))
+    catalog.make_all_asset_hrefs_relative()
     if validate:
         catalog.validate_all()
     logger.info(f"Saving STAC catalog to {output_path.resolve()}")

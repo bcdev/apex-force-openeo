@@ -73,7 +73,7 @@ class ForceStacBuilder:
 
                 asset_key = self._get_asset_key(tile, asset_path_relative)
                 asset = pystac.Asset(
-                    href=str(asset_path_relative),
+                    href=str(asset_path),
                 )
                 item.add_asset(asset_key, asset)
 
