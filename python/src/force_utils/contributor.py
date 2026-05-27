@@ -485,23 +485,22 @@ class CommonMetadataStacContributor(AbstractStacContributor):
                 cls.process_parameter_file(parameter_path, store, item=item)
 
         # datacube-definition.prj
-        data_cube_definition_local_path = store.data_cube_definition_path.name
         data_cube_definition_asset = pystac.Asset(
-            href=data_cube_definition_local_path,
+            href=str(store.data_cube_definition_path),
             title="Data Cube Definition",
             media_type=pystac.MediaType.TEXT,
             roles=["metadata"],
             # TODO
             # decription = ...,
         )
-        data_cube_definition_asset.ext.file.local_path = data_cube_definition_local_path
+        data_cube_definition_asset.ext.file.local_path = store.data_cube_definition_path.name
         item.add_asset("datacube-definition.prj", data_cube_definition_asset)
 
         # citeme
         citeme_local_path = store.get_relative_path(store._citeme_path)
         if citeme_local_path is not None:
             citeme_asset = pystac.Asset(
-                href=str(citeme_local_path),
+                href=str(store._citeme_path),
                 title="CITEME",
                 media_type=pystac.MediaType.TEXT,
                 roles=["metadata"],
@@ -541,9 +540,8 @@ class CommonMetadataStacContributor(AbstractStacContributor):
                 item.properties[key][param_name] = param_value
 
         try:
-            parameter_path_relative = store.get_relative_path(parameter_path)
             parameter_asset = pystac.Asset(
-                href=str(parameter_path_relative),
+                href=str(parameter_path),
                 title="FORCE parameter file",
                 media_type=pystac.MediaType.TEXT,
                 roles=["metadata"],
