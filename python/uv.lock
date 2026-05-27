@@ -441,7 +441,7 @@ wheels = [
 
 [[package]]
 name = "force-python-utils"
-version = "0.5.7.dev0"
+version = "0.5.7.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
