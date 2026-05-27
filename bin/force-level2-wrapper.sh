@@ -246,7 +246,19 @@ gen-stac() {
   uv run --project /opt/force-python-tools --no-sync gen-stac "$@"
 }
 
-# TODO instead of hardcoded europe, generate stac for each continent
-mv outputs/l2-ard/CITEME* outputs/l2-ard/europe/
+# FIXME this generates a stac item for each continent, but a single catalog per item which will be overwritten by each iteration
+# Hence, only a single continent is supported. However, it solves the previous issue, that only
+# europe as a continent is supported.
+# TODO Furthermore, neither of the existing solutions has been tested with procjection other than GLANCE7, so it
+# must be checked whether other projections also generate subdirectories.
 
-gen-stac outputs/l2-ard/europe --output-path outputs/l2-ard/europe --item-id "$processing_name-level2" --type level2
+for dir in outputs/l2-ard/*/; do
+  continent_dir="${dir%/}"
+  continent_dir="${continent_dir##*/}"
+  echo "continent: $continent_dir"
+  cp outputs/l2-ard/CITEME* "outputs/l2-ard/$continent_dir/"
+  mkdir -p "outputs/l2-ard/$continent_dir/param"
+  cp param/l2ps.prm "outputs/l2-ard/$continent_dir/param/l2ps.prm"
+
+  gen-stac "outputs/l2-ard/$continent_dir" --output-path "$(realpath "outputs/l2-ard/")" --item-id "$processing_name-$continent_dir-level2" --type "level2" --parameter-path "outputs/l2-ard/$continent_dir/param/l2ps.prm"
+done
