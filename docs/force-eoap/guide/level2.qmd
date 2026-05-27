@@ -56,8 +56,9 @@ search = client.search(
 )
 item_collection = search.item_collection()
 ```
-
+ <!-- tabset -->
 :::
+ <!-- callout -->
 :::
 
 ## Level 2 processing
@@ -85,6 +86,22 @@ connection.describe_process("force_level2")
 We can run the `force_level2` process like any other process using [`openeo.processes.process`](https://open-eo.github.io/openeo-python-client/api.html#openeo.processes.process). In order to interpret the backend response, we wrap the resulting process graph as a [`StacResource`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.stac_resource.StacResource).
 This makes it possible to render the backend response nicely in Jupyter environments and gives us convenient methods to access our results when the process is done.
 
+[Pass parameters](parametrization.qmd) to the level 2 processing system in the `arguments` dictionary.
+
+You may furthermore give the processing a name which will determine the name of the STAC item generated for the results:
+
+
+:::{.panel-tabset group="query_engine"}
+
+#### openEO
+
+When using the `query_stac` process, we pass the **contents** of a STAC document to the process (not a reference). To do this, pass the `process_graph` directly as `stac_document`
+
+:::{.callout-warning}
+Due to backend limitations, the `stac_document` parameter can only handle a document of limited length. The `query_stac` process generates an item collection which quickly grows in size (the entire content of each STAC item is contained in it). Therefore, use `query_stac` only for small processing tasks with only a handful of items. Otherwise use a different query method to pass an URL or a catalog instead.
+:::
+
+
 
 ```{python}
 from openeo.rest.stac_resource import StacResource
@@ -93,19 +110,115 @@ force_l2_stac_resource = StacResource(
     graph=openeo.processes.process(
         process_id="force_level2",
         arguments={
-            "stac_url": item_collection.items[0].get_self_href(),
-            "do_brdf": True
+            "stac_document": query_pg,
+            "name": "Modena",
+            "do_brdf": True,
         }
     ),
     connection=connection,
 )
 ```
 
+```{python}
+#| echo: false
+force_l2_stac_resource_openeo = force_l2_stac_resource
+```
+
+
+#### Pystac client
+
+:::{.callout-warning}
+
+Due to backend limitations the `stac_document` parameter can only handle a document of limited length. This means it can only handle collections of very few items.
+It is therefore advisable to either pass an URL (if possible) or to convert the item_collection returned by [`pystac_client.Client.search`](https://pystac-client.readthedocs.io/en/latest/api.html#pystac_client.Client.search) to a catalog. The item collection contains the entire content of each STAC item, whereas the catalog only contains a reference to the ITEM's, making a much shorter document.
+
+:::
+
+In case the backend limitation will be fixed, the transformation step will no longer be necessary.
+It is already possible to pass `item_collection.to_dict()` directly as `stac_document`.
+
+##### Convert Item Collection to Catalog
+
+```{python}
+import pystac
+
+def transform_item_collection_to_catalog_with_links(item_collection):
+    catalog = pystac.Catalog(
+        id="item-collection-catalog",
+        description="Catalog from item collection",
+    )
+    for item in item_collection.items:
+        item_link = pystac.Link(
+            rel=pystac.RelType.ITEM,
+            target=item.self_href,
+            media_type=pystac.MediaType.GEOJSON,
+            title=f"Item {item.id}",
+        )
+        catalog.add_link(item_link)
+    return catalog
+
+query_catalog = transform_item_collection_to_catalog_with_links(item_collection)
+```
+
+##### Process Graph
+
+```{python}
+from openeo.rest.stac_resource import StacResource
+
+force_l2_stac_resource = StacResource(
+    graph=openeo.processes.process(
+        process_id="force_level2",
+        arguments={
+            "stac_document": query_catalog.to_dict(),
+            "name": "Modena",
+            "do_brdf": True,
+        }
+    ),
+    connection=connection,
+)
+```
+
+```{python}
+#| echo: false
+force_l2_stac_resource_pystac_client = force_l2_stac_resource
+```
+
+:::
+
+
 You can (optionally) inspect the process graph to visualize it.
+
+:::{.callout-note title="Process Graph JSON" collapse="true"}
+
+:::{.panel-tabset group="query_engine"}
+
+### openEO
+
+```{python}
+#| echo: false
+force_l2_stac_resource = force_l2_stac_resource_openeo
+```
 
 ```{python}
 print(force_l2_stac_resource.to_json())
 ```
+
+### Pystac client
+
+```{python}
+#| echo: false
+force_l2_stac_resource = force_l2_stac_resource_pystac_client
+```
+
+```{python}
+print(force_l2_stac_resource.to_json())
+```
+
+<!-- tabset -->
+:::
+<!-- callout -->
+:::
+
 
 ### Executing the Process Graph
 
@@ -114,7 +227,7 @@ You can [monitor the progress](processes.qmd#monitoring-progress) through the cl
 
 
 ```{.python}
-l2_job = stac_resource.create_job.create_job(title="FORCE level 2")
+l2_job = force_l2_stac_resource.create_job(title="FORCE level 2")
 l2_job.start() # use start_and_wait instead to block until the job is done
 ```
 
@@ -128,12 +241,13 @@ The data cube is persistent on cloud storage, so you may download it at a later 
 The data cube is referenced by the URL to its STAC catalog (or item) when passing it to other processes.
 
 <!-- TODO confirm the amount of time that cubes stay stored -->
+
 :::{.callout-warning}
 While the cube will stay in place for multiple days, eventually the storage will be cleared. So please **make sure to download your processing results for long term storage**.
 :::
 
+<!--
 
-<!-- 
     We use a succeeded job instead of the one created above to avoid having to run and
     wait for an entire job every time the documentation is re-generated 
     (happens only when the freeze cache is invalidated:
@@ -147,72 +261,84 @@ While the cube will stay in place for multiple days, eventually the storage will
 
     Furthermore, at time of writing (2026-05-22) the `force_level2` custom process does
     not complete as a success (pending deployment of https://github.com/Open-EO/openeo-geotrellis-kubernetes/pull/51)
-
 -->
 
 
-<!-- TODO job configuration does not match description in the text -->
+
 ```{python}
 #| echo: false
-l2_job = connection.job("j-260522150213483593fc822ce7d32f7d")
+l2_job = connection.job("j-260527114522498d959f20eff3fc9b78")
 ```
 
-### Inspect STAC metadata
+#### Inspecting STAC metadata {#sec-inspecting-stac}
 
-<!--
-:::{.panel-tabset}
-
-### Outdated version
-
-```{python}
-from openeo.rest.stac_resource import StacResource
-
-force_l2_stac_resource = StacResource(
-    graph=openeo.processes.process(
-        process_id="run_cwl_to_stac",
-        arguments=dict(
-            cwl="https://github.com/bcdev/apex-force-openeo/releases/latest/download/force-level2.cwl",
-            
-            context={
-                "stac_url": item_collection.items[0].get_self_href(),
-                "do_brdf": True
-            }
-        )
-    ),
-    connection=connection,
-)
-```
-
-```{.python}
-l2_job = force_l2_stac_resource.create_job(title="FORCE level 2")
-l2_job.start()
-print(l2_job.job_id)
-```
-
+:::{.callout-tip}
+This step is optional
 :::
 
-```{{python}}
+:::{.panel-tabset}
+
+##### Intended syntax
+
+```{.python}
 from pystac.catalog import Catalog
 import json
 
-l2_results = l2_job.get_results()
 catalog_request = connection.get(f"/jobs/{l2_job.job_id}/results/assets/catalog.json")
 l2_catalog = Catalog.from_dict(json.loads(response.text))
-print(response.url)
 l2_catalog.set_self_href(reponse.url)
+l2_catalog
+```
 
+##### Workaround
+
+```{python}
+def extract_catalog_url_from_job_logs(job_logs) -> str:
+    prefix = r"result 'l2-ard/catalog.json': v.generate_public_url()='"
+    log_with_catalog_url = next(
+        iter(l.message for l in job_logs if "catalog.json" in l.message)
+    )
+    catalog_url = log_with_catalog_url.removeprefix(prefix).split("'")[0]
+    return catalog_url
 ```
 
 ```{python}
-# TODO remove
-l2_results = l2_job.get_results()
-print(l2_results.get_metadata()["links"])
-#print(next(l for l in l2_results.get_metadata()["links"] if l["rel"] == "child")["href"])
-try:
-    catalog_request = connection.get(f"/jobs/{l2_job.job_id}/results/assets/l2-ard/europe/catalog.json")
-    print(catalog_request)
-except Exception as e:
-    print(e)
+from pystac.catalog import Catalog
+import json
 
+l2_logs = l2_job.logs()
+l2_catalog_url = extract_catalog_url_from_job_logs(l2_logs)
+print(f"{l2_catalog_url=}")
+l2_catalog = Catalog.from_file(l2_catalog_url)
+l2_catalog.set_self_href(l2_catalog_url)
+l2_catalog
+```
+
+<!-- tabset -->
+:::
+
+#### Downloading files
+
+:::{.callout-tip}
+This step is optional if you plan to continue processing with FORCE on CDSE
+:::
+
+Assets can be downloaded using the standard openEO mechanism to access result assets.
+The STAC metadata specifies the directory structure of the resulting cube. This structure is respected by openEO's [`download_files`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_files). 
+
+To inspect a particular asset, we may use [`download_file`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_file) to download singular files instead.
+
+```{.python}
+l2_results = l2_job.get_results()
+l2_results
+```
+
+```{.python}
+l2_results.download_files("force-level2-results")
+```
+
+<!--
+```{.bash}
+tree force-level2-results
 ```
 -->
