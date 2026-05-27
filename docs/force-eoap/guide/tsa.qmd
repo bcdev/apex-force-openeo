@@ -1,3 +1,10 @@
+---
+format:
+    html:
+        page-navigation: true
+execute:
+    freeze: true
+---
 # FORCE Time Series Analysis
 
 ## Recap
