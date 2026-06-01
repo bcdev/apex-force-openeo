@@ -11,6 +11,8 @@ website:
         text: Home
       - href: guide/intro.qmd
         text: Guide
+      - href: feature_overview.qmd
+        text: Feature overview
   sidebar:
     style: "docked"
     search: true

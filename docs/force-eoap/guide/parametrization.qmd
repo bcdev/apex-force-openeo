@@ -56,6 +56,13 @@ graph = openeo.processes.process(
 
 ### openEO specific parameters
 
+:::{.callout-tip}
+Check out the [FORCE level 2](level2.qmd) section of the guide to learn more about selecting and passing inputs.
+:::
+
+- `stac_document` and `stac_url`: STAC documents describing the input products. Can be either an URL `stac_url` or the content (`stac_document` as a dictionary) of a STAC document. One of these parameters must be set.
+- `name`: Give a name to the FORCE processing task. Determines the name of the STAC item describing the output data cube.
+
 ### Partially supported parameters
 
 - `projection`: Only GLANCE7 (the default) is tested.
@@ -78,3 +85,72 @@ Parallel processing parameters (managed by the integration)
 - `PARALLEL_READS`
 - `DELAY`
 - `TIMEOUT_ZIP`
+
+## FORCE Time Series Analysis
+
+### Special parameters
+
+### openEO specific parameters
+
+### Partially supported parameters
+
+- `output_format`: Supports `GTiff`, `COG`
+- `target_sensor`: Supports Sentinel-2 types:
+    - SEN2A
+    - SEN2B
+    - SEN2C
+    - SEN2L
+
+
+### Unsupported parameters
+
+Input/Output directories (managed by the integration)
+
+- `DIR_LOWER`
+- `DIR_HIGHER`
+- `DIR_PROVENANCE`
+- `DIR_MASK`
+
+Masking
+
+- `DIR_MASK`
+- `BASE_MASK`
+- `READ_ERROR_MASK`
+
+Output Options
+
+- `FILE_OUTPUT_OPTIONS`
+
+Parallel processing (managed by the integration)
+
+- `NTREHAD_READ`
+- `NTHREAD_COMPUTE`
+- `NTHREAD_WRITE`
+- `STREAMING` (TRUE)
+- `PRETTY_PROGRESS`
+
+Extent
+
+- `FILE_TILE`
+
+
+Spectral Mixture Analysis
+
+- `FILE_ENDMEM` (NULL)
+- `SMA_SUM_TO_ONE`
+- `SMA_NON_NEG`
+- `SMA_SHD_NORM`
+- `SMA_ENDMEMBER`
+- `OUTPUT_RMS`
+
+Python UDFs
+
+- `FILE_PYTHON`
+- `PYTHON_TYPE`
+- `OUTPUT_PYP`
+
+R UDFs
+
+- `FILE_RSTATS`
+- `RSTATS_TYPE`
+- `OUTPUT_RSP`
