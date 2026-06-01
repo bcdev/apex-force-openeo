@@ -1,6 +1,6 @@
 project:
   type: website
-  pre-render: 
+  pre-render:
     - typst compile img/src/onion-concrete.typ img/onion-concrete.svg
 
 website:
