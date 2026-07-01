@@ -12,7 +12,15 @@ test-openeo = {
         "pytest",
         "test/openeo"
     ],
-    default-environment="test"
+    default-environment = "test"
+}
+test-eoap-l2 = {
+    cmd = [
+        "bash",
+        "test/test_force_level2_cltool.sh",
+        "docker"
+    ],
+    default-environment = "test"
 }
 
 [environments]
@@ -21,6 +29,10 @@ test = ["test"]
 [feature.test.dependencies]
 pytest = ">=9.1.1,<10"
 openeo = ">=0.50.0,<0.51"
+pyyaml = ">=6.0.3,<7"
+
+[feature.test.pypi-dependencies]
+cwltool = ">=3.2.20260413085819, <4"
 
 [dependencies]
 pixi-pycharm = ">=0.0.11,<0.0.12"
