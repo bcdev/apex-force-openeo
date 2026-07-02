@@ -22,6 +22,16 @@ test-eoap-l2 = {
     ],
     default-environment = "test"
 }
+test-eoap-tsa = {
+    cmd = [
+        "bash",
+        "test/test_force_tsa_cltool.sh",
+        "docker"
+    ],
+    default-environment = "test",
+    depends-on = ["test-eoap-l2"]
+}
+test-all = [{ task = "test-eoap-l2" }, { task = "test-eoap-tsa" }, { task = "test-openeo" }]
 
 [environments]
 test = ["test"]
