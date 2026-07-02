@@ -31,16 +31,16 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Get release version
         run: |
-          RELEASE_VERSION=$({{ github.ref_name }} | sed 's/v//' | tr -d '\n')
+          RELEASE_VERSION=$(${{ github.ref_name }} | sed 's/v//' | tr -d '\n')
           echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
       - name: Info
         run: |
-          echo {{ env.RELEASE_VERSION }}
+          echo ${{ env.RELEASE_VERSION }}
       - name: Check versions
         run: |
           # Fails if versions in pyproject.toml, cwl/docker-requirement.yaml and the reference given
           # do not match
-          ./tools/check-version-matches.sh {{ env.RELEASE_VERSION }}
+          ./tools/check-version-matches.sh ${{ env.RELEASE_VERSION }}
           # Fails if lock file is out of date
           uv lock --project python --locked
       - name: download input products from lfs
