@@ -76,6 +76,64 @@ def test_query_returns_results(connection, temporal_extent, spatial_extent):
     assert len(features) > 0
 
 
+def test_tsa(connection, tmp_path , temporal_extent, subtests):
+    now = datetime.now().isoformat()
+    cwl_path = tmp_path / "cwl"
+    cwl_path.mkdir(parents=True, exist_ok=True)
+    make_cwl_documents(cwl_path)
+    cwl_tsa_path = cwl_path / "force_tsa.cwl"
+    cwl_tsa = cwl_tsa_path.read_text()
+
+    l2_job = connection.job("j-26070208482245c8ba296120762b51b0")
+    l2_results_href = extract_catalog_url_from_job_logs(l2_job.logs())
+    print(l2_results_href)
+
+    # TODO hardcoded tile (breaks if AOI changes)
+    x_tile_range = [31, 31]
+    y_tile_range = [29, 29]
+
+    force_tsa_stac_resource = StacResource(
+        graph = openeo.processes.process(
+            process_id="run_cwl_to_stac",
+            arguments=dict(
+                cwl=cwl_tsa,
+                context=dict(
+                    stac_url=l2_results_href,
+                    name=f"TSA_{now}",
+                    date_range=temporal_extent,
+                    x_tile_range=x_tile_range,
+                    y_tile_range=y_tile_range,
+                    stm=["AVG"],
+                    output_stm=True,
+                )
+            )
+        ),
+        connection=connection,
+    )
+
+    tsa_job = force_tsa_stac_resource.create_job(title=f"Test TSA {now}")
+    with subtests.test(msg="TSA job completes"):
+        tsa_job.start_and_wait()
+
+    tsa_results = tsa_job.get_results()
+    tsa_target = tmp_path / "tsa"
+    tsa_target.mkdir(parents=True, exist_ok=True)
+
+    tsa_results.download_files(tsa_target)
+
+    with subtests.test(msg="TSA: expected files are present", tmp_path=tmp_path):
+        for root, dirs, files in tsa_target.walk():
+            print(f"{root=}\t{dirs=}\t{files=}")
+        datacube_base = tsa_target
+        assert datacube_base.exists()
+        assert tmp_path.glob("CITEME*") is not None
+        # TODO: hardcoded europe, will break when AOI changes
+        tiles = datacube_base.glob("X*Y*")
+        assert tiles is not None
+        first_tile = next(tiles)
+        img = first_tile.glob("*.tif")
+        assert img is not None
+
 def test_complete_pipeline(connection, temporal_extent, spatial_extent, tmp_path, subtests):
     cwl_path = tmp_path / "cwl"
     cwl_path.mkdir(parents=True, exist_ok=True)
