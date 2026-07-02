@@ -86,7 +86,7 @@ def test_tsa(connection, tmp_path , temporal_extent, subtests):
     cwl_tsa = cwl_tsa_path.read_text()
 
     l2_job = connection.job("j-26070208482245c8ba296120762b51b0")
-    l2_results_href = extract_catalog_url_from_job_logs(l2_job.logs())
+    l2_results_href = extract_workspace_href_from_job_results(l2_job.get_results())
     print(l2_results_href)
 
     # TODO hardcoded tile (breaks if AOI changes)
@@ -200,9 +200,7 @@ def test_complete_pipeline(connection, temporal_extent, spatial_extent, tmp_path
 
     # TSA
 
-    # l2_results_href = extract_canonical_link_from_job_results(l2_results)["href"]
-    # l2_results_href = extract_workspace_href_from_job_results(l2_results)
-    l2_results_href = extract_catalog_url_from_job_logs(l2_job.logs())
+    l2_results_href = extract_workspace_href_from_job_results(l2_results)
     print(l2_results_href)
 
     # TODO hardcoded tile (breaks if AOI changes)
