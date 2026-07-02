@@ -29,11 +29,6 @@ jobs:
           python-version-file: 'python/.python-version'
       - name: Set up UV
         uses: astral-sh/setup-uv@v7
-      - name: download input products from lfs
-        run: |
-          git lfs install
-          git lfs pull --include="test/data/S2A_MSIL1C_20260310T101051_N0512_R022_T32TPQ_20260310T152637.SAFE.zip"
-          unzip test/data/*.SAFE.zip -d ../inputs
       - name: Get release version
         run: |
           RELEASE_VERSION=$({{ github.ref_name }} | sed 's/v//' | tr -d '\n')
@@ -48,6 +43,11 @@ jobs:
           ./tools/check-version-matches.sh {{ env.RELEASE_VERSION }}
           # Fails if lock file is out of date
           uv lock --project python --locked
+      - name: download input products from lfs
+        run: |
+          git lfs install
+          git lfs pull --include="test/data/S2A_MSIL1C_20260310T101051_N0512_R022_T32TPQ_20260310T152637.SAFE.zip"
+          unzip test/data/*.SAFE.zip -d ../inputs
       - name: FORCE level 2 test
         id: force_level2_test
         run: |
