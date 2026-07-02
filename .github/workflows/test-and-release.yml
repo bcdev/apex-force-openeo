@@ -11,6 +11,13 @@ on:
         required: false
         type: boolean
         default: false
+      version:
+        description: Version name, must match the entry in pyproject.toml and docker-requirement.yaml
+        required: true
+        type: string
+
+env:
+  RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name[1:] }}
 
 jobs:
   python-tests:
@@ -29,11 +36,6 @@ jobs:
           python-version-file: 'python/.python-version'
       - name: Set up UV
         uses: astral-sh/setup-uv@v7
-      - name: Get release version
-        run: |
-          set -euxo pipefail
-          RELEASE_VERSION=$(echo ${{ github.ref_name }} | sed 's/v//' | tr -d '\n')
-          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
       - name: Info
         run: |
           echo ${{ env.RELEASE_VERSION }}
@@ -74,4 +76,4 @@ jobs:
             README.md
             LICENSE
             CHANGELOG.md
-          prerelease: ${{ github.event.inputs.prerelease || false }}
+          prerelease: ${{ inputs.prerelease || false }}
