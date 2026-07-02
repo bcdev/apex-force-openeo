@@ -546,6 +546,7 @@ class CommonMetadataStacContributor(AbstractStacContributor):
                 media_type=pystac.MediaType.TEXT,
                 roles=["metadata"],
             )
+            parameter_asset.ext.file.local_path = f"parameters/{parameter_path.name}"
             item.add_asset(
                 key=key,
                 asset=parameter_asset,

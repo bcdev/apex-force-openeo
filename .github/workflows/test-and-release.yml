@@ -11,6 +11,10 @@ on:
         required: false
         type: boolean
         default: false
+      version:
+        description: Version name, must match the entry in pyproject.toml and docker-requirement.yaml
+        required: true
+        type: string
 
 jobs:
   python-tests:
@@ -29,6 +33,24 @@ jobs:
           python-version-file: 'python/.python-version'
       - name: Set up UV
         uses: astral-sh/setup-uv@v7
+      - name: Get release version
+        run: |
+          set -euxo pipefail
+          RELEASE_VERSION=$(echo ${{ github.ref_name }} | sed 's/v//' | tr -d '\n')
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            RELEASE_VERSION="${{ inputs.version }}"
+          fi
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+      - name: Info
+        run: |
+          echo ${{ env.RELEASE_VERSION }}
+      - name: Check versions
+        run: |
+          # Fails if versions in pyproject.toml, cwl/docker-requirement.yaml and the reference given
+          # do not match
+          ./tools/check-version-matches.sh ${{ env.RELEASE_VERSION }}
+          # Fails if lock file is out of date
+          uv lock --project python --locked
       - name: download input products from lfs
         run: |
           git lfs install
@@ -59,4 +81,4 @@ jobs:
             README.md
             LICENSE
             CHANGELOG.md
-          prerelease: ${{ github.event.inputs.prerelease || false }}
+          prerelease: ${{ inputs.prerelease || false }}

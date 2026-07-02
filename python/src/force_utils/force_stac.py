@@ -69,7 +69,7 @@ class ForceStacBuilder:
 
         for tile in self.store.iter_tiles():
             for asset_path in self.store.iter_asset_paths(tile):
-                asset_path_relative = self.store.get_relative_path(asset_path)
+                asset_path_relative = self.store.get_relative_path(asset_path.resolve())
 
                 asset_key = self._get_asset_key(tile, asset_path_relative)
                 asset = pystac.Asset(

@@ -1,0 +1,54 @@
+[workspace]
+authors = ["Hannes Neuschmidt <hannes.neuschmidt@brockmann-consult.de>"]
+channels = ["conda-forge"]
+name = "apex-force-openeo"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+test-openeo = {
+    cmd = [
+        "pytest",
+        "test/openeo"
+    ],
+    default-environment = "test"
+}
+test-eoap-l2 = {
+    cmd = [
+        "bash",
+        "test/test_force_level2_cltool.sh",
+        "docker"
+    ],
+    default-environment = "test"
+}
+test-eoap-tsa = {
+    cmd = [
+        "bash",
+        "test/test_force_tsa_cltool.sh",
+        "docker"
+    ],
+    default-environment = "test",
+    depends-on = ["test-eoap-l2"]
+}
+test-all = [{ task = "test-eoap-l2" }, { task = "test-eoap-tsa" }, { task = "test-openeo" }]
+
+check-version-matches = {
+    cmd = [
+        "./tools/check-version-matches.sh"
+    ]
+}
+
+[environments]
+test = ["test"]
+
+[feature.test.dependencies]
+pytest = ">=9.1.1,<10"
+openeo = ">=0.50.0,<0.51"
+pyyaml = ">=6.0.3,<7"
+
+[feature.test.pypi-dependencies]
+cwltool = ">=3.2.20260413085819, <4"
+
+[dependencies]
+pixi-pycharm = ">=0.0.11,<0.0.12"

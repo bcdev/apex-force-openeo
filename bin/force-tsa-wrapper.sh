@@ -161,7 +161,8 @@ ln -s $(pwd) /tmp/outputs
 cd /tmp
 
 export output_dir="outputs/force-tsa"
-export stac_output_dir=$output_dir
+stac_output_dir=$(realpath "$output_dir")
+export stac_output_dir
 export provenance_dir="/tmp/provenance"
 parameter_template="/opt/apex-force-wrapper/etc/force-tsa-parameters.template"
 filled_parameter_path="/tmp/force-tsa-parameters.prm"
