@@ -33,6 +33,12 @@ test-eoap-tsa = {
 }
 test-all = [{ task = "test-eoap-l2" }, { task = "test-eoap-tsa" }, { task = "test-openeo" }]
 
+check-version-matches = {
+    cmd = [
+        "./tools/check-version-matches.sh"
+    ]
+}
+
 [environments]
 test = ["test"]
 
