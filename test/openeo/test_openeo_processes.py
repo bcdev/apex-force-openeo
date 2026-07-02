@@ -76,6 +76,7 @@ def test_query_returns_results(connection, temporal_extent, spatial_extent):
     assert len(features) > 0
 
 
+@pytest.mark.skip(reason="Requires job reference. Subset of test_complete_pipeline. Useful for debugging.")
 def test_tsa(connection, tmp_path , temporal_extent, subtests):
     now = datetime.now().isoformat()
     cwl_path = tmp_path / "cwl"
