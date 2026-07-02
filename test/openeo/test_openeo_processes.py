@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Dict, Any
 import subprocess
 import importlib
+import re
 
 import pytest
 import openeo
@@ -141,7 +142,8 @@ def test_complete_pipeline(connection, temporal_extent, spatial_extent, tmp_path
     # TSA
 
     # l2_results_href = extract_canonical_link_from_job_results(l2_results)["href"]
-    l2_results_href = extract_workspace_href_from_job_results(l2_results)
+    # l2_results_href = extract_workspace_href_from_job_results(l2_results)
+    l2_results_href = extract_catalog_url_from_job_logs(l2_job.logs())
     print(l2_results_href)
 
     # TODO hardcoded tile (breaks if AOI changes)
@@ -155,7 +157,7 @@ def test_complete_pipeline(connection, temporal_extent, spatial_extent, tmp_path
                 cwl=cwl_tsa,
                 context=dict(
                     stac_url=l2_results_href,
-                    name=f"TSA {now}",
+                    name=f"TSA_{now}",
                     date_range=temporal_extent,
                     x_tile_range=x_tile_range,
                     y_tile_range=y_tile_range,
@@ -183,8 +185,7 @@ def test_complete_pipeline(connection, temporal_extent, spatial_extent, tmp_path
         datacube_base = tsa_target
         assert datacube_base.exists()
         assert tmp_path.glob("CITEME*") is not None
-        # TODO: hardcoded europe, will break when AOI changes
-        tiles = (datacube_base / "europe").glob("X*Y*")
+        tiles = datacube_base.glob("X*Y*")
         assert tiles is not None
         first_tile = next(tiles)
         img = first_tile.glob("*.tif")
@@ -218,3 +219,9 @@ def extract_workspace_href_from_job_results(job_results) -> str:
     no_prefix = no_suffix.removeprefix("s3:").lstrip("/")
     modified_href = f"https://{storage_root}/{no_prefix}/catalog.json"
     return modified_href
+
+def extract_catalog_url_from_job_logs(job_logs) -> str:
+    pattern = r"v\.generate_public_url\(\)='(http[^']+catalog(ue)?.json)'"
+    log_with_item_url = next(iter(l.message for l in job_logs if re.search(pattern, l.message)))
+    catalog_url = re.search(pattern, log_with_item_url).group(1)
+    return catalog_url
