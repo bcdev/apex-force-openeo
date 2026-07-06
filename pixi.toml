@@ -28,8 +28,7 @@ test-eoap-tsa = {
         "test/test_force_tsa_cltool.sh",
         "docker"
     ],
-    default-environment = "test",
-    depends-on = ["test-eoap-l2"]
+    default-environment = "test"
 }
 test-all = [{ task = "test-eoap-l2" }, { task = "test-eoap-tsa" }, { task = "test-openeo" }]
 
@@ -39,8 +38,11 @@ check-version-matches = {
     ]
 }
 
+preview = { cmd = "quarto preview", default-environment = "docs", cwd = "docs/force-eoap/" }
+
 [environments]
 test = ["test"]
+docs = ["docs"]
 
 [feature.test.dependencies]
 pytest = ">=9.1.1,<10"
@@ -49,6 +51,17 @@ pyyaml = ">=6.0.3,<7"
 
 [feature.test.pypi-dependencies]
 cwltool = ">=3.2.20260413085819, <4"
+
+[feature.docs.dependencies]
+quarto = "*"
+jupyter = "*"
+typst = "*"
+openeo = "*"
+pystac-client = "*"
+contextily = "*"
+geopandas = "*"
+shapely = "*"
+ipython = "*"
 
 [dependencies]
 pixi-pycharm = ">=0.0.11,<0.0.12"
