@@ -16,11 +16,11 @@ execute:
 
 L1C_COLLECTION_URL = "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c"
 STAC_ROOT_URL = "https://stac.dataspace.copernicus.eu/v1"
-
-w,s,e,n = 10.386, 44.437, 11.423, 44.973
+#w,s,e,n = 10.386, 44.437, 11.423, 44.973
+w, s, e, n = 11.0, 44.5, 11.1, 44.6
 spatial_extent = { "west": w, "south": s, "east": e, "north": n}
-# ATTENTION: Inclusion of the second date in the search depends on the query method (see below).
-temporal_extent=["2026-04-17", "2026-05-01"]
+# ATTENTION: Inclusion of the second date in the search depends on the query method.
+temporal_extent=["2026-04-17", "2026-04-27"]
 
 ```
 
@@ -31,19 +31,18 @@ temporal_extent=["2026-04-17", "2026-05-01"]
 
 ```{python}
 import openeo
-connection = openeo.connect("openeo-staging.dataspace.copernicus.eu").authenticate_oidc()
+connection = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
 
 query_pg = openeo.processes.process(
     "query_stac",
     arguments={
         "url": L1C_COLLECTION_URL,
         "temporal_extent": temporal_extent,
-        "spatial_extent": spatial_extent,
-    }
+        "spatial_extent": spatial_extent, }
 )
 ```
 
-## Pystac client
+## Pystac client {.active}
 
 ```{python}
 import pystac_client
@@ -73,6 +72,28 @@ The integrated FORCE uses (lowercase) [`snake_case`](https://en.wikipedia.org/wi
 
 The parameters are documented in the process description. We can inspect it using the Python client's [`describe_processes()`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.describe_process).
 
+<!-- 
+
+    FIXME:
+    It is necessary to connect to the staging backend, until the custom processes are publicly
+    listed in the production environment. Once this is the case (should happen together with the
+    offcial release of the documentation), this cell can be removed.
+    HN - 2026-07-06
+
+-->
+
+```{python}
+connection = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
+```
+
+<!-- TODO
+Temporary until we can use the production environment directly
+-->
+
+```{python}
+#| echo: false
+connection = openeo.connect("openeo-staging.dataspace.copernicus.eu").authenticate_oidc()
+```
 
 :::{.callout-note collapse="true" title="FORCE level 2 parameters"}
 ```{python}
@@ -83,10 +104,47 @@ connection.describe_process("force_level2")
 
 ### Building the Process Graph
 
-We can run the `force_level2` process like any other process using [`openeo.processes.process`](https://open-eo.github.io/openeo-python-client/api.html#openeo.processes.process). In order to interpret the backend response, we wrap the resulting process graph as a [`StacResource`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.stac_resource.StacResource).
+The FORCE process graph is based on the `force_level2` process, as described in [openEO processes](processes.qmd). Because FORCE does not use the standard openEO version of the "data cube" concept, but
+uses its own data cube representation, we need to wrap the process so that we can interact with the results in a convenient way as a StacResource and export the processing results to a workspace.
+
+
+Concept | Qualified name (Python client) | Purpose
+--------|--------------------------------|-------------
+`StacResource` | [`openeo.rest.stac_resource.StacResource`](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/) | A handle to the process graph results, makes it possible to inspect the results as usual for openEO datacubes.
+`export_workspace` | [`openeo.rest.result.SaveResult.export_workspace`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.result.SaveResult.export_workspace) | A process to publish the processing results (e.g., a FORCE ARD data cube) to a shared cloud storage location. There is a special workspace configured for FORCE (`apex-force-force-results`) accessible to all users of the CDSE openEO backend. The workspace serves as a storage location to keep data cubes for later processing (e.g., with the [TSA](tsa.qmd) module).
+`PGNode` | [`openeo.internal.graph_building.PGNode`](https://open-eo.github.io/openeo-python-client/api.html#openeo.internal.graph_building.PGNode) | A single node in a process graph. `PGNode` is an internal class but may be used for advanced graph building purposes [as described here](https://open-eo.github.io/openeo-python-client/processes.html#callback-as-pgnode). We use it for the `graph` parameter of `StacResource`.
+
+
+#### Workspaces
+
+OpenEO uses the concept of [Workspaces](https://docs.openeo.cloud/workspaces/) to interface with object storage. For processing with FORCE, we can use a workspace dedicated to FORCE to store and exchange processing results between level 2 and higher level processing, and with colleagues.
+
+The dedicated FORCE workspace is identified as `apex-force-results-workspace` and openly accessible to all openEO CDSE users. Make sure to use a unique URL for your results, so that they do not
+interfere with others' processing.
+
+If you have access to another workspace, you may use that one instead.
+
+
+When running FORCE level2 on its own, we do not need to use a workspace. Simply download the results when you are done with processing. However, to reference the level 2 processing results in [further processing](tsa.qmd), we need to use a workspace.
+
+We can instruct openEO to store our results in a workspace using the [`export_workspace`](https://openeo.org/documentation/1.0/processes.html#export_workspace) openEO process.
+
+When using `export_workspace`, we need to pass a `merge` string to identify your result. The merge will be a key prefix on object storage. The `merge` is something similar to a path in a file system. 
+It is very important to set a good `merge` parameter and remember the result, because results can only be accessed when the `merge` is known. Furthermore, all users of the workspace (in the case of the `apex-force-results-workspace`, anyone) may write data, so make sure to use a unique `merge`, to reduce the likelihood of accidentally modifying others' data and have others overwrite your data by accident.
+
+
+:::{.callout-tip}
+# FORCE workspace
+
+The dedicated workspace for FORCE results is accessible to all users:
+`apex-force-results-workspace` (<https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1>)
+:::
+
+
+We generate the `force_level2` process graph using a Process Graph Node ([`PGNode`](https://open-eo.github.io/openeo-python-client/api.html#openeo.internal.graph_building.PGNode)).  In order to interpret the backend response, we wrap the resulting process graph as a [`StacResource`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.stac_resource.StacResource).
 This makes it possible to render the backend response nicely in Jupyter environments and gives us convenient methods to access our results when the process is done.
 
-[Pass parameters](parametrization.qmd) to the level 2 processing system in the `arguments` dictionary.
+Pass [parameters](parametrization.qmd) to the level 2 processing system in the `arguments` dictionary.
 
 You may furthermore give the processing a name which will determine the name of the STAC item generated for the results:
 
@@ -99,23 +157,42 @@ When using the `query_stac` process, we pass the **contents** of a STAC document
 
 :::{.callout-warning}
 Due to backend limitations, the `stac_document` parameter can only handle a document of limited length. The `query_stac` process generates an item collection which quickly grows in size (the entire content of each STAC item is contained in it). Therefore, use `query_stac` only for small processing tasks with only a handful of items. Otherwise use a different query method to pass an URL or a catalog instead.
+
+**It is recommended to rely on Pystac client for catalog queries for now.**
 :::
 
 
 
 ```{python}
 from openeo.rest.stac_resource import StacResource
+from openeo.internal.graph_building import PGNode
 
+processing_name = "Modena"
 force_l2_stac_resource = StacResource(
-    graph=openeo.processes.process(
+    graph=PGNode(
         process_id="force_level2",
         arguments={
             "stac_document": query_pg,
-            "name": "Modena",
+            "name": processing_name,
             "do_brdf": True,
         }
     ),
     connection=connection,
+)
+
+# Optional when only processing level 2
+# If you intend to continue processing, or share the results with others,
+# add the `export_workspace` call:
+import getpass
+
+# Be careful: The merge determines the storage location of your results.
+# You may overwrite your results or those of others, if the `merge` parameter is not
+# Set to a unique value.
+merge = f"{getpass.getuser()}_experiments_{processing_name}"
+print("merge: ", merge)
+force_l2_stac_resource = force_l2_stac_resource.export_workspace(
+    workspace="apex-force-results-workspace",
+    merge=merge,
 )
 ```
 
@@ -125,17 +202,17 @@ force_l2_stac_resource_openeo = force_l2_stac_resource
 ```
 
 
-#### Pystac client
+#### Pystac client {.active}
 
 :::{.callout-warning}
 
 Due to backend limitations the `stac_document` parameter can only handle a document of limited length. This means it can only handle collections of very few items.
-It is therefore advisable to either pass an URL (if possible) or to convert the item_collection returned by [`pystac_client.Client.search`](https://pystac-client.readthedocs.io/en/latest/api.html#pystac_client.Client.search) to a catalog. The item collection contains the entire content of each STAC item, whereas the catalog only contains a reference to the ITEM's, making a much shorter document.
+It is therefore advisable to either pass an URL (if possible) or to convert the item_collection returned by [`pystac_client.Client.search`](https://pystac-client.readthedocs.io/en/latest/api.html#pystac_client.Client.search) to a catalog. The item collection contains the entire content of each STAC item, whereas the catalog only contains a reference to the items, making a much shorter document.
 
 :::
 
 In case the backend limitation will be fixed, the transformation step will no longer be necessary.
-It is already possible to pass `item_collection.to_dict()` directly as `stac_document`.
+It is already possible to pass `item_collection.to_dict()` directly as `stac_document`, if the item collection is small.
 
 ##### Convert Item Collection to Catalog
 
@@ -164,17 +241,48 @@ query_catalog = transform_item_collection_to_catalog_with_links(item_collection)
 
 ```{python}
 from openeo.rest.stac_resource import StacResource
+from openeo.internal.graph_building import PGNode
 
 force_l2_stac_resource = StacResource(
-    graph=openeo.processes.process(
+    graph=PGNode(
         process_id="force_level2",
         arguments={
             "stac_document": query_catalog.to_dict(),
-            "name": "Modena",
+            "name": processing_name,
             "do_brdf": True,
         }
     ),
     connection=connection,
+)
+
+# Temporary fix
+force_l2_stac_resource = StacResource(
+    graph=PGNode(
+        process_id="run_cwl_to_stac",
+        arguments=dict(
+            cwl="https://github.com/bcdev/apex-force-openeo/releases/latest/download/force-level2.cwl",
+            context={
+                "stac_document": query_catalog.to_dict(),
+                "name": processing_name,
+                "do_brdf": True,
+            }
+        ),
+    ),
+    connection=connection,
+)
+# Optional when only processing level 2
+# If you intend to continue processing, or share the results with others,
+# add the `export_workspace` call:
+import getpass
+
+# Be careful: The merge determines the storage location of your results.
+# You may overwrite your results or those of others, if the `merge` parameter is not
+# Set to a unique value.
+merge = f"{getpass.getuser()}_experiments_{processing_name}"
+print("merge: ", merge)
+force_l2_stac_resource = force_l2_stac_resource.export_workspace(
+    workspace="apex-force-results-workspace",
+    merge=merge,
 )
 ```
 
@@ -203,7 +311,7 @@ force_l2_stac_resource = force_l2_stac_resource_openeo
 print(force_l2_stac_resource.to_json())
 ```
 
-### Pystac client
+### Pystac client {.active}
 
 ```{python}
 #| echo: false
@@ -226,8 +334,8 @@ With the process graph in place, we can submit it and wait for it to complete.
 You can [monitor the progress](processes.qmd#monitoring-progress) through the client library or the web interface.
 
 
-```{.python}
-l2_job = force_l2_stac_resource.create_job(title="FORCE level 2")
+```{python}
+l2_job = force_l2_stac_resource.create_job(title=f"FORCE level 2 {processing_name}")
 l2_job.start() # use start_and_wait instead to block until the job is done
 ```
 
@@ -267,7 +375,8 @@ While the cube will stay in place for multiple days, eventually the storage will
 
 ```{python}
 #| echo: false
-l2_job = connection.job("j-260527114522498d959f20eff3fc9b78")
+#l2_job = connection.job("j-260527114522498d959f20eff3fc9b78")
+l2_job = connection.job("j-260702093443422db1ddead799544cff")
 ```
 
 #### Inspecting STAC metadata {#sec-inspecting-stac}
@@ -276,46 +385,21 @@ l2_job = connection.job("j-260527114522498d959f20eff3fc9b78")
 This step is optional
 :::
 
-:::{.panel-tabset}
-
-##### Intended syntax
-
-```{.python}
-from pystac.catalog import Catalog
-import json
-
-catalog_request = connection.get(f"/jobs/{l2_job.job_id}/results/assets/catalog.json")
-l2_catalog = Catalog.from_dict(json.loads(response.text))
-l2_catalog.set_self_href(reponse.url)
-l2_catalog
-```
-
-##### Workaround
-
-```{python}
-def extract_catalog_url_from_job_logs(job_logs) -> str:
-    prefix = r"result 'l2-ard/catalog.json': v.generate_public_url()='"
-    log_with_catalog_url = next(
-        iter(l.message for l in job_logs if "catalog.json" in l.message)
-    )
-    catalog_url = log_with_catalog_url.removeprefix(prefix).split("'")[0]
-    return catalog_url
-```
+The basic URL of the FORCE workspace `apex-force-results-workspace` is 
+<https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1>. Together with the `merge` path defined for our processing, we can determine the path to the `catalog.json` for our FORCE level results:
 
 ```{.python}
 from pystac.catalog import Catalog
-import json
 
-l2_logs = l2_job.logs()
-l2_catalog_url = extract_catalog_url_from_job_logs(l2_logs)
-print(f"{l2_catalog_url=}")
+WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1"
+
+l2_catalog_url = f"{WORKSPACE_URL}/{merge}/catalog.json"
 l2_catalog = Catalog.from_file(l2_catalog_url)
+
 l2_catalog.set_self_href(l2_catalog_url)
 l2_catalog
 ```
 
-<!-- tabset -->
-:::
 
 #### Downloading files
 

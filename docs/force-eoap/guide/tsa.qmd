@@ -7,7 +7,17 @@ execute:
 ---
 # FORCE Time Series Analysis
 
+<!--
+TODO
+
+- [ ] Remove inspecting catalog from recap and just access results once
+-->
+
 ## Recap
+
+:::{.callout-warning}
+You should use `pystac_client` based querying if your inputs encompass more than just a handful of items
+:::
 
 :::{.callout-tip collapse="true" title="Selecting input products"}
 
@@ -25,6 +35,7 @@ temporal_extent=["2026-04-17", "2026-05-01"]
 
 :::{.panel-tabset group="query_engine"}
 
+
 ## openEO
 
 ```{python}
@@ -41,7 +52,7 @@ query_pg = openeo.processes.process(
 )
 ```
 
-## Pystac client
+## Pystac client {.active}
 
 ```{python}
 import pystac_client
@@ -65,19 +76,30 @@ item_collection = search.item_collection()
 #### openEO
 
 ```{python}
+import getpass
 from openeo.rest.stac_resource import StacResource
+from openeo.internal.graph_building import PGNode
+
+# Make sure to choose a unique name 
+processing_name = "Modena"
 
 force_l2_stac_resource = StacResource(
-    graph=openeo.processes.process(
+    graph=PGNode(
         process_id="force_level2",
         arguments={
             "stac_document": query_pg,
-            "name": "Modena",
+            "name": processing_name,
             "do_brdf": True,
         }
     ),
     connection=connection,
 )
+
+merge = f"{getpass.getuser()}/experiments/{processing_name}"
+force_l2_stac_resource.export_workspace(
+    workspace="apex-force-results-workspace",
+    merge=merge,
+);
 ```
 
 ```{python}
@@ -85,7 +107,7 @@ force_l2_stac_resource = StacResource(
 force_l2_stac_resource_openeo = force_l2_stac_resource
 ```
 
-#### Pystac client
+#### Pystac client {.active}
 
 ```{python}
 #| echo: false
@@ -111,10 +133,13 @@ query_catalog = transform_item_collection_to_catalog_with_links(item_collection)
 
 
 ```{python}
+from openeo.internal.graph_building import PGNode
 query_catalog = transform_item_collection_to_catalog_with_links(item_collection)
 
+processing_name = "Modena"
+
 force_l2_stac_resource = StacResource(
-    graph=openeo.processes.process(
+    graph=PGNode(
         process_id="force_level2",
         arguments={
             "stac_document": query_catalog.to_dict(),
@@ -123,6 +148,13 @@ force_l2_stac_resource = StacResource(
         }
     ),
     connection=connection,
+)
+
+merge = f"{getpass.getuser()}/experiments/{processing_name}"
+print(merge)
+force_l2_stac_resource.export_workspace(
+    workspace="apex-force-results-workspace",
+    merge=merge,
 )
 ```
 
@@ -142,28 +174,6 @@ l2_job = connection.job("j-260527114522498d959f20eff3fc9b78")
  <!-- callout -->
 :::
 
-:::{.callout-tip title="Extracting output catalog" collapse="true"}
-```{python}
-def extract_catalog_url_from_job_logs(job_logs) -> str:
-    prefix = r"result 'l2-ard/catalog.json': v.generate_public_url()='"
-    log_with_catalog_url = next(
-        iter(l.message for l in job_logs if "catalog.json" in l.message)
-    )
-    catalog_url = log_with_catalog_url.removeprefix(prefix).split("'")[0]
-    return catalog_url
-```
-
-```{python}
-from pystac.catalog import Catalog
-import json
-
-l2_logs = l2_job.logs()
-l2_catalog_url = extract_catalog_url_from_job_logs(l2_logs)
-l2_catalog = Catalog.from_file(l2_catalog_url)
-l2_catalog.set_self_href(l2_catalog_url)
-```
-:::
-
 ## Time Series Analysis
 
 The openEO process for FORCE Time Series Analysis (TSA) is called `force_tsa`. Like the [level 2](level2.qmd) process, it takes most of the parameters usually passed to the [TSA module of FORCE](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/) using the [parameter file](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html). Parameters use `snake_case` format instead of `SCREAMING_SNAKE_CASE` (used in FORCE parameter files).
@@ -181,49 +191,49 @@ connection.describe_process("force_tsa")
 The process graph for FORCE TSA built in the same way as the level 2 process graph is built.
 The main input for FORCE TSA is the STAC catalog (or item) from the level 2 processing.
 
-We can access the catalog from the level 2 job as described in [level 2 processing article](level2.qmd#Accessing results).
+We can access the STAC catalog produced by our level 2 job in the workspace,
+described in [level 2 processing article](level2.qmd#Accessing results).
 
-We can re-use a job that has run previously using the job ID (which you can find out through the web interface or using) [`list_jobs`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.list_jobs)
+It is important to remember the `merge` paramter passed to `export_workspace`, this is the path under which we can find the catalog.
 
-```{.python}
-jobs = connection.list_jobs() # extract job id of your level 2 job
-l2_job = connection.job("<job-id>")
-```
 
 ```{python}
-#| echo: false
-l2_job = connection.job("j-260527114522498d959f20eff3fc9b78")
-
-def extract_catalog_url_from_job_logs(job_logs) -> str:
-    prefix = r"result 'l2-ard/catalog.json': v.generate_public_url()='"
-    log_with_catalog_url = next(
-        iter(l.message for l in job_logs if "catalog.json" in l.message)
-    )
-    catalog_url = log_with_catalog_url.removeprefix(prefix).split("'")[0]
-    return catalog_url
-
+processing_name = "Modena"
+merge = f"{getpass.getuser()}/experiments/{processing_name}"
+print(merge)
 ```
+
+Remember, the dedicated workspace for FORCE has the basic URL 
+
+```{python}
+#WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1"
+WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1-exotc5yuexi2c5tvwqhoivj62fz8v0uupy0me"
+```
+
 
 ### TSA Parameters
 
+<!-- TODO match with level 2 example-->
 Some parameters can be set a-priori or from prior knowledge of our level 2 processing parameters
 ```{python}
-temporal_extent=["2026-02-01", "2026-02-20"]
+temporal_extent=["2026-04-17", "2026-04-27"]
 ```
 
 For other parameters, we may want to inspect the metadata of the level 2 processing.
 For example, we can extract the tiles from the asset names of the STAC item describing the level 2 datacube. 
 
+
 ```{python}
-# See the level 2 article for the definition of this function
-l2_catalog_url = extract_catalog_url_from_job_logs(l2_job.logs())
-l2_catalog = pystac.Catalog.from_file(l2_catalog_url)
-l2_item = next(l2_catalog.get_items()) # there is just one item
-l2_item
+merge = f"{getpass.getuser()}_experiments_{processing_name}"
+l2_catalog_url = f"{WORKSPACE_URL}/{merge}/catalog.json"
+print(l2_catalog_url)
+#l2_catalog = pystac.Catalog.from_file(l2_catalog_url)
+#l2_item = next(l2_catalog.get_items()) # there is just one item
+#l2_item
 ```
 
 We can extract the tiles manually or programmatically
-```{python}
+```{.python}
 tiles = set([k.split(".")[0] for k in l2_item.assets.keys() if k.endswith("BOA")])
 tile_x = set(int(tile[1:5]) for tile in tiles)
 tile_y = set(int(tile[7:]) for tile in tiles)
@@ -234,12 +244,13 @@ tile_x, tile_y
 
 The main process is `force_tsa`.
 
-```{python}
+```{.python}
 from openeo.rest.stac_resource import StacResource
+from openeo.internal.graph_building import PGNode
 
 
 force_tsa_stac_resource = StacResource(
-    graph=openeo.processes.process(
+    graph=PGNode(
         process_id="force_tsa",
         arguments={
             "stac_url": l2_catalog_url,
@@ -280,12 +291,12 @@ tsa_item
 Downloading assets as well:
 
 ```{.python}
-l2_results = l2_job.get_results()
-l2_results
+tsa_results = l2_job.get_results()
+tsa_results
 ```
 
 ```{.python}
-l2_results.download_files("force-tsa-results")
+tsa_results.download_files("force-tsa-results")
 ```
 
 <!--

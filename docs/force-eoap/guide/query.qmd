@@ -32,6 +32,12 @@ In the following, we show how this collection may be queried to to obtain inputs
 
 ## Querying STAC catalogs/collections
 
+FORCE level 2 can work with any STAC URL or document referencing input products of the correct type (Sentinel-2 L1C). The following describes how to make a query to the CDSE STAC catalog.
+Be advised to query the CDSE STAC collection of L1C, as data access will be faster than external archives and the integration makes some assumptions about the metadata provided in the STAC items describing
+the products.
+
+It is recommended to make the query using `pystac_client` for now, as using the `query_stac` process limits us to very small data sets See below for more details.
+
 ### Area of interest
 
 As an example, we selected an area in northern Italy, around the city of Modena.
@@ -116,6 +122,21 @@ query_pg = openeo.processes.process(
 )
 ```
 
+<!-- 
+
+    FIXME:
+    It is necessary to connect to the staging backend, until the custom processes are publicly
+    listed in the production environment. Once this is the case (should happen together with the
+    offcial release of the documentation), this cell can be removed.
+    HN - 2026-07-06
+
+-->
+
+```{python}
+#| echo: false
+connection = openeo.connect("openeo-staging.dataspace.copernicus.eu").authenticate_oidc()
+```
+
 We can directly use `query_pg` as a parameter for FORCE level 2, using openEO's process chaining.
 To inspect the query results ahead of time, we may want to execute it ahead of time.
 If we do not do this, execution of the query will be delayed until we submit the entire process graph (including processing with FORCE).
@@ -128,7 +149,7 @@ print("\n".join([f["id"] for f in query_res["features"]]), "\n")
 ```
 
 
-#### Pystac client
+#### Pystac client {.active}
 
 
 ```{python}
@@ -172,7 +193,7 @@ item = pystac.Item.from_dict(query_res["features"][0])
 item
 ```
 
-#### Pystac client
+#### Pystac client {.active}
 
 ```{python}
 next(iter(search.items()))

@@ -1,5 +1,5 @@
 ---
-title: "FORCE on CDSE"
+title: "FORCE with openEO on CDSE"
 format:
     html:
         code-line-numbers: true
@@ -33,7 +33,7 @@ FORCE includes a large number of processing features, including the generation o
 
 Details of FORCE functionality and validation are described in a number of [scientific publications](https://force-eo.readthedocs.io/en/latest/refs.html).
 
-## ... on CDSE (openEO)
+## ...with openEO...
 
 This project makes it possible to use (the) FORCE through the [Copernicus Data Space Ecosystem (CDSE)](https://dataspace.copernicus.eu/) [openEO Service](https://dataspace.copernicus.eu/analyse/openeo).
 
@@ -45,14 +45,11 @@ FORCE has its own file-system-based [data cube](https://force-eo.readthedocs.io/
 :::
 
 
-<!-- TODO: update syntax when custom processes have been tested -->
-::: {.callout-warning}
-The force custom process syntax is not fully determined.
-:::
-
 ```{.python}
 import openeo
+
 connection = openeo.connect("https://openeo.dataspace.copernicus.eu").authenticate_oidc()
+
 stac_item_url = "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c/items/S2A_MSIL1C_20260419T100711_N0512_R022_T32TPQ_20260419T152521"
 stac_resource = openeo.rest.stac_resource.StacResource(
     graph=openeo.internal.graph_building.PGNode(
@@ -72,8 +69,7 @@ job.get_results()
 l2_results.download_files("force-ARD")
 ```
 
-<!-- TODO: Link examples section when done -->
-For a full example, see \[TODO\].
+For a full example, see [the guide](guide/intro.qmd).
 
 With the integrated FORCE, you can 
 
@@ -82,6 +78,10 @@ With the integrated FORCE, you can
 - Download data cubes in FORCE's native datacube format
 
 For an overview of the FORCE functionality made available via openEO, see [features](features.qmd).
+
+## ...on CDSE
+
+FORCE runs on the CDSE infrastructure using the same data archive available to other CDSE services.
 
 
 ## EO Application Package
@@ -96,7 +96,7 @@ FORCE is integrated into CDSE openEO using the built-in support for EO Applicati
 EOAPs are implemented as a combination of a Docker Image and a [Common Workflow Language](https://www.commonwl.org/) (CWL) document.
 
 The EOAP is taylored and tested with the CDSE openEO backend. However, it may be possible to run the EOAP in a different environment.
-See [EOAP](eoap.qmd) for more information.
+See the [developer guide](developer_guide/intro.qmd) (WIP) for more information.
 
 ![integration onion](img/onion-concrete.svg)
 

@@ -4,7 +4,7 @@ project:
     - typst compile img/src/onion-concrete.typ img/onion-concrete.svg
 
 website:
-  title: "FORCE on CDSE"
+  title: "FORCE with openEO on CDSE"
   navbar:
     left:
       - href: index.qmd

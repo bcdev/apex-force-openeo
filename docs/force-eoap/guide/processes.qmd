@@ -4,7 +4,7 @@ format:
         code-fold: false
         page-navigation: true
 execute:
-    # Cache is necessary to avoid having to authenticate 
+    # Cache is necessary to avoid having to authenticate to build the documentation
     freeze: true
 ---
 
@@ -12,15 +12,29 @@ execute:
 
 Using an openEO client, we can control FORCE through a number of [openEO processes](https://openeo.org/documentation/1.0/datacubes.html). The FORCE openEO integration is specific to the backend deployed on CDSE, so the processes described here are not listed among the [standard processes](https://openeo.org/documentation/1.0/processes.html) and are generally experimental.
 
-The processes wrapping FORCE functionality support most of the options that can be set in the FORCE parameter file ([level2](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html), [TSA](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)). See the article on [parametrization](parametrization.qmd) for more details on the (un-)supported options and defaults.
+The processes wrapping FORCE functionality support most of the options that can be set in the FORCE parameter file ([level2](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html), [TSA](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)). See the article on [parametrization](parametrization.qmd) for more details on the supported options and defaults.
 
 
-To discover the processes, we must first connect to the CDSE openEO backend
+To discover the processes, we must first connect to the CDSE openEO backend:
 
 ```{python}
 import openeo
-connection = openeo.connect("https://openeo-staging.dataspace.copernicus.eu")
+connection = openeo.connect("https://openeo.dataspace.copernicus.eu")
 connection.authenticate_oidc()
+```
+<!-- 
+
+    FIXME:
+    It is necessary to connect to the staging backend, until the custom processes are publicly
+    listed in the production environment. Once this is the case (should happen together with the
+    offcial release of the documentation), this cell can be removed.
+    HN - 2026-07-06
+
+-->
+
+```{python}
+#| echo: false
+connection = openeo.connect("openeo-staging.dataspace.copernicus.eu").authenticate_oidc()
 ```
 
 <!-- TODO: link documentation -->
@@ -62,7 +76,7 @@ The openEO processes exposes most of the options that can be set in the FORCE pa
 
 ## Time Series Analysis
 
-The `force_tsa` process wraps the Time Series Analysis module.
+The `force_tsa` process wraps the [Time Series Analysis](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/) module.
 
 :::{.callout-note collapse="true" title="force_tsa process definition"}
 ```{python}
