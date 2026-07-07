@@ -248,6 +248,57 @@ def test_complete_pipeline(connection, temporal_extent, spatial_extent, tmp_path
         img = first_tile.glob("*.tif")
         assert img is not None
 
+def test_level2_custom_processes(connection, temporal_extent, spatial_extent):
+    query_pg = construct_process_graph(temporal_extent, spatial_extent)
+    now = datetime.now().isoformat()
+    w, s, e, n = spatial_extent["west"], spatial_extent["south"], spatial_extent["east"], spatial_extent["north"]
+
+    aoi = f'{{ "type": "Feature", "geometry": {{ "type": "Polygon", "coordinates": [[[{w},{s}],[{w},{n}],[{e},{n}],[{e},{s}],[{w},{s}]]] }}, "properties": {{ "name": "FORCE test" }} }}'
+
+    force_l2_stac_resource = StacResource(
+        graph=openeo.internal.graph_building.PGNode(
+            process_id="force_level2",
+            arguments=dict(
+                stac_document=query_pg,
+                name=now,
+                aoi=aoi,
+                do_brdf=True
+            ),
+        ),
+        connection=connection,
+    )
+    merge_path = f"FORCE_level2_custom_processes_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}"
+    force_l2_stac_resource = force_l2_stac_resource.export_workspace(
+        workspace="apex-force-results-workspace",
+        merge=merge_path
+    )
+
+    l2_job = force_l2_stac_resource.create_job(title=f"FORCE level 2 test custom process{now}")
+    l2_job.start_and_wait()
+
+
+def test_level2_with_large_query(connection, spatial_extent):
+    temporal_extent = ["2026-04-01", "2026-05-01"]
+    query_pg = construct_process_graph(temporal_extent, spatial_extent)
+    now = datetime.now().isoformat()
+    w, s, e, n = spatial_extent["west"], spatial_extent["south"], spatial_extent["east"], spatial_extent["north"]
+
+    aoi = f'{{ "type": "Feature", "geometry": {{ "type": "Polygon", "coordinates": [[[{w},{s}],[{w},{n}],[{e},{n}],[{e},{s}],[{w},{s}]]] }}, "properties": {{ "name": "FORCE test" }} }}'
+
+    force_l2_stac_resource = StacResource(
+        graph=openeo.internal.graph_building.PGNode(
+            process_id="force_level2",
+            arguments=dict(
+                stac_document=query_pg,
+                name=now,
+                aoi=aoi,
+                do_brdf=True
+            ),
+        ),
+        connection=connection,
+    )
+    l2_job = force_l2_stac_resource.create_job(title=f"FORCE level 2 test large query {now}")
+    l2_job.start_and_wait()
 
 # helpers
 
