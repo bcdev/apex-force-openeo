@@ -43,6 +43,7 @@ preview = { cmd = "quarto preview", default-environment = "docs", cwd = "docs/fo
 [environments]
 test = ["test"]
 docs = ["docs"]
+examples = ["examples"]
 
 [feature.test.dependencies]
 pytest = ">=9.1.1,<10"
@@ -62,6 +63,12 @@ contextily = "*"
 geopandas = "*"
 shapely = "*"
 ipython = "*"
+
+[feature.examples.dependencies]
+jupyterlab = ">=4.6.1,<5"
+cwltool = ">=3.2.20260413085819,<4"
+pystac = ">=1.14.3,<2"
+openeo = ">=0.50.0,<0.51"
 
 [dependencies]
 pixi-pycharm = ">=0.0.11,<0.0.12"
