@@ -51,7 +51,7 @@ graph = openeo.processes.process(
 
 ### Special parameters
 
-- `aoi`: replaces the `FILE_AOI` parameter. Pass a geojson feature (instead of a shapefile)
+- `aoi`: replaces the `FILE_AOI` parameter. Pass a geojson feature (instead of a shapefile). See also [the aoi parameter description of level2](level2.qmd#Area of extent)
 - `dem`: replaces digital elevation model specific parameters (`FILE_DEM`, `DEM_RESAMPLING`, `DEM_NODATA`). Only possible value is `Copernicus_30m`
 
 ### openEO specific parameters

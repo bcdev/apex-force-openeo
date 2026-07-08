@@ -203,10 +203,10 @@ merge = f"{getpass.getuser()}/experiments/{processing_name}"
 print(merge)
 ```
 
-Remember, the dedicated workspace for FORCE has the basic URL 
+Remember, the dedicated workspace for FORCE has the URL 
 
+<!--#WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1"-->
 ```{python}
-#WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1"
 WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1-exotc5yuexi2c5tvwqhoivj62fz8v0uupy0me"
 ```
 
@@ -224,16 +224,16 @@ For example, we can extract the tiles from the asset names of the STAC item desc
 
 
 ```{python}
-merge = f"{getpass.getuser()}_experiments_{processing_name}"
+merge = f"{getpass.getuser()}/experiments/{processing_name}"
 l2_catalog_url = f"{WORKSPACE_URL}/{merge}/catalog.json"
 print(l2_catalog_url)
-#l2_catalog = pystac.Catalog.from_file(l2_catalog_url)
-#l2_item = next(l2_catalog.get_items()) # there is just one item
-#l2_item
+l2_catalog = pystac.Catalog.from_file(l2_catalog_url)
+l2_item = next(l2_catalog.get_items()) # there is just one item
+l2_item
 ```
 
 We can extract the tiles manually or programmatically
-```{.python}
+```{python}
 tiles = set([k.split(".")[0] for k in l2_item.assets.keys() if k.endswith("BOA")])
 tile_x = set(int(tile[1:5]) for tile in tiles)
 tile_y = set(int(tile[7:]) for tile in tiles)
@@ -244,7 +244,7 @@ tile_x, tile_y
 
 The main process is `force_tsa`.
 
-```{.python}
+```{python}
 from openeo.rest.stac_resource import StacResource
 from openeo.internal.graph_building import PGNode
 
@@ -270,7 +270,7 @@ force_tsa_stac_resource = StacResource(
 We can then create and start the job as before:
 
 ```{.python}
-tsa_job = force_tsa_stac_resource.create_job()
+tsa_job = force_tsa_stac_resource.create_job(title=f"FORCE TSA {processing_name}")
 tsa_job.start() # use start_and_wait to block until finished
 ```
 

@@ -119,11 +119,7 @@ Concept | Qualified name (Python client) | Purpose
 
 OpenEO uses the concept of [Workspaces](https://docs.openeo.cloud/workspaces/) to interface with object storage. For processing with FORCE, we can use a workspace dedicated to FORCE to store and exchange processing results between level 2 and higher level processing, and with colleagues.
 
-The dedicated FORCE workspace is identified as `apex-force-results-workspace` and openly accessible to all openEO CDSE users. Make sure to use a unique URL for your results, so that they do not
-interfere with others' processing.
-
-If you have access to another workspace, you may use that one instead.
-
+We can use either the dedicated workspace `apex-force-results-workspace`, which is accessible to all CDSE openeo users, or another registered workspace. See the [openEO platform documentation on workspaces](https://docs.openeo.cloud/workspaces/#registering-a-workspace) on how workspaces can be accessed and registered.
 
 When running FORCE level2 on its own, we do not need to use a workspace. Simply download the results when you are done with processing. However, to reference the level 2 processing results in [further processing](tsa.qmd), we need to use a workspace.
 
@@ -137,7 +133,7 @@ It is very important to set a good `merge` parameter and remember the result, be
 # FORCE workspace
 
 The dedicated workspace for FORCE results is accessible to all users:
-`apex-force-results-workspace` (<https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1>)
+`apex-force-results-workspace` (<https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1-exotc5yuexi2c5tvwqhoivj62fz8v0uupy0me>)
 :::
 
 
@@ -145,8 +141,23 @@ We generate the `force_level2` process graph using a Process Graph Node ([`PGNod
 This makes it possible to render the backend response nicely in Jupyter environments and gives us convenient methods to access our results when the process is done.
 
 Pass [parameters](parametrization.qmd) to the level 2 processing system in the `arguments` dictionary.
+You may give the processing a name which will determine the name of the STAC item generated for the results using the parameter `name`.
 
-You may furthermore give the processing a name which will determine the name of the STAC item generated for the results:
+
+#### Area of extent
+
+Another parameter which is handled in a special way (i.e., not passed directly to FORCE) is `aoi`. In FORCE level 2, you can specify the `FILE_AOI` parameter to clip the output to a certain extent.
+Instead of a file, `aoi` takes a geojson object to specify area of interest.
+
+- The `aoi` parameter controls the **area of the output produced by FORCE**. The `spatial_extent` parameter passed to the query limits the **input files**
+- `aoi` is applied after radiometric correction (so it will not reduce the computational effort) and before tiling [as per the FORCE documentation](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html) (description of parameter `FILE_AOI`)
+- By default, the output will cover all of the inputs, without clipping.
+
+```{python}
+w, s, e, n = spatial_extent["west"], spatial_extent["south"], spatial_extent["east"], spatial_extent["north"]
+aoi = f'{{ "type": "Feature", "geometry": {{ "type": "Polygon", "coordinates": [[[{w},{s}],[{w},{n}],[{e},{n}],[{e},{s}],[{w},{s}]]] }}, "properties": {{ "name": "FORCE test" }} }}'
+```
+
 
 
 :::{.panel-tabset group="query_engine"}
@@ -174,6 +185,7 @@ force_l2_stac_resource = StacResource(
         arguments={
             "stac_document": query_pg,
             "name": processing_name,
+            "aoi": aoi,
             "do_brdf": True,
         }
     ),
@@ -188,7 +200,7 @@ import getpass
 # Be careful: The merge determines the storage location of your results.
 # You may overwrite your results or those of others, if the `merge` parameter is not
 # Set to a unique value.
-merge = f"{getpass.getuser()}_experiments_{processing_name}"
+merge = f"{getpass.getuser()}/experiments/{processing_name}"
 print("merge: ", merge)
 force_l2_stac_resource = force_l2_stac_resource.export_workspace(
     workspace="apex-force-results-workspace",
@@ -278,7 +290,7 @@ import getpass
 # Be careful: The merge determines the storage location of your results.
 # You may overwrite your results or those of others, if the `merge` parameter is not
 # Set to a unique value.
-merge = f"{getpass.getuser()}_experiments_{processing_name}"
+merge = f"{getpass.getuser()}/experiments/{processing_name}"
 print("merge: ", merge)
 force_l2_stac_resource = force_l2_stac_resource.export_workspace(
     workspace="apex-force-results-workspace",
@@ -334,7 +346,7 @@ With the process graph in place, we can submit it and wait for it to complete.
 You can [monitor the progress](processes.qmd#monitoring-progress) through the client library or the web interface.
 
 
-```{python}
+```{.python}
 l2_job = force_l2_stac_resource.create_job(title=f"FORCE level 2 {processing_name}")
 l2_job.start() # use start_and_wait instead to block until the job is done
 ```
@@ -386,18 +398,24 @@ This step is optional
 :::
 
 The basic URL of the FORCE workspace `apex-force-results-workspace` is 
-<https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1>. Together with the `merge` path defined for our processing, we can determine the path to the `catalog.json` for our FORCE level results:
+<https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1-exotc5yuexi2c5tvwqhoivj62fz8v0uupy0me>. Together with the `merge` path defined for our processing, we can determine the path to the `catalog.json` for our FORCE level results:
 
 ```{.python}
 from pystac.catalog import Catalog
 
-WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1"
+WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1-exotc5yuexi2c5tvwqhoivj62fz8v0uupy0me"
 
 l2_catalog_url = f"{WORKSPACE_URL}/{merge}/catalog.json"
 l2_catalog = Catalog.from_file(l2_catalog_url)
 
 l2_catalog.set_self_href(l2_catalog_url)
 l2_catalog
+```
+
+<!-- FIXME can be removed once there is a result present at the merge -->
+```{python}
+#| echo: false
+WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1-exotc5yuexi2c5tvwqhoivj62fz8v0uupy0me"
 ```
 
 
