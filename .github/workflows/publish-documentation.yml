@@ -32,11 +32,12 @@ jobs:
               --delete \
               --exclude-from=.docsyncignore \
               docs/force/ \
-              ${DOCS_REPO_PATH}/force
+              ${DOCS_REPO_PATH}/docs/force/
 
         - name: Record source revision
           run: |
-            cat > documentation/${DOCS_PATH}/SOURCE.yml <<EOF
+            touch ${{ env.DOCS_PATH }}/docs/force/SOURCE.yml
+            cat > ${{ env.DOCS_PATH }}/docs/force/SOURCE.yml <<EOF
             repository: ${{ github.repository }}
             release: ${{ github.event.release.tag_name || 'manual' }}
             commit: ${{ github.sha }}
