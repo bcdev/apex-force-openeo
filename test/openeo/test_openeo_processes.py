@@ -155,8 +155,6 @@ def test_complete_pipeline(connection, temporal_extent, spatial_extent, tmp_path
     aoi = f'{{ "type": "Feature", "geometry": {{ "type": "Polygon", "coordinates": [[[{w},{s}],[{w},{n}],[{e},{n}],[{e},{s}],[{w},{s}]]] }}, "properties": {{ "name": "FORCE test" }} }}'
 
     force_l2_stac_resource = StacResource(
-        #graph=openeo.processes.process(
-        # TODO needed only with export workspace
         graph=openeo.internal.graph_building.PGNode(
             process_id="run_cwl_to_stac",
             arguments=dict(
