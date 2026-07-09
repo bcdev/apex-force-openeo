@@ -1,0 +1,67 @@
+name: Publish documentation
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+env:
+  DOCS_REPO: ESA-APEx/apex_toolbox_documentation
+  DOCS_REPO_PATH: apex_toolbox_documentation
+  PR_BRANCH_NAME: bc-force-doc-update
+
+jobs:
+    publish-docs:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout project
+          uses: actions/checkout@v7
+        - name: Checkout apex toolbox documentation
+          uses: actions/checkout@v7
+          with:
+            repository: ${{ env.DOCS_REPO }}
+            token: ${{ secrets.DOCS_REPO_TOKEN }}
+            path: ${{ env.DOCS_REPO_PATH }}
+
+        - name: Install rsync
+          run: sudo apt-get update && sudo apt-get install -y rsync
+
+        - name: Synchronize documentation
+          run: |
+            mkdir -p docs/force
+            rsync -av \
+              --delete \
+              --exclude-from=.docsyncignore
+              docs/force/ \
+              ${DOCS_REPO_PATH}/force
+
+        - name: Record source revision
+          run: |
+            cat > documentation/${DOCS_PATH}/SOURCE.yml <<EOF
+            repository: ${{ github.repository }}
+            release: ${{ github.event.release.tag_name || 'manual' }}
+            commit: ${{ github.sha }}
+            Generated: $(date -u)
+            EOF
+
+        - name: create pull request
+          uses: peter-evans/create-pull-request@v7
+          with:
+            token: ${{ secrets.DOCS_REPO_TOKEN }}
+            path: ${{ env.DOCS_REPO_PATH }}
+            branch: ${{ env.PR_BRANCH_NAME }}
+            delete-branch: true
+            commit-message: |
+              FORCE: Update docs for ${{ github.event.release.tag_name || github.sha }}
+            title: "FORCE: Update docs (${{ github.event.release.tag_name || github.sha }})"
+            body: |
+              ## Automated documentation update
+              Source repository:
+              `${{ github.repository }}`
+              
+              Release:
+              `${{ github.event.release.tag_name || 'manual' }}
+              
+              Commit:
+              `${{ github.sha}}`
+              
+              This PR updates the documentation source for FORCE

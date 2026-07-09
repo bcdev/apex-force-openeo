@@ -38,7 +38,7 @@ check-version-matches = {
     ]
 }
 
-preview = { cmd = "quarto preview", default-environment = "docs", cwd = "docs/force-eoap/" }
+preview = { cmd = "quarto preview", default-environment = "docs", cwd = "docs/force/" }
 
 [environments]
 test = ["test"]
