@@ -1,0 +1,42 @@
+---
+title: Features and Limitations
+
+---
+
+
+The FORCE integration into to CDSE is in a proof-of-concept stage. It is possible to use the FORCE level 2 and Time Series Analysis (TSA) modules on a small scale. Most parameters supported by FORCE are available through the openEO interface. 
+
+Unsupported parameters are usually either managed by the implementation (parallelization options, input/output directores) or reuqire supplementary files which are not avaiable on the backend.
+The `aoi` (openEO interface) / `FILE_AOI` (FORCE parameter file) parameter is good example of a parameter that is exposed in a different way in openEO to avoid the file interface. Instead of a shape file, a GEOJSON string is passed.
+
+If you encounter limitations not mentioned here, please raise an issue in the [Github repository](https://github.com/bcdev/apex-force-openeo/issues)
+
+## Features
+
+- FORCE level 2 processing through openEO on CDSE
+- FORCE Time Series Analysis (TSA) through openEO on CDSE
+- Automatic STAC generation for FORCE datacubes
+- Discover parameters of cloudified FORCE modules using the openEO client
+- Run level 2 processing once and re-use results without downloading multiple times
+- Area of interest selection (level 2) with GEOJSON: parameter `aoi` of `force_level2`.
+- Automatic DEM download based on selected area
+
+## Limitations
+
+- Each FORCE Job runs on a single virtual machine -> Not suited for large scale processing in a single job
+- The executors have limited memory available. Large jobs will not run successfully. You can parallelize time series analysis computations to avoid running into memory issues (see Tips & Tricks below).
+- Many parameters relying on auxiliary files are not supported. See the [guide on parametrization](guide/parametrization.qmd) for details.
+
+### TSA
+
+- Python and R user defined functions (UDFs) are not supported
+- Spectral Mixture Analyis is not supported
+
+## Tips & Tricks
+
+### Parallelizing large Time Series Analysis jobs
+
+Server-side parallelization of the TSA module is not currently enabled. It is possible to parallelize TSA by creating one openEO job per tile by setting the `x_tile_range` and `y_tile_range` arguments to a single tile per job.
+Furthermore, consider computing spatio-temporal metrics (STM) in separate jobs to reduce memory usage. 
+
+Finally, you may reduce the `chunk_size` which will reduce memory usage at the cost of a longer processing time.

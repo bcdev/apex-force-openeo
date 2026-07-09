@@ -1,0 +1,9 @@
+# Introduction
+
+This guide is inteded to provide information for developers and those who wish to deploy the
+FORCE EOAP outside the CDSE openEO backend.
+
+::: {.callout-warning title="WIP"}
+This page and guide are work in progress
+:::
+

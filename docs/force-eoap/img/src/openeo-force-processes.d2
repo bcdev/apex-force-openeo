@@ -1,0 +1,104 @@
+style {
+    fill: transparent
+}
+(*** -> ***)[*]: {
+    style {
+        stroke-width: 6
+        font-size: 26
+        stroke: "#47B149"
+        font-color: white
+    }
+}
+(*** <- ***)[*]: {
+    style {
+        stroke-width: 6
+        font-size: 26
+        stroke: "#47B149"
+        font-color: white
+    }
+}
+
+***.style.font-size: 24
+vars: {
+ d2-config: {
+    layout-engine: ELK
+ }
+}
+direction: right
+classes: {
+    tl-component: {
+        style: {
+            font-size: 36
+            fill: "#EAC868"
+            border-radius: 10
+            bold: true
+        }
+    }
+    sub-component: {
+        style.fill: "#21ACE9"
+    }
+}
+#direction: right
+
+External STAC catalog {
+    #near: top-right
+    Sentinel2-L1C
+    class: tl-component
+}
+
+openEO client: {
+    class: tl-component
+    Job Management {
+        class: sub-component
+        create_job
+        start
+    }
+    Result Access {
+        class: sub-component
+        get_results
+        download_files
+    }
+
+    Process Graph definition {
+        class: sub-component
+        inner: {
+            label: "..."
+        }
+    }
+}
+
+openEO backend {
+    class: tl-component
+    CWL runner : {
+        class: sub-component
+    }
+    openEO Processes {
+        class: sub-component
+        force_level2
+        force_tsa
+        query_stac
+
+        query_stac -> force_level2: provides input
+    }
+
+    CWL runner {
+        FORCE EOAP
+    }
+
+    CWL runner <- openEO Processes: control
+}
+
+
+
+openEO client.Process Graph definition -> openEO backend: Control Workflow
+openEO client.Job Management -> openEO backend
+openEO client.Result Access <- openEO backend: outputs (FORCE datacube, STAC)
+
+openEO backend.openEO processes.query_stac -> External STAC catalog: { style.stroke-dash: 3 }
+
+CDSE S3 {
+    class: tl-component
+}
+
+openEO backend.openEO processes.force_level2 -> CDSE S3: store results
+openEO backend.openEO processes.force_tsa -> CDSE S3: Access results

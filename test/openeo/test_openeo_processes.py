@@ -2,8 +2,8 @@ import sys
 from datetime import datetime
 from typing import Dict, Any
 import subprocess
-import importlib
 import re
+from pathlib import Path
 
 import pytest
 import openeo
@@ -58,12 +58,15 @@ def test_make_cwl_documents(tmp_path):
     assert (tmp_path / "force_tsa.cwl").exists()
 
 def make_cwl_documents(path):
-    with importlib.resources.path("cwl", "force-l2-workflow.cwl") as l2_cwl_source:
-        with open(path / "force_level2.cwl", "w") as fp_l2:
-            subprocess.run([sys.executable, "-m", "cwltool", "--pack", l2_cwl_source], stdout=fp_l2)
-    with importlib.resources.path("cwl", "force-tsa-workflow.cwl") as tsa_cwl_source:
-        with open(path / "force_tsa.cwl", "w") as fp_tsa:
-            subprocess.run([sys.executable, "-m", "cwltool", "--pack", tsa_cwl_source], stdout=fp_tsa)
+    cwl_root = Path(__file__).parents[2].resolve() / "cwl"
+    l2_cwl_source = cwl_root / "force-l2-workflow.cwl"
+
+    with open(path / "force_level2.cwl", "w") as fp_l2:
+        subprocess.run([sys.executable, "-m", "cwltool", "--pack", str(l2_cwl_source)], stdout=fp_l2)
+
+    tsa_cwl_source = cwl_root / "force-tsa-workflow.cwl"
+    with open(path / "force_tsa.cwl", "w") as fp_tsa:
+        subprocess.run([sys.executable, "-m", "cwltool", "--pack", str(tsa_cwl_source)], stdout=fp_tsa)
 
 
 def test_query_returns_results(connection, temporal_extent, spatial_extent):
@@ -142,6 +145,7 @@ def test_complete_pipeline(connection, temporal_extent, spatial_extent, tmp_path
     cwl_level2_path = cwl_path / "force_level2.cwl"
     cwl_tsa_path = cwl_path / "force_tsa.cwl"
     cwl_level2 = cwl_level2_path.read_text()
+    #cwl_level2 = "https://github.com/bcdev/apex-force-openeo/releases/latest/download/force-level2.cwl"
     cwl_tsa = cwl_tsa_path.read_text()
 
     query_pg = construct_process_graph(temporal_extent, spatial_extent)
@@ -151,8 +155,6 @@ def test_complete_pipeline(connection, temporal_extent, spatial_extent, tmp_path
     aoi = f'{{ "type": "Feature", "geometry": {{ "type": "Polygon", "coordinates": [[[{w},{s}],[{w},{n}],[{e},{n}],[{e},{s}],[{w},{s}]]] }}, "properties": {{ "name": "FORCE test" }} }}'
 
     force_l2_stac_resource = StacResource(
-        #graph=openeo.processes.process(
-        # TODO needed only with export workspace
         graph=openeo.internal.graph_building.PGNode(
             process_id="run_cwl_to_stac",
             arguments=dict(
@@ -167,7 +169,7 @@ def test_complete_pipeline(connection, temporal_extent, spatial_extent, tmp_path
         ),
         connection=connection,
     )
-    merge_path = f"FORCE_level2_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}"
+    merge_path = f"FORCE_level2_automated_test_{datetime.now().strftime('%Y-%m-%d_%H%M%S')}"
     force_l2_stac_resource = force_l2_stac_resource.export_workspace(
         workspace="apex-force-results-workspace",
         merge=merge_path
@@ -266,6 +268,7 @@ def extract_canonical_link_from_job_results(job_results) -> Dict[str, Any]:
     canonical_link = next(l for l in job_results.get_metadata()["links"] if l["rel"] == "canonical")
     return canonical_link
 
+# FIXME: Use static URL instead of this workaround
 def extract_workspace_href_from_job_results(job_results) -> str:
     storage_root = "s3.waw4-1.cloudferro.com"
     # Always present
