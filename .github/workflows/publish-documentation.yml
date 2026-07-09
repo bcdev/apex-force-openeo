@@ -30,7 +30,7 @@ jobs:
             mkdir -p docs/force
             rsync -av \
               --delete \
-              --exclude-from=.docsyncignore
+              --exclude-from=.docsyncignore \
               docs/force/ \
               ${DOCS_REPO_PATH}/force
 
@@ -62,6 +62,6 @@ jobs:
               `${{ github.event.release.tag_name || 'manual' }}
               
               Commit:
-              `${{ github.sha}}`
+              `${{ github.sha }}`
               
               This PR updates the documentation source for FORCE
