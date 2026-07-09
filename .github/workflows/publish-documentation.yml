@@ -36,8 +36,8 @@ jobs:
 
         - name: Record source revision
           run: |
-            touch ${{ env.DOCS_PATH }}/docs/force/SOURCE.yml
-            cat > ${{ env.DOCS_PATH }}/docs/force/SOURCE.yml <<EOF
+            touch ${{ env.DOCS_REPO_PATH }}/docs/force/SOURCE.yml
+            cat > ${{ env.DOCS_REPO_PATH }}/docs/force/SOURCE.yml <<EOF
             repository: ${{ github.repository }}
             release: ${{ github.event.release.tag_name || 'manual' }}
             commit: ${{ github.sha }}
