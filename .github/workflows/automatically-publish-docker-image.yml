@@ -38,7 +38,7 @@ jobs:
           echo "TAG: ${{ env.tag }}"
           echo "EVENT NAME: ${{ github.event_name }}"
       - name: Log in to Quay.io
-        uses: docker/login-action@v2
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.IMG_REG_NAME }}
           username: ${{ secrets.IMG_REG_USERNAME }} # quay.io username, must be in GitHub secrets
