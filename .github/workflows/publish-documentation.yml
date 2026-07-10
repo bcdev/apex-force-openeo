@@ -34,6 +34,17 @@ jobs:
               docs/force/ \
               ${DOCS_REPO_PATH}/docs/force/
 
+          # The freeze directory must be at top level and include the
+          # correct hierarchy under it. It has to be moved to account
+          # for the structure of the apex_toolbox_documentation repo as opposed to
+          # apex-force-openeo
+        - name: Copy _freeze directory (Quarto cache)
+          run: |
+            mkdir -p ${DOCS_REPO_PATH}/_freeze/docs/force
+            rsync -av \
+              docs/force/_freeze/* \
+              ${DOCS_REPO_PATH}/_freeze/docs/force/
+
         - name: Record source revision
           run: |
             touch ${{ env.DOCS_REPO_PATH }}/docs/force/SOURCE.yml
@@ -60,7 +71,7 @@ jobs:
               `${{ github.repository }}`
               
               Release:
-              `${{ github.event.release.tag_name || 'manual' }}
+              `${{ github.event.release.tag_name || 'manual' }}`
               
               Commit:
               `${{ github.sha }}`
