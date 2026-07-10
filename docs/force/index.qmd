@@ -77,7 +77,7 @@ With the integrated FORCE, you can
 - Run the Time Series Analysis module of the FORCE higher level processing system (hlps)
 - Download data cubes in FORCE's native datacube format
 
-For an overview of the FORCE functionality made available via openEO, see [features](features.qmd).
+For an overview of the FORCE functionality made available via openEO, see [features](feature_overview.qmd).
 
 ## ...on CDSE
 
