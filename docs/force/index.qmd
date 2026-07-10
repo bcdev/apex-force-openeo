@@ -95,8 +95,5 @@ safely ignore it.
 FORCE is integrated into CDSE openEO using the built-in support for EO Application Packages following the [OGC Best Practice for Earth Observation Application Packages](https://docs.ogc.org/bp/20-089r1.html) (EOAP).
 EOAPs are implemented as a combination of a Docker Image and a [Common Workflow Language](https://www.commonwl.org/) (CWL) document.
 
-The EOAP is taylored and tested with the CDSE openEO backend. However, it may be possible to run the EOAP in a different environment.
-See the [developer guide](developer_guide/intro.qmd) (WIP) for more information.
-
 ![integration onion](img/onion-concrete.svg)
 
