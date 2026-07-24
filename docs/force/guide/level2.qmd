@@ -1,9 +1,7 @@
 ---
-format:
-    html:
-        page-navigation: true
 execute:
     freeze: true
+order: 4
 ---
 
 # FORCE level 2

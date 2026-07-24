@@ -1,8 +1,5 @@
 ---
 title: "FORCE with openEO on CDSE"
-format:
-    html:
-        code-line-numbers: true
 ---
 
 The integration of the [FORCE](https://force-eo.readthedocs.io/en/latest/) processing engine in CDSE provides access to [a subset of FORCE's processing functionality](feature_overview.qmd) via the [openEO API on CDSE](https://eoap.github.io/).

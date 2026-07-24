@@ -1,0 +1,4 @@
+sidebar: force
+format:
+  html:
+    code-line-numbers: true

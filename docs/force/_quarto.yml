@@ -14,6 +14,7 @@ website:
       - href: feature_overview.qmd
         text: Feature overview
   sidebar:
+    id: "force"
     style: "docked"
     search: true
     contents:

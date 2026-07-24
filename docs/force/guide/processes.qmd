@@ -1,11 +1,9 @@
 ---
-format:
-    html:
-        code-fold: false
-        page-navigation: true
 execute:
     # Cache is necessary to avoid having to authenticate to build the documentation
     freeze: true
+
+order: 2
 ---
 
 # openEO processes

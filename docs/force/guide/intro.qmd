@@ -1,4 +1,7 @@
-# Introduction
+---
+title: "Introduction"
+order: 1
+---
 
 The FORCE integration on CDSE makes it possible to use selected functionality of the FORCE processing engine on the CDSE infrastructure through the openEO API.
 

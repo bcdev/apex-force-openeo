@@ -1,10 +1,7 @@
 ---
-format:
-    html:
-        code-fold: false
-        page-navigation: true
 execute:
     freeze: true
+order: 6
 ---
 
 # Parametrization
