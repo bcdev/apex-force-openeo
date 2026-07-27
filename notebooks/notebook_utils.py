@@ -15,7 +15,7 @@ def extract_catalog_url_from_job_logs(job_logs) -> str:
 
 
 def plot_area_of_interest(
-    w, s, e, n, *, 
+    w, s, e, n, *,
     large_context=10,
     small_context=1.25,
     color="red",

@@ -1,12 +1,12 @@
 # Run FORCE level2 and download results
 
 This set of examples shows a simple use case for running FORCE on CDSE using the openEO API and Python client.
-Knowledge of [FORCE](https://force-eo.readthedocs.io/en/latest/) is assumed, familiarity with openEO and the 
+Knowledge of [FORCE](https://force-eo.readthedocs.io/en/latest/) is assumed, familiarity with openEO and the
 [Python client](https://open-eo.github.io/openeo-python-client/api.html)  is helpful.
 
 In these examples, FORCE is executed on CDSE and the results downloaded for further processing to the local machine.
 
-> To continue processing with FORCE in the cloud, using the 
+> To continue processing with FORCE in the cloud, using the
 [Time Series Analysis](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/) (TSA) module,
 have a look at the advanced [example using the TSA module](../run-level2-and-tsa).
 

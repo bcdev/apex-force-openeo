@@ -97,7 +97,7 @@ steps:
           if (inputs.cfg === null || inputs.cfg === undefined) {
             return { cfg_json: null };
           } else {
-            return { cfg_json: JSON.stringify(inputs.cfg) }; 
+            return { cfg_json: JSON.stringify(inputs.cfg) };
           }
         }
     in:

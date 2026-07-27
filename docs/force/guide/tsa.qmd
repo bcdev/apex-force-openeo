@@ -78,7 +78,7 @@ import getpass
 from openeo.rest.stac_resource import StacResource
 from openeo.internal.graph_building import PGNode
 
-# Make sure to choose a unique name 
+# Make sure to choose a unique name
 processing_name = "Modena"
 
 force_l2_stac_resource = StacResource(
@@ -201,7 +201,7 @@ merge = f"{getpass.getuser()}/experiments/{processing_name}"
 print(merge)
 ```
 
-Remember, the dedicated workspace for FORCE has the URL 
+Remember, the dedicated workspace for FORCE has the URL
 
 <!--#WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1"-->
 ```{python}
@@ -218,7 +218,7 @@ temporal_extent=["2026-04-17", "2026-04-27"]
 ```
 
 For other parameters, we may want to inspect the metadata of the level 2 processing.
-For example, we can extract the tiles from the asset names of the STAC item describing the level 2 datacube. 
+For example, we can extract the tiles from the asset names of the STAC item describing the level 2 datacube.
 
 
 ```{python}

@@ -69,11 +69,11 @@ jobs:
               ## Automated documentation update
               Source repository:
               `${{ github.repository }}`
-              
+
               Release:
               `${{ github.event.release.tag_name || 'manual' }}`
-              
+
               Commit:
               `${{ github.sha }}`
-              
+
               This PR updates the documentation source for FORCE

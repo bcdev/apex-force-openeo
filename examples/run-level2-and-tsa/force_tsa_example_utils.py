@@ -18,7 +18,7 @@ def extract_catalog_url_from_job_logs(job_logs) -> str:
 
 
 def plot_area_of_interest(
-    w, s, e, n, *, 
+    w, s, e, n, *,
     large_context=10,
     small_context=1.25,
     color="red",
@@ -67,14 +67,14 @@ def plot_asset_ndvi(asset_path):
     ds = rioxarray.open_rasterio(asset_path, masked=True)
     ds.load()
     ds.close()
-    
+
     fig, ax = plt.subplots(1, 1)
     plot_args = dict(
         cmap = "RdYlGn",
         vmin=-1,
         vmax=1,
     )
-    
+
     x_with_data = slice(ds.notnull().any("y").argmax(dim="x").item(), None, None)
     y_with_data = slice(ds.notnull().any("x").argmin(dim="y").item(), None, None)
     p = (ds.isel(x=x_with_data, y=y_with_data) * 0.0001).plot(ax=ax, **plot_args);

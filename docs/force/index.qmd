@@ -68,7 +68,7 @@ l2_results.download_files("force-ARD")
 
 For a full example, see [the guide](guide/intro.qmd).
 
-With the integrated FORCE, you can 
+With the integrated FORCE, you can
 
 - Run the force level 2 processing system to generate Analysis Ready Data (example above)
 - Run the Time Series Analysis module of the FORCE higher level processing system (hlps)

@@ -27,7 +27,7 @@ BASE_MASK = NULL
 # ------------------------------------------------------------------------
 # Output format, which is either uncompressed flat binary image format aka
 # ENVI Standard, GeoTiff, or COG. GeoTiff images are compressed with ZSTD and hori-
-# zontal differencing; BigTiff support is enabled; the Tiff is internally tiled 
+# zontal differencing; BigTiff support is enabled; the Tiff is internally tiled
 # with 256x256 px blocks.
 # Metadata are written to the ENVI header or directly into the Tiff
 # to the FORCE domain. If the size of the metadata exceeds the Tiff's limit,
@@ -35,11 +35,11 @@ BASE_MASK = NULL
 # Note that COG output is only possible when the chunk size matches the tile size.
 # Type: Character. Valid values: {ENVI,GTiff,COG,CUSTOM}
 OUTPUT_FORMAT = ${output_format}
-# File that contains custom GDAL output options. This is only used if 
+# File that contains custom GDAL output options. This is only used if
 # OUTPUT_FORMAT = CUSTOM. If OUTPUT_FORMAT = CUSTOM, this file is mandatory.
-# The file should be written in tag and value notation. The first two lines 
+# The file should be written in tag and value notation. The first two lines
 # are mandatory and specify GDAL driver and file extension, e.g. DRIVER = GTiff
-# and EXTENSION = tif. The driver name refers to the GDAL short driver names. 
+# and EXTENSION = tif. The driver name refers to the GDAL short driver names.
 # Lines 3ff can hold a variable number of GDAL options (up to 32 are allowed).
 # Please note: with opening output options up to the user, it is now possible to
 # give invalid or conflicting options that result in the failure of creating files.
@@ -54,8 +54,8 @@ OUTPUT_EXPLODE = ${output_explode}
 # structure the output.
 # Type: Logical. Valid values: {TRUE,FALSE}
 OUTPUT_SUBFOLDERS = ${output_subfolders}
-# This parameter controls whether FORCE raises a warning or an error 
-# if no read or written bytes are detected. The default (FALSE) will 
+# This parameter controls whether FORCE raises a warning or an error
+# if no read or written bytes are detected. The default (FALSE) will
 # result in a warning.
 # Type: Logical. Valid values: {TRUE,FALSE}
 FAIL_IF_EMPTY = ${fail_if_empty}
@@ -72,7 +72,7 @@ FAIL_IF_EMPTY = ${fail_if_empty}
 NTHREAD_READ = 2
 NTHREAD_COMPUTE = 4
 NTHREAD_WRITE = 1
-# Use STREAMING = FALSE to disable streaming. This will perform reading, 
+# Use STREAMING = FALSE to disable streaming. This will perform reading,
 # computing and writing after one another in sequential mode.
 # Each operation will still be parallelized with above settings.
 # Disabling streaming might be necessary for some UDFs that otherwise
@@ -80,7 +80,7 @@ NTHREAD_WRITE = 1
 # Type: Logical. Valid values: {TRUE,FALSE}
 STREAMING = TRUE
 # This module will display progress information on screen. By default, the
-# progress information overwrites itself to produce a pretty displayal. 
+# progress information overwrites itself to produce a pretty displayal.
 # However, this can cause error messages (or printing in UDFs) to be overwritten.
 # If disabled (FALSE), the progress information will be simply be appended
 # on screen (stdout).
@@ -159,10 +159,10 @@ PRODUCT_TYPE_MAIN = ${product_type_main}
 # Type: Character. Valid values: {QAI,INF,NULL,...}
 PRODUCT_TYPE_QUALITY = ${product_type_quality}
 # Perform a spectral adjustment to Sentinel-2?
-# This method can only be used with following sensors: SEN2A, SEN2B, SEN2C, SEN2D,LND04, LND05, LND07, 
+# This method can only be used with following sensors: SEN2A, SEN2B, SEN2C, SEN2D,LND04, LND05, LND07,
 # LND08, LND09, MOD01, MOD02.
-# A material-specific spectral harmonization will be performed, which will convert the 
-# spectral response of any of these sensors to Sentinel-2A. Non-existent bands will be 
+# A material-specific spectral harmonization will be performed, which will convert the
+# spectral response of any of these sensors to Sentinel-2A. Non-existent bands will be
 # predicted, too.
 # Type: Logical. Valid values: {TRUE,FALSE}
 SPECTRAL_ADJUST = ${spectral_adjust}
@@ -196,10 +196,10 @@ BELOW_NOISE = ${below_noise}
 # Type: Date list. Format: YYYY-MM-DD
 DATE_RANGE = ${date_range}
 # DOY range for filtering the time extent. Day-of-Years that are outside of
-# the given interval will be ignored. Example: DATE_RANGE = 2010-01-01 
+# the given interval will be ignored. Example: DATE_RANGE = 2010-01-01
 # 2019-12-31, DOY_RANGE = 91 273 will use all April-September observations from
-# 2010-2019. If you want to extend this window over years give DOY min > 
-# DOY max. Example: DATE_RANGE = 2010-01-01 2019-12-31, DOY_RANGE = 274 90 
+# 2010-2019. If you want to extend this window over years give DOY min >
+# DOY max. Example: DATE_RANGE = 2010-01-01 2019-12-31, DOY_RANGE = 274 90
 # will use all October-March observations from 2010-2019.
 # Type: Integer list. Valid values: [1,365]
 DOY_RANGE = ${doy_range}
@@ -319,13 +319,13 @@ OUTPUT_TSI = ${output_tsi}
 # 2) A function that implements the user-defined functionality, see ``PYTHON_TYPE``
 # Type: full file path
 FILE_PYTHON = NULL
-# Type of user-defined function. 
+# Type of user-defined function.
 # 1) ``PIXEL`` expects a pixel-function that receives the time series of a single pixel
-# as 4D-nd.array [nDates, nBands, nrows, ncols]. A multi-processing pool is spawned to 
+# as 4D-nd.array [nDates, nBands, nrows, ncols]. A multi-processing pool is spawned to
 # parallely execute this function with ``NTHREAD_COMPUTE`` workers.
 #     ``def forcepy_pixel(inarray, outarray, dates, sensors, bandnames, nodata, nproc):``
-# 2) ``CHUNK`` expects a pixel-function that receives the time series of a complete 
-# processing unit as 4D-nd.array [nDates, nBands, nrows, ncols]. No parallelization is  
+# 2) ``CHUNK`` expects a pixel-function that receives the time series of a complete
+# processing unit as 4D-nd.array [nDates, nBands, nrows, ncols]. No parallelization is
 # done on FORCE's end.
 #     ``def forcepy_chunk(inarray, outarray, dates, sensors, bandnames, nodata, nproc):``
 # Type: Character. Valid values: {PIXEL,CHUNK}
@@ -474,7 +474,7 @@ TREND_TAIL = ${trend_tail}
 # Confidence level for significance testing of the slope in the trend analysis
 # Type: Float. Valid range: [0,1]
 TREND_CONF = ${trend_conf}
-# In the Change, Aftereffect, Trend (CAT) analysis: do you want to 
+# In the Change, Aftereffect, Trend (CAT) analysis: do you want to
 # put a penalty on non-permanent change for the change detection?
 # This can help to reduce the effect of outliers.
 # Type: Logical. Valid values: {TRUE,FALSE}

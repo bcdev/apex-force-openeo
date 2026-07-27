@@ -9,8 +9,8 @@ order: 3
 When running FORCE level 2 locally, we are responsible to manually provide the necessary input data and reference their full path in the `FILE_QUEUE` parameter of the [FORCE level 2 parameter file](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html).
 
 When running on CDSE, we do not have access to the excuting environment and its filesystem directly.
-Downloads, file management and creation of the file queue are managed by the integration. 
-To specify which files should be processed, we provide a [STAC](https://stacspec.org/en) document ([Catalog](https://github.com/radiantearth/stac-spec/blob/master/catalog-spec/catalog-spec.md), [Collection](https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md), [Item](https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md) or [ItemCollection](https://github.com/radiantearth/stac-api-spec/blob/main/fragments/itemcollection/README.md)) to the process. 
+Downloads, file management and creation of the file queue are managed by the integration.
+To specify which files should be processed, we provide a [STAC](https://stacspec.org/en) document ([Catalog](https://github.com/radiantearth/stac-spec/blob/master/catalog-spec/catalog-spec.md), [Collection](https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md), [Item](https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md) or [ItemCollection](https://github.com/radiantearth/stac-api-spec/blob/main/fragments/itemcollection/README.md)) to the process.
 
 :::{.callout-warning}
 Make sure that the STAC document provided to `force_level2` only references the files that should actually be processed. The FORCE integration will attempt to download all products referenced in the document, so it is inadvisable to provide a reference to the entire Sentinel-2 L1C collection on CDSE for example
@@ -18,7 +18,7 @@ Make sure that the STAC document provided to `force_level2` only references the 
 
 ## STAC
 
-The integrated FORCE and openEO more generally uses the [SpatioTemporal Asset Catalog (STAC) specification](https://stacspec.org/en) to identify (groups of) EO products and annotate them with metadata. 
+The integrated FORCE and openEO more generally uses the [SpatioTemporal Asset Catalog (STAC) specification](https://stacspec.org/en) to identify (groups of) EO products and annotate them with metadata.
 
 If you are unfamiliar with STAC, we recommend that you familiarize yourself with the basic components of the specification (What are catalogs, items and feature collections?) [on the official STAC specification website](https://stacspec.org/en) before proceeding.
 
@@ -63,7 +63,7 @@ import geopandas as gpd
 from shapely import Polygon
 
 def plot_area_of_interest(
-    w, s, e, n, *, 
+    w, s, e, n, *,
     context=5,
     color="red",
     linewidth=2,
@@ -120,7 +120,7 @@ query_pg = openeo.processes.process(
 )
 ```
 
-<!-- 
+<!--
 
     FIXME:
     It is necessary to connect to the staging backend, until the custom processes are publicly

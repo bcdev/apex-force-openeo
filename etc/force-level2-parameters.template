@@ -29,14 +29,14 @@ DIR_PROVENANCE = ${PWD}/provenance
 # in this directory. A file 'cpu-$TIME' is temporarily created in DIR_TEMP.
 # This file can be modified to re-adjust the number of CPUs while(!) force-
 # level2 is running. Note that the effect is not immediate, as the load is
-# only adjusted after one of the running jobs (images) is finished. 
+# only adjusted after one of the running jobs (images) is finished.
 # Type: full directory path
 DIR_TEMP = /tmp
 
 # MASKING
 # ------------------------------------------------------------------------
 # You can use a vector file to clip your output to a specific AOI.
-# Note that this mask will be applied after the radiomateric correction, 
+# Note that this mask will be applied after the radiomateric correction,
 # but before the reprojection/tiling. NULL disables clipping (default)
 # Type: full file path
 FILE_AOI = ${aoi}
@@ -72,7 +72,7 @@ DEM_NODATA = -32767
 # Type: Logical. Valid values: {TRUE,FALSE}
 DO_REPROJ = TRUE
 # This indicates whether the images should be gridded after processing.
-# If TRUE, sub-directories for the tiles are generated in DIR_LEVEL2. 
+# If TRUE, sub-directories for the tiles are generated in DIR_LEVEL2.
 # If FALSE, sub-directories for the original spatial reference systems
 # are generated in DIR_LEVEL2. If you want to work with force-higher-level
 # routines, give TRUE.
@@ -85,29 +85,29 @@ DO_TILE = TRUE
 # case all tiles are output.
 # Type: full file path
 FILE_TILE = NULL
-# This is the tile size (in target units, commonly in meters) of the 
-# gridded output. tiles are square; not used if DO_TILE = FALSE. 
+# This is the tile size (in target units, commonly in meters) of the
+# gridded output. tiles are square; not used if DO_TILE = FALSE.
 # Type: Double. Valid range: ]0,...
 TILE_SIZE = ${tile_size} ${tile_size}
-# This is the block size (in target units, commonly in meters) of the 
+# This is the block size (in target units, commonly in meters) of the
 # image chips. Blocks are stripes, i.e. they are as wide as the tile,
-# and as high as specified here; not used if DO_TILE = FALSE or 
+# and as high as specified here; not used if DO_TILE = FALSE or
 # OUTPUT_FORMAT = ENVI. The blocks are the primary processing unit of
 # the force-higher-level routines.
 # Type: Double. Valid range: ]0,TILE_SIZE]
 BLOCK_SIZE = ${block_size}
-# This is the spatial resolution of Landsat output; not used if DO_REPROJ 
+# This is the spatial resolution of Landsat output; not used if DO_REPROJ
 # = FALSE. Note that the tile and block sizes must be a multiple of the
 # pixel resolution.
 # Type: Double. Valid range: ]0,...
 RESOLUTION_LANDSAT = 30
-# This is the spatial resolution of Sentinel-2 output; not used if DO_REPROJ 
+# This is the spatial resolution of Sentinel-2 output; not used if DO_REPROJ
 # = FALSE. Note that the tile and block sizes must be a multiple of the
 # pixel resolution.
 # Type: Double. Valid range: ]0,...
 RESOLUTION_SENTINEL2 = ${resolution}
 # These are the origin coordinates of the grid system in decimal degree
-# (negative values for West/South). The upper left corner of tile 
+# (negative values for West/South). The upper left corner of tile
 # X0000_Y0000 represents this point. It is a good choice to use a coord-
 # inate that is North-West of your study area – to avoid negative tile
 # numbers. Not used if DO_TILE = FALSE.
@@ -121,7 +121,7 @@ ORIGIN_LAT = ${origin_lat}
 # If one of the predefined systems are used, TILE_SIZE, BLOCK_SIZE,
 # ORIGIN_LAT, and ORIGIN_LON are ignored and internally replaced with
 # predefined values. Currently, EQUI7 and GLANCE7 are availble. Both
-# are globally defined sets of projections with a corresponding grid 
+# are globally defined sets of projections with a corresponding grid
 # system. EQUI7 consists of 7 Equi-Distant, continental projections,
 # with a tile size of 100km. GLANCE7 consists of 7 Equal-Area, conti-
 # nental projections, with a tile size of 150km. One datacube will be
@@ -164,7 +164,7 @@ MULTI_SCATTERING = ${do_multi_scattering}
 # vapor tables are not required for Sentinel-2, in this case DIR_WVPLUT
 # may be NULL. For Landsat, it is recommended to use this functionality.
 # As a minimum requirement, DIR_WVPLUT may be NULL and a global value
-# for WATER_VAPOR needs to be specified. If a directory is given, 
+# for WATER_VAPOR needs to be specified. If a directory is given,
 # WATER_VAPOR is ignored. DIR_WVPLUT must contain water vapor tables.
 # The 12 climatology tables must exist at least. They are used if the
 # daily tables do not exist or if there is no valid daily value.
@@ -192,7 +192,7 @@ WATER_VAPOR = NULL
 DO_AOD  = ${do_aod}
 # This is the directory where the aerosol optical depth look-up-tables are
 # located. They can be used to input external AOD values. It is recom-
-# mended to use the internal algorithm only. If a path is given, and 
+# mended to use the internal algorithm only. If a path is given, and
 # DO_ATMO = TRUE, internal AOD estimation is used and external AOD values
 # are used as fallback option.
 # Type: full directory path
@@ -200,9 +200,9 @@ DIR_AOD  = NULL
 
 # CLOUD DETECTION OPTIONS
 # ------------------------------------------------------------------------
-# If this parameter is enabled, confident cloud detections will be erased in the 
-# reflectance product, i.e. pixels are set to nodata. The cloud flag in the QAI 
-# product will still mark these pixels as clouds. Use this option is disk space 
+# If this parameter is enabled, confident cloud detections will be erased in the
+# reflectance product, i.e. pixels are set to nodata. The cloud flag in the QAI
+# product will still mark these pixels as clouds. Use this option is disk space
 # is of concern.
 # Type: Logical. Valid values: {TRUE,FALSE}
 ERASE_CLOUDS = ${erase_clouds}
@@ -288,9 +288,9 @@ NPROC = ${nproc}
 NTHREAD = ${nthread}
 # This parameter controls whether the individual bands of the Level 1 input
 # images are read sequentially or in parallel. Note that we observed two kinds
-# of GDAL installation: (1) the JPEG driver reads each band parallely, but 
+# of GDAL installation: (1) the JPEG driver reads each band parallely, but
 # separated images in sequence - we recommend to disable PARALLEL_READS in this
-# case (for Sentinel-2). (2) The GDAL JPEG driver does not do anything in 
+# case (for Sentinel-2). (2) The GDAL JPEG driver does not do anything in
 # parallel - use PARALLEL_READ to speed up the work (also use it for Landsat).
 # Type: Logical. Valid values: {TRUE,FALSE}
 PARALLEL_READS = ${parallel_reads}
@@ -309,18 +309,18 @@ TIMEOUT_ZIP = ${timeout_zip}
 # ------------------------------------------------------------------------
 # Output format, which is either uncompressed flat binary image format aka
 # ENVI Standard, GeoTiff, or COG. GeoTiff images are compressed with LZW and hori-
-# zontal differencing; BigTiff support is enabled; the Tiff is structured 
+# zontal differencing; BigTiff support is enabled; the Tiff is structured
 # with striped blocks according to the TILE_SIZE (X) and BLOCK_SIZE (Y) speci-
 # fications. Metadata are written to the ENVI header or directly into the Tiff
 # to the FORCE domain. If the size of the metadata exceeds the Tiff's limit,
 # an external .aux.xml file is additionally generated.
 # Type: Character. Valid values: {ENVI,GTiff,COG,CUSTOM}
 OUTPUT_FORMAT = ${output_format}
-# File that contains custom GDAL output options. This is only used if 
+# File that contains custom GDAL output options. This is only used if
 # OUTPUT_FORMAT = CUSTOM. If OUTPUT_FORMAT = CUSTOM, this file is mandatory.
-# The file should be written in tag and value notation. The first two lines 
+# The file should be written in tag and value notation. The first two lines
 # are mandatory and specify GDAL driver and file extension, e.g. DRIVER = GTiff
-# and EXTENSION = tif. The driver name refers to the GDAL short driver names. 
+# and EXTENSION = tif. The driver name refers to the GDAL short driver names.
 # Lines 3ff can hold a variable number of GDAL options (up to 32 are allowed).
 # Please note: with opening output options up to the user, it is now possible to
 # give invalid or conflicting options that result in the failure of creating files.
