@@ -23,7 +23,7 @@ test = ["cwl", "test"]
 docs = ["docs", "stac", "examples", "jupyter"]
 examples = ["examples", "stac", "jupyter"]
 tools = ["cwl", "tools"]
-apex-force-openeo = ["tools", "cwl", "test"]
+apex-force-openeo = ["tools", "cwl", "test", "dev"]
 
 [dependencies]
 pixi-pycharm = ">=0.0.11,<0.0.12"
@@ -58,3 +58,5 @@ tomlq = ">=0.2.2,<0.3"
 [feature.tools.pypi-dependencies]
 force-python-utils = { path = "./python/", editable = true }
 
+[feature.dev.dependencies]
+ruff = ">=0.16.0,<0.17"
