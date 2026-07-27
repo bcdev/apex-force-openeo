@@ -53,6 +53,7 @@ shapely = ">=2.1.2,<3"
 contextily = ">=1.7.1,<2"
 
 [feature.tools.dependencies]
+tomlq = ">=0.2.2,<0.3"
 
 [feature.tools.pypi-dependencies]
 force-python-utils = { path = "./python/", editable = true }
