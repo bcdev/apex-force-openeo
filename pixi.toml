@@ -1,12 +1,14 @@
 [workspace]
-authors = ["Hannes Neuschmidt <hannes.neuschmidt@brockmann-consult.de>"]
+authors = [
+    "Hannes Neuschmidt <hannes.neuschmidt@brockmann-consult.de>",
+    "Martin Böttcher <martin.boettcher@brockmann-consult.de>"
+]
 channels = ["conda-forge"]
 name = "apex-force-openeo"
 platforms = ["linux-64"]
-version = "0.1.0"
+version = "0.5.7-dev7"
 
 [tasks]
-
 test-openeo = {
     cmd = [
         "pytest",
@@ -41,34 +43,41 @@ check-version-matches = {
 preview = { cmd = "quarto preview", default-environment = "docs", cwd = "docs/force/" }
 
 [environments]
-test = ["test"]
-docs = ["docs"]
-examples = ["examples"]
-
-[feature.test.dependencies]
-pytest = ">=9.1.1,<10"
-openeo = ">=0.50.0,<0.51"
-pyyaml = ">=6.0.3,<7"
-
-[feature.test.pypi-dependencies]
-cwltool = ">=3.2.20260413085819, <4"
-
-[feature.docs.dependencies]
-quarto = "*"
-jupyter = "*"
-typst = "*"
-openeo = "*"
-pystac-client = "*"
-contextily = "*"
-geopandas = "*"
-shapely = "*"
-ipython = "*"
-
-[feature.examples.dependencies]
-jupyterlab = ">=4.6.1,<5"
-cwltool = ">=3.2.20260413085819,<4"
-pystac = ">=1.14.3,<2"
-openeo = ">=0.50.0,<0.51"
+test = ["cwl", "test"]
+docs = ["docs", "stac", "examples", "jupyter"]
+examples = ["examples", "stac", "jupyter"]
+tools = ["cwl", "tools"]
+apex-force-openeo = ["tools", "cwl", "test"]
 
 [dependencies]
 pixi-pycharm = ">=0.0.11,<0.0.12"
+openeo = ">=0.50.0,<0.51"
+
+[feature.test.dependencies]
+pytest = ">=9.1.1,<10"
+pyyaml = ">=6.0.3,<7"
+
+[feature.jupyter.dependencies]
+jupyterlab = ">=4.6.1,<5"
+
+[feature.cwl.dependencies]
+cwltool = ">=3.2.20260413085819, <4"
+
+[feature.docs.dependencies]
+quarto = ">=1.9.38,<2"
+typst = ">=0.14.2,<0.15"
+
+[feature.stac.dependencies]
+pystac-client = ">=0.9.0,<0.10"
+pystac = ">=1.14.3,<2"
+
+[feature.examples.dependencies]
+geopandas = ">=1.1.4,<2"
+shapely = ">=2.1.2,<3"
+contextily = ">=1.7.1,<2"
+
+[feature.tools.dependencies]
+
+[feature.tools.pypi-dependencies]
+force-python-utils = { path = "./python/", editable = true }
+
