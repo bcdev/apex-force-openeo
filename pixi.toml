@@ -51,6 +51,7 @@ pystac = ">=1.14.3,<2"
 geopandas = ">=1.1.4,<2"
 shapely = ">=2.1.2,<3"
 contextily = ">=1.7.1,<2"
+rioxarray = ">=0.21.0,<0.22"
 
 [feature.tools.dependencies]
 tomlq = ">=0.2.2,<0.3"
