@@ -1,4 +1,4 @@
-aoi: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.6,44.5],[10.6,44.8],[11.0,44.8],[11.0,44.5],[10.6,44.5]]] }, "properties": { "name": "Parma" } }'
+#aoi: '{ "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[10.6,44.5],[10.6,44.8],[11.0,44.8],[11.0,44.5],[10.6,44.5]]] }, "properties": { "name": "Parma" } }'
 buffer_nodata: false
 cirrus_buffer: 30
 cloud_buffer: 300
@@ -14,7 +14,7 @@ erase_clouds: false
 impulse_noise: true
 input:
     class: Directory
-    location: /home/yarn/integration/force/msi-l1c-tds
+    location: ../../../inputs
 max_cloud_cover_frame: 90
 max_cloud_cover_tile: 90
 nproc: 3

@@ -35,7 +35,7 @@
                             "label": "Digital Elevation Model",
                             "symbols": [
                                 "#force-level2-enums.yml/dem/Copernicus_30m",
-                                "#force-level2-enums.yml/dem/none"
+                                "#force-level2-enums.yml/dem/NONE"
                             ]
                         },
                         {
@@ -526,7 +526,7 @@
                                 "id": "#main/stringify_stac/run/cfg_json"
                             }
                         ],
-                        "expression": "${\n  if (inputs.cfg === null || inputs.cfg === undefined) {\n    return { cfg_json: null };\n  } else {\n    return { cfg_json: JSON.stringify(inputs.cfg) }; \n  }\n}\n"
+                        "expression": "${\n  if (inputs.cfg === null || inputs.cfg === undefined) {\n    return { cfg_json: null };\n  } else {\n    return { cfg_json: JSON.stringify(inputs.cfg) };\n  }\n}\n"
                     },
                     "in": [
                         {
@@ -553,7 +553,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.0.15-dev-a7",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.7-dev6",
                     "class": "DockerRequirement"
                 },
                 {
@@ -561,8 +561,8 @@
                     "class": "NetworkAccess"
                 },
                 {
-                    "ramMin": 8192,
-                    "ramMax": 8192,
+                    "ramMin": 16384,
+                    "ramMax": 16384,
                     "coresMin": 1,
                     "coresMax": 4,
                     "class": "ResourceRequirement"
@@ -786,6 +786,17 @@
                 {
                     "type": [
                         "null",
+                        "int"
+                    ],
+                    "inputBinding": {
+                        "prefix": "--nproc"
+                    },
+                    "default": 2,
+                    "id": "#force-l2.cwl/nproc"
+                },
+                {
+                    "type": [
+                        "null",
                         "float"
                     ],
                     "inputBinding": {
@@ -976,7 +987,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.0.15-dev-a7",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.7-dev6",
                     "class": "DockerRequirement"
                 },
                 {

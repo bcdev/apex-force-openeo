@@ -526,7 +526,7 @@
                                 "id": "#main/stringify_stac/run/cfg_json"
                             }
                         ],
-                        "expression": "${\n  if (inputs.cfg === null || inputs.cfg === undefined) {\n    return { cfg_json: null };\n  } else {\n    return { cfg_json: JSON.stringify(inputs.cfg) }; \n  }\n}\n"
+                        "expression": "${\n  if (inputs.cfg === null || inputs.cfg === undefined) {\n    return { cfg_json: null };\n  } else {\n    return { cfg_json: JSON.stringify(inputs.cfg) };\n  }\n}\n"
                     },
                     "in": [
                         {
@@ -553,7 +553,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.6",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.7-dev6",
                     "class": "DockerRequirement"
                 },
                 {
@@ -987,7 +987,7 @@
             "class": "CommandLineTool",
             "requirements": [
                 {
-                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.6",
+                    "dockerPull": "quay.io/bcdev/force-eoap:0.5.7-dev6",
                     "class": "DockerRequirement"
                 },
                 {

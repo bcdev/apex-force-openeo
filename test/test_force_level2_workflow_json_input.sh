@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 repo_root=$(realpath "$(dirname "$0")/..")
-input_parameter_file="${repo_root}/test/l2_query_output.json"
+input_parameter_file="${repo_root}/test/level2/l2_query_output.json"
 echo "repo_root: ${repo_root}"
 
 export AWS_ENDPOINT_URL_S3='https://eodata.dataspace.copernicus.eu'
