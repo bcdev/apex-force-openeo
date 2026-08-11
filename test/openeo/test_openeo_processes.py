@@ -291,7 +291,7 @@ def test_complete_pipeline_release(connection, temporal_extent, spatial_extent, 
         assert datacube_base.exists()
         assert tmp_path.glob("CITEME*") is not None
         # TODO hardcoded europe breaks when aoi is changed
-        tiles = (datacube_base / "europe").glob("X*Y*")
+        tiles = datacube_base.glob("X*Y*")
         assert tiles is not None
         first_tile = next(tiles)
         img = first_tile.glob("*.tif")
@@ -301,7 +301,7 @@ def test_complete_pipeline_release(connection, temporal_extent, spatial_extent, 
 
     # TSA
 
-    l2_results_href = get_workspace_catalog_url(merge_path, continent="europe")
+    l2_results_href = get_workspace_catalog_url(merge_path)
     print(l2_results_href)
 
     # TODO hardcoded tile (breaks if AOI changes)

@@ -31,7 +31,6 @@ openeo = ">=0.50.0,<0.51"
 
 [feature.test.dependencies]
 pytest = ">=9.1.1,<10"
-pyyaml = ">=6.0.3,<7"
 
 [feature.jupyter.dependencies]
 jupyterlab = ">=4.6.1,<5"
