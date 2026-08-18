@@ -20,7 +20,7 @@ import openeo
 connection = openeo.connect("https://openeo.dataspace.copernicus.eu")
 connection.authenticate_oidc()
 ```
-<!-- 
+<!--
 
     FIXME:
     It is necessary to connect to the staging backend, until the custom processes are publicly
@@ -90,7 +90,7 @@ Please refer to the [Python client documentation](https://open-eo.github.io/open
 
 Name | Qualified name (Python client) | Purpose
 -----|----------------|--------
-`create_job` | [`openeo.rest.connection.Connection.create_job`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.create_job) | Submit a Process Graph to the backend 
+`create_job` | [`openeo.rest.connection.Connection.create_job`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.create_job) | Submit a Process Graph to the backend
 `start_and_wait` | [`openeo.rest.job.BatchJob.start_and_wait`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.BatchJob.start_and_wait) | Start a submitted job and block until completion
 `start` | [`openeo.rest.job.BatchJob.start`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.BatchJob.start) | Same as `start_and_wait` but do not block execution
 `get_results` | [`openeo.rest.job.BatchJob.get_results`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.BatchJob.get_results) | Get a `JobResults` object from a completed Job  (contains references to output files)

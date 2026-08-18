@@ -2,7 +2,7 @@
 set -euxo pipefail
 
 repo_root=$(realpath "$(dirname "$0")/..")
-input_parameter_file="${repo_root}/test/force-l2-params-relative.yml"
+input_parameter_file="${repo_root}/test/level2/force-l2-params-relative.yml"
 outdir="${repo_root}/../target/level2"
 echo "repo_root: ${repo_root}"
 

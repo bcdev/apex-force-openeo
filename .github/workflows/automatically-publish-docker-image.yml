@@ -6,7 +6,7 @@
 # if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
 
 
-name: Publish Docker image (automatic tag)
+name: Publish Docker image
 on:
   workflow_dispatch:
   pull_request:

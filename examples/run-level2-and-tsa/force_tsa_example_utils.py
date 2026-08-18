@@ -18,7 +18,7 @@ def extract_catalog_url_from_job_logs(job_logs) -> str:
 
 
 def plot_area_of_interest(
-    w, s, e, n, *, 
+    w, s, e, n, *,
     large_context=10,
     small_context=1.25,
     color="red",
@@ -26,6 +26,8 @@ def plot_area_of_interest(
     title="Spatial Extent",
     figsize=(12, 8),
     show_tick_labels=True,
+    basemap_source=ctx.providers.OpenTopoMap,
+
     ):
     polygon = Polygon([(w, s), (e, s), (e, n), (w, n)])
     gdf = gpd.GeoDataFrame(geometry=[polygon], crs="EPSG:4326")
@@ -40,8 +42,8 @@ def plot_area_of_interest(
         for ax in axs:
             ax.set_xticks([])
             ax.set_yticks([])
-    ctx.add_basemap(axs[0], source=ctx.providers.OpenStreetMap.Mapnik, crs=gdf.crs)
-    ctx.add_basemap(axs[1], source=ctx.providers.OpenStreetMap.Mapnik, crs=gdf.crs);
+    ctx.add_basemap(axs[0], source=basemap_source)
+    ctx.add_basemap(axs[1], source=basemap_source)
     fig.suptitle(title)
     fig.tight_layout()
 
@@ -63,18 +65,19 @@ def transform_item_collection_to_catalog_with_links(item_collection):
     return catalog
 
 
-def plot_asset_ndvi(asset_path):
+def plot_asset_ndvi(asset_path, **selectors):
     ds = rioxarray.open_rasterio(asset_path, masked=True)
+    ds = ds.sel(**selectors)
     ds.load()
     ds.close()
-    
+
     fig, ax = plt.subplots(1, 1)
     plot_args = dict(
         cmap = "RdYlGn",
         vmin=-1,
         vmax=1,
     )
-    
+
     x_with_data = slice(ds.notnull().any("y").argmax(dim="x").item(), None, None)
     y_with_data = slice(ds.notnull().any("x").argmin(dim="y").item(), None, None)
     p = (ds.isel(x=x_with_data, y=y_with_data) * 0.0001).plot(ax=ax, **plot_args);

@@ -1,10 +1,9 @@
 ---
 title: Features and Limitations
-
 ---
 
 
-The FORCE integration into to CDSE is in a proof-of-concept stage. It is possible to use the FORCE level 2 and Time Series Analysis (TSA) modules on a small scale. Most parameters supported by FORCE are available through the openEO interface. 
+The FORCE integration into to CDSE is in a proof-of-concept stage. It is possible to use the FORCE level 2 and Time Series Analysis (TSA) modules on a small scale. Most parameters supported by FORCE are available through the openEO interface.
 
 Unsupported parameters are usually either managed by the implementation (parallelization options, input/output directores) or reuqire supplementary files which are not avaiable on the backend.
 The `aoi` (openEO interface) / `FILE_AOI` (FORCE parameter file) parameter is good example of a parameter that is exposed in a different way in openEO to avoid the file interface. Instead of a shape file, a GEOJSON string is passed.
@@ -37,6 +36,6 @@ If you encounter limitations not mentioned here, please raise an issue in the [G
 ### Parallelizing large Time Series Analysis jobs
 
 Server-side parallelization of the TSA module is not currently enabled. It is possible to parallelize TSA by creating one openEO job per tile by setting the `x_tile_range` and `y_tile_range` arguments to a single tile per job.
-Furthermore, consider computing spatio-temporal metrics (STM) in separate jobs to reduce memory usage. 
+Furthermore, consider computing spatio-temporal metrics (STM) in separate jobs to reduce memory usage.
 
 Finally, you may reduce the `chunk_size` which will reduce memory usage at the cost of a longer processing time.

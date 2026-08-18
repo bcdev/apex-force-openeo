@@ -8,7 +8,7 @@ order: 6
 
 The [FORCE openEO processes](processes.qmd) (`force_level2` and `force_tsa`) accept most of the parameters that can be passed using FORCE's native parametrization files ([level 2](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html), [TSA](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)). The exceptions to this rule are explained below.
 
-There are 4 types of parameters that do not correspond exactly to the FORCE parameter files 
+There are 4 types of parameters that do not correspond exactly to the FORCE parameter files
 
 1. Special parameters that require translation (e.g., the area of interest)
 1. Additional parameters of the openEO integration (e.g., the processing name)
@@ -77,7 +77,7 @@ Input/Output directories (managed by the integration)
 
 Parallel processing parameters (managed by the integration)
 
-- `NPROC` 
+- `NPROC`
 - `NTHREAD`
 - `PARALLEL_READS`
 - `DELAY`

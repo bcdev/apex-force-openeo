@@ -78,7 +78,7 @@ import getpass
 from openeo.rest.stac_resource import StacResource
 from openeo.internal.graph_building import PGNode
 
-# Make sure to choose a unique name 
+# Make sure to choose a unique name
 processing_name = "Modena"
 
 force_l2_stac_resource = StacResource(
@@ -201,7 +201,7 @@ merge = f"{getpass.getuser()}/experiments/{processing_name}"
 print(merge)
 ```
 
-Remember, the dedicated workspace for FORCE has the URL 
+Remember, the dedicated workspace for FORCE has the URL
 
 <!--#WORKSPACE_URL = "https://s3.waw4-1.cloudferro.com/apex-force-results-waw4-1"-->
 ```{python}
@@ -218,7 +218,7 @@ temporal_extent=["2026-04-17", "2026-04-27"]
 ```
 
 For other parameters, we may want to inspect the metadata of the level 2 processing.
-For example, we can extract the tiles from the asset names of the STAC item describing the level 2 datacube. 
+For example, we can extract the tiles from the asset names of the STAC item describing the level 2 datacube.
 
 
 ```{python}
@@ -272,24 +272,15 @@ tsa_job = force_tsa_stac_resource.create_job(title=f"FORCE TSA {processing_name}
 tsa_job.start() # use start_and_wait to block until finished
 ```
 
-Inspecting STAC metadata and downloading results works in the same way as for level 2 processing:
-
 ```{python}
 #| echo: false
 tsa_job = connection.job("j-260515103226413e919ee5d9934c9693")
 ```
 
-```{.python}
-tsa_catalog_url = extract_catalog_url_from_job_logs(tsa_job.logs())
-tsa_catalog = pystac.Catalog.from_file(tsa_catalog_url)
-tsa_item = next(tsa_catalog.get_items())
-tsa_item
-```
-
-Downloading assets as well:
+Downloading assets works the same way as for level2:
 
 ```{.python}
-tsa_results = l2_job.get_results()
+tsa_results = tsa_job.get_results()
 tsa_results
 ```
 

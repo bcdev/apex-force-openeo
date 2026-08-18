@@ -1,4 +1,4 @@
-name: Test Build Release
+name: Check release and release
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
         type: boolean
         default: false
       version:
-        description: Version name, must match the entry in pyproject.toml and docker-requirement.yaml
+        description: Version name, must match the entry in pixi.toml, pyproject.toml and docker-requirement.yaml
         required: true
         type: string
 
@@ -44,6 +44,10 @@ jobs:
       - name: Info
         run: |
           echo ${{ env.RELEASE_VERSION }}
+      - name: install yq
+        run: |
+          sudo apt update
+          sudo apt istall yq
       - name: Check versions
         run: |
           # Fails if versions in pyproject.toml, cwl/docker-requirement.yaml and the reference given
