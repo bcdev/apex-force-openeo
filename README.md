@@ -21,7 +21,7 @@ The cloud integration of FORCE has been performed in the context of the [Europea
 (ESA) [Application Propagation Environments](https://apex.esa.int/) (APEx) initiative.
 
 For more information, have a look at [the documentation](https://esa-apex.github.io/apex_toolbox_documentation/docs/force/)
-(on the [APEx toolbox documentation portal](https://esa-apex.github.io/apex_toolbox_documentation).
+on the [APEx toolbox documentation portal](https://esa-apex.github.io/apex_toolbox_documentation).
 
 ## Features
 
