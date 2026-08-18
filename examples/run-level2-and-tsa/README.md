@@ -7,5 +7,5 @@ with the [FORCE Time Series Analysis](https://force-eo.readthedocs.io/en/stable/
 The TSA process takes in a reference (URL) to the STAC catalog produced by the level 2 process.
 The [notebook](FORCE_level2_and_TSA.ipynb) executes TSA twice, using the same level 2 data cube.
 
-> Have a look at the [level 2 examples](../run-level2-and-download) for a more detailed description of the level 2
+> Have a look at the [level 2 example](../run-level2-and-download) for a more detailed description of the level 2
 > process.

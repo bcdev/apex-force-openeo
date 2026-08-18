@@ -11,10 +11,7 @@ Each example is implemented as a [Jupyter notebook](https://jupyter.org/).
 You can read [the rendered examples on Github](https://github.com/bcdev/apex-force-openeo/tree/main/examples).
 To run the examples by yourself, it is necessary to set up a Python virtual environment with the necessary dependencies.
 
-Each example provides an environment definition for [pixi](https://pixi.prefix.dev/latest/) and
-[conda](https://www.anaconda.com/docs/getting-started/miniconda/main)/[micromamba](https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html).
-We recommend the use of pixi or micromamba.
-
+The top-level `pixi.toml` defines an `examples` environment with the necessary dependencies installed.
 
 ### Pixi
 
