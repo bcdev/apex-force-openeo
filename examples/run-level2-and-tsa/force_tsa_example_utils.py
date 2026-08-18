@@ -65,8 +65,9 @@ def transform_item_collection_to_catalog_with_links(item_collection):
     return catalog
 
 
-def plot_asset_ndvi(asset_path):
+def plot_asset_ndvi(asset_path, **selectors):
     ds = rioxarray.open_rasterio(asset_path, masked=True)
+    ds = ds.sel(**selectors)
     ds.load()
     ds.close()
 
