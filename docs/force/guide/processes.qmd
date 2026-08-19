@@ -1,16 +1,19 @@
 ---
-execute:
-    # Cache is necessary to avoid having to authenticate to build the documentation
-    freeze: true
-
+title: "openEO processes"
 order: 2
 ---
 
-# openEO processes
+Using an openEO client, we can control FORCE through a number of [openEO processes](https://openeo.org/documentation/1.0/datacubes.html).
+The FORCE openEO integration is specific to the backend deployed on CDSE, so the processes described here are
+not listed among the [standard processes](https://openeo.org/documentation/1.0/processes.html) and are generally experimental.
 
-Using an openEO client, we can control FORCE through a number of [openEO processes](https://openeo.org/documentation/1.0/datacubes.html). The FORCE openEO integration is specific to the backend deployed on CDSE, so the processes described here are not listed among the [standard processes](https://openeo.org/documentation/1.0/processes.html) and are generally experimental.
+This page gives an overview of the openEO processes specific to FORCE and client operations needed to interact
+with them.
 
-The processes wrapping FORCE functionality support most of the options that can be set in the FORCE parameter file ([level2](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html), [TSA](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)). See the article on [parametrization](parametrization.qmd) for more details on the supported options and defaults.
+The processes wrapping FORCE functionality support most of the options that can be set in the FORCE parameter file
+([level2](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html),
+[TSA](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)).
+See the article on [parametrization](parametrization.qmd) for more details on the supported options and defaults.
 
 
 To discover the processes, we must first connect to the CDSE openEO backend:
@@ -25,7 +28,7 @@ connection.authenticate_oidc()
     FIXME:
     It is necessary to connect to the staging backend, until the custom processes are publicly
     listed in the production environment. Once this is the case (should happen together with the
-    offcial release of the documentation), this cell can be removed.
+    official release of the documentation), this cell can be removed.
     HN - 2026-07-06
 
 -->
@@ -35,15 +38,25 @@ connection.authenticate_oidc()
 connection = openeo.connect("openeo-staging.dataspace.copernicus.eu").authenticate_oidc()
 ```
 
-<!-- TODO: link documentation -->
+If you don't have your
+[credentials set as environment variables](https://open-eo.github.io/openeo-python-client/auth.html#oidc-client-credentials-using-environment-variables),
+you will be prompted to log in in a browser window by default. See also the openEO documentation on authentication using
+Open ID connect ([overview](https://openeo.org/documentation/1.0/authentication.html),
+[Python client](https://open-eo.github.io/openeo-python-client/auth.html#oidc-client-credentials-using-environment-variables))
 
-If you don't have your [credentials set as environment variables](https://open-eo.github.io/openeo-python-client/auth.html#oidc-client-credentials-using-environment-variables), you will be prompted to log in in a browser window by default. See also the openEO documentation on authentication using Open ID connect ([overview](https://openeo.org/documentation/1.0/authentication.html#device-flow), [Python client](https://openeo.org/documentation/1.0/authentication.html))
-
+We can use openEO's
+[`describe_process`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.describe_process)
+API call to discover the parameters of an openEO process.
 
 ## Query
 
+As a first step, we must determine the input products for FORCE to process. This is best achieved by an external
+querying method, such as [`pystac_client`](https://pystac-client.readthedocs.io/en/stable/).
+Alternatively, CDSE openEO provides a process `query_stac` to determine input products from `spatial_extent` and
+`temporal_extent`. Using this process in combination with `force_level2` is currently limited to very few input
+products, therefore we recommend using it only for small tests.
 
-We can use either the openEO process `query_stac` or another method to select input products for processing with FORCE. See the [next section](query.qmd) for an in depth discussion on the different methods how inputs may be specified.
+See the [next section](query.qmd) for an in-depth discussion on the different methods how inputs may be specified.
 
 
 :::{.callout-note collapse="true" title="query_stac process definition"}
@@ -52,15 +65,13 @@ connection.describe_process("query_stac")
 ```
 :::
 
-<!-- TODO link docs-->
-
-We can use openEO's `describe_process` API call to discover the parameters of an openEO process.
-
-
 ## Level 2
 
-<!-- TODO  force-level2 link -->
 The openEO integration of FORCE provides a `force_level2` process wrapping the [FORCE level 2 processing system](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/).
+
+The openEO processes exposes most of the
+[options that can be set in the FORCE level 2 parameter file](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html#l2-param).
+Exceptions and additional parameters are described in the [parametrization article](parametrization.qmd).
 
 :::{.callout-note collapse="true" title="force_level2 process definition"}
 ```{python}
@@ -68,13 +79,13 @@ connection.describe_process("force_level2")
 ```
 :::
 
-The openEO processes exposes most of the options that can be set in the FORCE parameter file.
-
-<!-- TOOD link to document describing, how parameters differ between the FORCE parameter files and the openEO versions-->
-
 ## Time Series Analysis
 
 The `force_tsa` process wraps the [Time Series Analysis](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/) module.
+
+The openEO processes exposes most of the
+[options that can be set in the FORCE TSA parameter file](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html).
+Exceptions and additional parameters are described in the [parametrization article](parametrization.qmd).
 
 :::{.callout-note collapse="true" title="force_tsa process definition"}
 ```{python}
@@ -96,10 +107,11 @@ Name | Qualified name (Python client) | Purpose
 `get_results` | [`openeo.rest.job.BatchJob.get_results`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.BatchJob.get_results) | Get a `JobResults` object from a completed Job  (contains references to output files)
 `download_files` | [`openeo.rest.job.JobResults.download_files`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_files) | Download all assets (files) produced by a job
 `download_file` | [`openeo.rest.job.JobResults.download_file`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_file) | Download a singular asset (file) produced by a job
+`export_workspace` | [`openeo.rest.stac_resource.StacResource.export_workspace`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.stac_resource.StacResource.export_workspace) | Export raw files (FORCE data cube) and STAC to remote cloud storage. Used for asynchronous further processing (TSA) without download of the intermediate result.
 
 
 ## Monitoring progress
 
 When using `start_and_wait` to start a job, status updates will automatically be printed to the command line or jupyter output cell.
 
-Alternatively, progress and logs can be monitored using the openEO web interface at [https://openeo.dataspace.copernicus.eu](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_files) or use the client as explained e.g., in the [Python client documentation](https://open-eo.github.io/openeo-python-client/batch_jobs.html#create-a-batch-job).
+Alternatively, progress and logs can be monitored using the openEO web interface at [https://openeo.dataspace.copernicus.eu](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_files) or use the client as explained in the [Python client documentation](https://open-eo.github.io/openeo-python-client/batch_jobs.html#create-a-batch-job).
