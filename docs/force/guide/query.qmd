@@ -1,10 +1,7 @@
 ---
-execute:
-    freeze: true
+title: Selecting input data
 order: 3
 ---
-
-# Selecting input data
 
 When running FORCE level 2 locally, we are responsible to manually provide the necessary input data and reference their full path in the `FILE_QUEUE` parameter of the [FORCE level 2 parameter file](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html).
 
@@ -13,7 +10,7 @@ Downloads, file management and creation of the file queue are managed by the int
 To specify which files should be processed, we provide a [STAC](https://stacspec.org/en) document ([Catalog](https://github.com/radiantearth/stac-spec/blob/master/catalog-spec/catalog-spec.md), [Collection](https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md), [Item](https://github.com/radiantearth/stac-spec/blob/master/item-spec/item-spec.md) or [ItemCollection](https://github.com/radiantearth/stac-api-spec/blob/main/fragments/itemcollection/README.md)) to the process.
 
 :::{.callout-warning}
-Make sure that the STAC document provided to `force_level2` only references the files that should actually be processed. The FORCE integration will attempt to download all products referenced in the document, so it is inadvisable to provide a reference to the entire Sentinel-2 L1C collection on CDSE for example
+Make sure that the STAC document provided to `force_level2` only references the files that should actually be processed. The FORCE integration will attempt to download all products referenced in the document, so it is inadvisable to provide a reference to something like the entire Sentinel-2 L1C collection on CDSE.
 :::
 
 ## STAC
@@ -81,7 +78,7 @@ def plot_area_of_interest(
     if not show_tick_labels:
         ax.set_xticks([])
         ax.set_yticks([])
-    ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, crs=gdf.crs)
+    ctx.add_basemap(ax, source=ctx.providers.OpenTopoMap, crs=gdf.crs)
     fig.suptitle(title)
     fig.tight_layout()
 
@@ -98,6 +95,9 @@ plot_area_of_interest(
 ```
 
 ### Querying a catalog
+
+It is strongly recommended to use an external query method (such as `pystac_client`), because using the `query_stac`
+process in combination with `force_level2` is limited to small numbers of items.
 
 :::{.panel-tabset group="query_engine"}
 
@@ -152,6 +152,7 @@ print("\n".join([f["id"] for f in query_res["features"]]), "\n")
 
 ```{python}
 import pystac_client
+import time
 
 L1C_COLLECTION_URL = "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c"
 STAC_ROOT_URL = "https://stac.dataspace.copernicus.eu/v1"
@@ -166,6 +167,7 @@ item_collection = search.item_collection()
 
 print("Found items:")
 for item in search.items():
+    time.sleep(1) # CDSE Stac API has a rate limit of 5 requests per second
     print(item.id)
 
 ```
