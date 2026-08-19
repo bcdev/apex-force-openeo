@@ -27,7 +27,6 @@ def plot_area_of_interest(
     figsize=(12, 8),
     show_tick_labels=True,
     basemap_source=ctx.providers.OpenTopoMap,
-
     ):
     polygon = Polygon([(w, s), (e, s), (e, n), (w, n)])
     gdf = gpd.GeoDataFrame(geometry=[polygon], crs="EPSG:4326")
@@ -42,8 +41,16 @@ def plot_area_of_interest(
         for ax in axs:
             ax.set_xticks([])
             ax.set_yticks([])
-    ctx.add_basemap(axs[0], source=basemap_source)
-    ctx.add_basemap(axs[1], source=basemap_source)
+    ctx.add_basemap(
+        axs[0],
+        source=basemap_source,
+        crs=gdf.crs
+    )
+    ctx.add_basemap(
+        axs[1],
+        source=basemap_source,
+        crs=gdf.crs
+    )
     fig.suptitle(title)
     fig.tight_layout()
 
