@@ -2,21 +2,23 @@
 title: "FORCE with openEO on CDSE"
 ---
 
-The integration of the [FORCE](https://force-eo.readthedocs.io/en/latest/) processing engine in CDSE provides access to [a subset of FORCE's processing functionality](feature_overview.qmd) via the [openEO API on CDSE](https://eoap.github.io/).
+The integration of the [FORCE](https://force-eo.readthedocs.io/en/latest/) processing engine into the [Copernicus Data Space Ecosystem](https://dataspace.copernicus.eu/) (CDSE) provides access to [a subset of FORCE's processing functionality](feature_overview.qmd) via the [openEO API on CDSE](https://dataspace.copernicus.eu/).
 
 The integrated FORCE can be used to process on cloud infrastructure using an openEO client ([Python](https://open-eo.github.io/openeo-python-client/), [R](https://open-eo.github.io/openeo-r-client/) or [Javascript](https://open-eo.github.io/openeo-js-client/latest/)) and the openEO web-interface to create and monitor jobs.
-Input Staging and [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/en) generation are handled automatically.
+Input staging on the CDSE infrastructure and [SpatioTemporal Asset Catalog (STAC)](https://stacspec.org/en) generation are handled automatically.
 
-The integration has been performed by [Brockmann Consult GmbH](https://www.brockmann-consult.de/) in the context of the European Space Agency's (ESA) [*Application Propagation Environments* (APEx)](https://apex.esa.int/) initiative.
+The integration has been performed in the context of the [European Space Agency](https://www.esa.int/)'s (ESA) [*Application Propagation Environments* (APEx)](https://apex.esa.int/) initiative.
+The source code is available [on Github](https://github.com/bcdev/apex-force-openeo).
 
 ## FORCE
 
 ![Official FORCE logo, [https://force-eo.readthedocs.io/en/latest/_images/force.png](https://force-eo.readthedocs.io/en/latest/_images/force.png)](https://force-eo.readthedocs.io/en/latest/_images/force.png)
 
 FORCE (Framework for Operational Radiometric Correction for Environmental Monitoring) is an EO processing engine developed by [Prof. Dr. David Frantz](https://www.uni-trier.de/universitaet/fachbereiche-faecher/fachbereich-vi/faecher/geoinformatik/team/prof-dr-d-frantz)
-(*Geoinformatics - Spatial Data Science*, Trier University).
+(*Geoinformatics - Spatial Data Science*, Trier University) and the Open Source FORCE community.
 
-FORCE includes a large number of processing features, including the generation of Analysis Ready Data (ARD) Data Cubes and higher level data analysis processes. See the FORCE ['About' page](https://force-eo.readthedocs.io/en/latest/about.html) page for a full overview of FORCE's features.
+FORCE includes a large number of processing features, including the generation of Analysis Ready Data (ARD) Data Cubes and higher level data analysis processes. See the FORCE ['About' page](https://force-eo.readthedocs.io/en/latest/about.html) page for a full overview of FORCE's features. The [feature overview page](feature_overview.qmd) shows which features
+of FORCE are exposed via openEO on CDSE.
 
 
 ::: {.callout-note}
@@ -30,40 +32,57 @@ FORCE includes a large number of processing features, including the generation o
 
 Details of FORCE functionality and validation are described in a number of [scientific publications](https://force-eo.readthedocs.io/en/latest/refs.html).
 
+::: {.callout-important}
+When processing with FORCE, please make sure to properly acknowledge FORCE and its authors when processing with FORCE and using the results
+as described in the [Citation and Acknowledgements guidelines](https://force-eo.readthedocs.io/en/latest/policy/citation.html)
+:::
+
 ## ...with openEO...
 
 This project makes it possible to use (the) FORCE through the [Copernicus Data Space Ecosystem (CDSE)](https://dataspace.copernicus.eu/) [openEO Service](https://dataspace.copernicus.eu/analyse/openeo).
 
 Using, for example, the [openEO Python client](https://openeo.org/documentation/1.0/python/) to interact with the backend, FORCE can be parametrized and executed using the familiar openEO machinery.
 
-::: {.callout-warning}
+::: {.callout-important}
 The integrated FORCE does not use the openEO data cube structure.
-FORCE has its own file-system-based [data cube](https://force-eo.readthedocs.io/en/latest/howto/datacube.html) model. The openEO integration makes it possible to control FORCE through the openEO API. It does not merge the datacube models of FORCE and openEO, so foreign openEO processes cannot work directly on FORCE data cubes.
+FORCE has its own file-system-based [data cube](https://force-eo.readthedocs.io/en/latest/howto/datacube.html) model. The openEO integration makes it possible to control FORCE through the openEO API. It does not merge the datacube models of FORCE and openEO, so other openEO processes cannot work directly on FORCE data cubes.
 :::
 
 
 ```{.python}
 import openeo
+from openeo.rest.stac_resource import StacResource
+from openeo.internal.graph_building import PGNode
 
-connection = openeo.connect("https://openeo.dataspace.copernicus.eu").authenticate_oidc()
 
+connection = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
+
+# Select a STAC item to process (collections, catalogs and item collections are also supported!)
 stac_item_url = "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c/items/S2A_MSIL1C_20260419T100711_N0512_R022_T32TPQ_20260419T152521"
-stac_resource = openeo.rest.stac_resource.StacResource(
-    graph=openeo.internal.graph_building.PGNode(
+
+# Create the process graph
+processing_name = "FORCE_level2"
+force_l2_stac_resource = StacResource(
+    graph=PGNode(
         process_id="force_level2",
-        arguments=dict(
-            stac_url=stac_item_url,
-            do_brdf=True,
-            output_ovv=True,
-            # ... other parameters supported by FORCE level 2
-        )
+        arguments={
+            "stac_url": stac_item_url,
+            "name": processing_name,
+            "do_brdf": True,
+            # other FORCE level 2 parameters
+        },
     ),
     connection=connection,
 )
-job = stac_resource.create_job(title="FORCE level 2")
-job.start_and_wait()
-job.get_results()
-l2_results.download_files("force-ARD")
+
+# Run processing
+l2_job = force_l2_stac_resource.create_job(title=processing_name)
+l2_job.start_and_wait()
+
+# Download results (alternatively: Continue processing without download with Time Series Analysis. Check out the guide!)
+
+l2_results = l2_job.get_results()
+l2_results.download_files("force-level2-results")
 ```
 
 For a full example, see [the guide](guide/intro.qmd).
@@ -74,23 +93,39 @@ With the integrated FORCE, you can
 - Run the Time Series Analysis module of the FORCE higher level processing system (hlps)
 - Download data cubes in FORCE's native datacube format
 
-For an overview of the FORCE functionality made available via openEO, see [features](feature_overview.qmd).
+For an overview of the FORCE functionality made available via openEO, see the [feature overview](feature_overview.qmd).
 
 ## ...on CDSE
 
-FORCE runs on the CDSE infrastructure using the same data archive available to other CDSE services.
+FORCE runs on the CDSE cloud processing infrastructure using the same data archive available to other CDSE services.
+The integrated FORCE exclusively supports the CDSE
+[Sentinel-2 L1C collection](https://browser.stac.dataspace.copernicus.eu/collections/sentinel-2-l1c) available via the STAC API.
+
+## Getting Started
+
+To get started, have a look at our [user guide](guide/intro.qmd). It explains prerequisites for executing FORCE on CDSE
+and leads though detailed examples for level 2 and Time Series Analysis processing.
+
+Alternatively, there are [example Jupyter notebooks](https://github.com/bcdev/apex-force-openeo/tree/main/examples)
+available in the repository.
 
 
 ## EO Application Package
 
 :::{.callout-note}
-This section contains information on implementation details, you can
-safely ignore it.
+This section contains information on implementation details
 :::
 
+FORCE is made available through the openEO API by using the openEO backend's support for EO Application Packages (EOAP)
+according to the [OGC Best Practice for Earth Observation Application Package](http://www.opengis.net/doc/BP/eoap/1.0).
+The Common Workflow Language (CWL) documents of the EOAP for FORCE level 2 and Time Series Analysis are available in the
+[Git repository](https://github.com/bcdev/apex-force-openeo/tree/main/cwl).
 
-FORCE is integrated into CDSE openEO using the built-in support for EO Application Packages following the [OGC Best Practice for Earth Observation Application Packages](https://docs.ogc.org/bp/20-089r1.html) (EOAP).
-EOAPs are implemented as a combination of a Docker Image and a [Common Workflow Language](https://www.commonwl.org/) (CWL) document.
+More information on EOAP can be found on the
+[Earth Observation Application Package resources website](https://eoap.github.io/)
+
+This diagram shows the integration layers:
 
 ![integration onion](img/onion-concrete.svg)
 
+The integration work has been performed by [Brockmann Consult GmbH](https://www.brockmann-consult.de/)
