@@ -626,7 +626,7 @@ class ProjExtensionMetadataStacContributor(AbstractStacContributor):
         asset.ext.proj.wkt2 = crs.wkt
         asset.ext.proj.bbox = bbox.bounds
         asset.ext.proj.geometry = json.loads(shapely.to_geojson(bbox))
-        asset.ext.proj.transform = ds.transform
+        asset.ext.proj.transform = list(ds.transform)
         asset.ext.proj.shape = ds.shape
         asset.ext.proj.centroid = {
             "lat": centroid_lat,
