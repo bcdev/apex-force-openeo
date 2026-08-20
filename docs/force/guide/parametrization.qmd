@@ -1,17 +1,13 @@
 ---
-execute:
-    freeze: true
+title: Parametrization
 order: 6
 ---
-
-# Parametrization
-
 The [FORCE openEO processes](processes.qmd) (`force_level2` and `force_tsa`) accept most of the parameters that can be passed using FORCE's native parametrization files ([level 2](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html), [TSA](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html)). The exceptions to this rule are explained below.
 
 There are 4 types of parameters that do not correspond exactly to the FORCE parameter files
 
 1. Special parameters that require translation (e.g., the area of interest)
-1. Additional parameters of the openEO integration (e.g., the processing name)
+1. Additional parameters of the openEO integration (e.g., the processing `name`)
 1. FORCE parameters that are not exposed through the openEO API (e.g., the number of processes used for processing)
 1. Parameters that support only a subset of the possible values
 
@@ -20,21 +16,26 @@ It is possible to inspect the processes (and see their parameters) using openEO'
 
 Parameter values may be strings (the same as in FORCE parameter files) or native python values which can be serialized to JSON. Values are converted to UPPERCASE before being passed into the parameter file.
 
-Parameter values are passed as a dictionary to the `arguments` parameter of `openeo.processes.process`:
+Parameter values are passed as a dictionary to the `arguments` parameter of `openeo.internal.graph_building.PGNode`:
 
 
 ```{.python}
-graph = openeo.processes.process(
+from openeo.internal.graph_building import PGNode
+
+graph = PGNode(
     process_id="force_level2",
-    arguments=dict(
-        stac_document=stac_catalog,
-        name="Modena",
-        do_brdf=True,
-        # ... <--- more parameters
+    arguments={
+        "stac_document": stac_catalog,
+        "name": "Modena",
+        # FORCE parameters
+        "do_brdf": True,
+        # ... <--- more FORCE parameters
     }
 )
 
 ```
+
+This process must be wrapped as a `StacResource` as described in [FORCE level 2](level2.qmd).
 
 ## Examples
 

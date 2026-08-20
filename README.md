@@ -27,6 +27,7 @@ on the [APEx toolbox documentation portal](https://esa-apex.github.io/apex_toolb
 
 - FORCE level 2 processing through openEO on CDSE
 - FORCE Time Series Analysis (TSA) through openEO on CDSE
+- Dedicated Processes for FORCE operations (`force_level2`, `force_tsa`)
 - Automatic STAC generation for FORCE datacubes
 - Discover parameters of cloudified FORCE modules using the openEO client
 - Run level 2 processing once and re-use results without downloading multiple times
@@ -57,7 +58,6 @@ from openeo.internal.graph_building import PGNode
 
 
 connection = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
-
 
 # Select a STAC item to process (collections, catalogs and item collections are also supported!)
 stac_item_url = "https://stac.dataspace.copernicus.eu/v1/collections/sentinel-2-l1c/items/S2A_MSIL1C_20260419T100711_N0512_R022_T32TPQ_20260419T152521"
