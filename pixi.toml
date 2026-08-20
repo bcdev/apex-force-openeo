@@ -6,7 +6,7 @@ authors = [
 channels = ["conda-forge"]
 name = "apex-force-openeo"
 platforms = ["linux-64"]
-version = "0.5.7-dev6"
+version = "0.6.0"
 
 [tasks]
 test-openeo = { cmd = [ "pytest", "test/openeo" ], default-environment = "test" }
