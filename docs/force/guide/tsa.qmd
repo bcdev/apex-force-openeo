@@ -1,15 +1,7 @@
 ---
-execute:
-    freeze: true
+title: FORCE Time Series Analysis
 order: 5
 ---
-# FORCE Time Series Analysis
-
-<!--
-TODO
-
-- [ ] Remove inspecting catalog from recap and just access results once
--->
 
 ## Recap
 
@@ -38,7 +30,7 @@ temporal_extent=["2026-04-17", "2026-05-01"]
 
 ```{python}
 import openeo
-connection = openeo.connect("openeo-staging.dataspace.copernicus.eu").authenticate_oidc()
+connection = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
 
 query_pg = openeo.processes.process(
     "query_stac",
@@ -132,6 +124,8 @@ query_catalog = transform_item_collection_to_catalog_with_links(item_collection)
 
 ```{python}
 from openeo.internal.graph_building import PGNode
+from openeo.rest.stac_resource import StacResource
+
 query_catalog = transform_item_collection_to_catalog_with_links(item_collection)
 
 processing_name = "Modena"
@@ -141,8 +135,9 @@ force_l2_stac_resource = StacResource(
         process_id="force_level2",
         arguments={
             "stac_document": query_catalog.to_dict(),
-            "name": "Modena",
+            "name": processing_name,
             "do_brdf": True,
+            # level 2 parameters
         }
     ),
     connection=connection,
@@ -174,15 +169,41 @@ l2_job = connection.job("j-260527114522498d959f20eff3fc9b78")
 
 ## Time Series Analysis
 
-The openEO process for FORCE Time Series Analysis (TSA) is called `force_tsa`. Like the [level 2](level2.qmd) process, it takes most of the parameters usually passed to the [TSA module of FORCE](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/) using the [parameter file](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html). Parameters use `snake_case` format instead of `SCREAMING_SNAKE_CASE` (used in FORCE parameter files).
+The openEO process for FORCE Time Series Analysis (TSA) is called `force_tsa`. Like the [level 2](level2.qmd) process,
+it takes most of the parameters usually passed to the
+[TSA module of FORCE](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/) using the
+[parameter file](https://force-eo.readthedocs.io/en/latest/components/higher-level/tsa/param.html).
+Parameters use `snake_case` format instead of `SCREAMING_SNAKE_CASE` (used in FORCE parameter files).
 
 Details of parametrization are discussed in the [dedicated article](parametrization.qmd).
+
+```{.python}
+connection = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
+```
+
+<!--
+FIXME: we need staging for describe_process, until force_tsa is discoverable on the production backend
+-->
+
+```{python}
+#| echo: false
+connection = openeo.connect("openeo-staging.dataspace.copernicus.eu").authenticate_oidc()
+```
 
 :::{.callout-note collapse="true" title="FORCE TSA parameters"}
 ```{python}
 connection.describe_process("force_tsa")
 ```
 :::
+
+<!--
+FIXME: we need staging for describe_process, until force_tsa is discoverable on the production backend
+This can be removed once the connection to the staging backend is removed
+-->
+```{python}
+#| echo: false
+connection = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc()
+```
 
 ### Using FORCE level 2 results as an input
 
@@ -192,7 +213,10 @@ The main input for FORCE TSA is the STAC catalog (or item) from the level 2 proc
 We can access the STAC catalog produced by our level 2 job in the workspace,
 described in [level 2 processing article](level2.qmd#Accessing results).
 
-It is important to remember the `merge` paramter passed to `export_workspace`, this is the path under which we can find the catalog.
+:::{.callout-important}
+It is important to remember the `merge` parameter passed to `export_workspace`, this is the path under which we can find
+the catalog later.
+:::
 
 
 ```{python}
@@ -246,13 +270,14 @@ The main process is `force_tsa`.
 from openeo.rest.stac_resource import StacResource
 from openeo.internal.graph_building import PGNode
 
+tsa_processing_name = f"{processing_name}_TSA"
 
 force_tsa_stac_resource = StacResource(
     graph=PGNode(
         process_id="force_tsa",
         arguments={
             "stac_url": l2_catalog_url,
-            "name": "Modena_TSA",
+            "name": tsa_processing_name,
             "date_range": temporal_extent,
             "x_tile_range": [min(tile_x), min(tile_x)],
             "y_tile_range": [min(tile_y), max(tile_y)],
@@ -268,31 +293,25 @@ force_tsa_stac_resource = StacResource(
 We can then create and start the job as before:
 
 ```{.python}
-tsa_job = force_tsa_stac_resource.create_job(title=f"FORCE TSA {processing_name}")
+tsa_job = force_tsa_stac_resource.create_job(title=tsa_processing_name)
 tsa_job.start() # use start_and_wait to block until finished
 ```
 
 ```{python}
 #| echo: false
-tsa_job = connection.job("j-260515103226413e919ee5d9934c9693")
+tsa_job = connection.job("j-2608191330204189973ebc9251875552")
 ```
 
 Downloading assets works the same way as for level2:
 
-```{.python}
+```{python}
 tsa_results = tsa_job.get_results()
 tsa_results
 ```
 
-```{.python}
+```{python}
 tsa_results.download_files("force-tsa-results")
 ```
-
-<!--
-```{.bash}
-tree force-tsa-results
-```
--->
 
 ### Further processing
 
