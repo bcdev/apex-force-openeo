@@ -47,7 +47,7 @@ jobs:
       - name: install yq
         run: |
           sudo apt update
-          sudo apt istall yq
+          sudo apt install yq
       - name: Check versions
         run: |
           # Fails if versions in pyproject.toml, cwl/docker-requirement.yaml and the reference given
