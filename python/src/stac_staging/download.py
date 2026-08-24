@@ -18,6 +18,7 @@ from stac_staging.util import unwrap_single_dir_level
 
 LOGGER = logging.getLogger(__name__)
 S5CMD = "s5cmd"
+S5CMD_NUM_WORKERS = 10
 
 S3_ENDPOINT_URL = "S3_ENDPOINT_URL"
 AWS_ENDPOINT_URL_S3 = "AWS_ENDPOINT_URL_S3"
@@ -199,4 +200,4 @@ def _construct_enclosure_link_from_item(item: pystac.Item) -> str:
 
 
 def _run_s5cmd(cmd_file: str):
-    return subprocess.run([S5CMD, "run", cmd_file])
+    return subprocess.run([S5CMD, "--numworkers", str(S5CMD_NUM_WORKERS), "run", cmd_file])
