@@ -13,7 +13,7 @@ L1C_COLLECTION_URL = "https://stac.dataspace.copernicus.eu/v1/collections/sentin
 STAC_ROOT_URL = "https://stac.dataspace.copernicus.eu/v1"
 w, s, e, n = 11.0, 44.5, 11.1, 44.6
 spatial_extent = { "west": w, "south": s, "east": e, "north": n}
-# ATTENTION: Inclusion of the second date in the search depends on the query method.
+# ATTENTION: Whether the second date in the search is inclusive or exclusive depends on the query method.
 temporal_extent=["2026-04-17", "2026-04-27"]
 
 ```
@@ -105,7 +105,7 @@ connection = openeo.connect("openeo.dataspace.copernicus.eu").authenticate_oidc(
 ### Building the Process Graph
 
 The FORCE process graph is based on the `force_level2` process, as described in [openEO processes](processes.qmd). Because FORCE does not use the standard openEO version of the "data cube" concept, but
-uses its own data cube representation, we need to wrap the process so that we can interact with the results in a convenient way as a `StacResource` and export the processing results to a workspace.
+uses its own data cube representation, we need to wrap the process so that we can interact with the results in a convenient way as a `StacResource` and export the processing results to a workspace for re-use.
 
 
 Concept | Qualified name (Python client) | Purpose
@@ -117,14 +117,12 @@ Concept | Qualified name (Python client) | Purpose
 
 #### Workspaces
 
-OpenEO uses the concept of [Workspaces](https://docs.openeo.cloud/workspaces/) to interface with object storage. For processing with FORCE, we can use a workspace dedicated to FORCE to store and exchange processing results between level 2 and higher level processing, and with colleagues.
-
-We can use either the dedicated workspace `apex-force-results-workspace`, which is accessible to all CDSE openeo users, or another registered workspace. See the [openEO platform documentation on workspaces](https://docs.openeo.cloud/workspaces/#registering-a-workspace) on how workspaces can be accessed and registered.
-
 When running FORCE level2 on its own, we do not need to use a workspace. Simply download the results when you are done with processing. However, to reference the level 2 processing results in [further processing](tsa.qmd), we need to use a workspace.
 
-We can instruct openEO to store our results in a workspace using the [`export_workspace`](https://openeo.org/documentation/1.0/processes.html#export_workspace) openEO process.
+OpenEO uses the concept of [Workspaces](https://docs.openeo.cloud/workspaces/) to interface with object storage. For processing with FORCE, we can use a workspace dedicated to FORCE to store and exchange processing results between level 2 and higher level processing, and with colleagues.
+We can use either the dedicated workspace `apex-force-results-workspace`, which is accessible to all CDSE openeo users, or another registered workspace. See the [openEO platform documentation on workspaces](https://docs.openeo.cloud/workspaces/#registering-a-workspace) on how workspaces can be accessed and registered.
 
+We can instruct openEO to store our results in a workspace using the [`export_workspace`](https://openeo.org/documentation/1.0/processes.html#export_workspace) openEO process.
 When using `export_workspace`, we need to pass a `merge` string to identify your result. The merge will be a key prefix on object storage. The `merge` is something similar to a path in a file system.
 It is very important to set a good `merge` parameter and remember the result, because results can only be accessed when the `merge` is known. Furthermore, all users of the workspace (in the case of the `apex-force-results-workspace`, anyone) may write data, so make sure to use a unique `merge`, to reduce the likelihood of accidentally modifying others' data and have others overwrite your data by accident.
 
@@ -139,14 +137,13 @@ The dedicated workspace for FORCE results is accessible to all users:
 :::
 
 
-We generate the `force_level2` process graph using a Process Graph Node ([`PGNode`](https://open-eo.github.io/openeo-python-client/api.html#openeo.internal.graph_building.PGNode)).  In order to interpret the backend response, we wrap the resulting process graph as a [`StacResource`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.stac_resource.StacResource).
+In the example code below we generate the `force_level2` process graph using a Process Graph Node ([`PGNode`](https://open-eo.github.io/openeo-python-client/api.html#openeo.internal.graph_building.PGNode)).  In order to interpret the backend response, we wrap the resulting process graph as a [`StacResource`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.stac_resource.StacResource).
 This makes it possible to render the backend response nicely in Jupyter environments and gives us convenient methods to access our results when the process is done.
+
+#### Parameters
 
 Pass [parameters](parametrization.qmd) to the level 2 processing system in the `arguments` dictionary.
 You may give the processing a name which will determine the name of the STAC item generated for the results using the parameter `name`.
-
-
-#### Area of extent
 
 Another parameter which is handled in a special way (i.e., not passed directly to FORCE) is `aoi`. In FORCE level 2, you can specify the `FILE_AOI` parameter to clip the output to a certain extent.
 Instead of a file, `aoi` takes a geojson object to specify area of interest.
@@ -166,15 +163,13 @@ aoi = f'{{ "type": "Feature", "geometry": {{ "type": "Polygon", "coordinates": [
 
 #### openEO
 
-When using the `query_stac` process, we pass the **contents** of a STAC document to the process (not a reference). To do this, pass the `process_graph` directly as `stac_document`
-
 :::{.callout-warning}
 Due to backend limitations, the `stac_document` parameter can only handle a document of limited length. The `query_stac` process generates an item collection which quickly grows in size (the entire content of each STAC item is contained in it). Therefore, use `query_stac` only for small processing tasks with only a handful of items. Otherwise use a different query method to pass an URL or a catalog instead.
 
 **It is recommended to rely on Pystac client for catalog queries for now.**
 :::
 
-
+When using the `query_stac` process, we pass the **contents** of a STAC document to the process (not a reference). To do this, pass the process graph `query_pg` from the query step above directly as `stac_document`.
 
 ```{python}
 from openeo.rest.stac_resource import StacResource
@@ -226,7 +221,7 @@ It is therefore advisable to either pass an URL (if possible) or to convert the 
 :::
 
 In case the backend limitation will be fixed, the transformation step will no longer be necessary.
-It is already possible to pass `item_collection.to_dict()` directly as `stac_document`, if the item collection is small.
+It is already possible to pass `item_collection.to_dict()` directly as `stac_document` if the item collection is small.
 
 ##### Convert Item Collection to Catalog
 
@@ -421,9 +416,10 @@ This step is optional if you plan to continue processing with FORCE on CDSE
 :::
 
 Assets can be downloaded using the standard openEO mechanism to access result assets.
-The STAC metadata specifies the directory structure of the resulting cube. This structure is respected by openEO's [`download_files`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_files).
+The STAC metadata specifies the directory structure of the resulting cube.
+This structure is respected by openEO's [`download_files`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_files).
+To inspect a particular asset, we could instead use [`download_file`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_file) to download singular files instead.
 
-To inspect a particular asset, we may use [`download_file`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_file) to download singular files instead.
 
 ```{python}
 l2_results = l2_job.get_results()
