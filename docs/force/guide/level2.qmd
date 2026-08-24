@@ -137,7 +137,7 @@ The dedicated workspace for FORCE results is accessible to all users:
 :::
 
 
-In the example code below we generate the `force_level2` process graph using a Process Graph Node ([`PGNode`](https://open-eo.github.io/openeo-python-client/api.html#openeo.internal.graph_building.PGNode)).  In order to interpret the backend response, we wrap the resulting process graph as a [`StacResource`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.stac_resource.StacResource).
+In the example code below we generate the `force_level2` process graph using a Process Graph Node ([`PGNode`](https://open-eo.github.io/openeo-python-client/api.html#openeo.internal.graph_building.PGNode)). In order to interpret the backend response, we wrap the resulting process graph as a [`StacResource`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.stac_resource.StacResource).
 This makes it possible to render the backend response nicely in Jupyter environments and gives us convenient methods to access our results when the process is done.
 
 #### Parameters
@@ -418,7 +418,7 @@ This step is optional if you plan to continue processing with FORCE on CDSE
 Assets can be downloaded using the standard openEO mechanism to access result assets.
 The STAC metadata specifies the directory structure of the resulting cube.
 This structure is respected by openEO's [`download_files`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_files).
-To inspect a particular asset, we could instead use [`download_file`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_file) to download singular files instead.
+To inspect a particular asset, we could instead use [`download_file`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.job.JobResults.download_file) to download singular files.
 
 
 ```{python}
