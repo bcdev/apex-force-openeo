@@ -3,12 +3,12 @@ title: "openEO processes"
 order: 2
 ---
 
+This page gives an overview of the openEO processes specific to FORCE and client operations needed to interact
+with them.
+
 Using an openEO client, we can control FORCE through a number of [openEO processes](https://openeo.org/documentation/1.0/datacubes.html).
 The FORCE openEO integration is specific to the backend deployed on CDSE, so the processes described here are
 not listed among the [standard processes](https://openeo.org/documentation/1.0/processes.html) and are generally experimental.
-
-This page gives an overview of the openEO processes specific to FORCE and client operations needed to interact
-with them.
 
 The processes wrapping FORCE functionality support most of the options that can be set in the FORCE parameter file
 ([level2](https://force-eo.readthedocs.io/en/latest/components/lower-level/level2/param.html),
@@ -44,26 +44,26 @@ you will be prompted to log in in a browser window by default. See also the open
 Open ID connect ([overview](https://openeo.org/documentation/1.0/authentication.html),
 [Python client](https://open-eo.github.io/openeo-python-client/auth.html#oidc-client-credentials-using-environment-variables))
 
-We can use openEO's
-[`describe_process`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.describe_process)
-API call to discover the parameters of an openEO process.
-
-## Query
+## Query for inputs
 
 As a first step, we must determine the input products for FORCE to process. This is best achieved by an external
 querying method, such as [`pystac_client`](https://pystac-client.readthedocs.io/en/stable/).
 Alternatively, CDSE openEO provides a process `query_stac` to determine input products from `spatial_extent` and
-`temporal_extent`. Using this process in combination with `force_level2` is currently limited to very few input
+`temporal_extent`. Using `query_stac` in combination with `force_level2` is currently limited to very few input
 products, therefore we recommend using it only for small tests.
 
-See the [next section](query.qmd) for an in-depth discussion on the different methods how inputs may be specified.
-
+We can use openEO's
+[`describe_process`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.describe_process)
+API call to discover the parameters of any openEO process.
 
 :::{.callout-note collapse="true" title="query_stac process definition"}
 ```{python}
 connection.describe_process("query_stac")
 ```
 :::
+
+See the [next section](query.qmd) for an in-depth discussion on the different methods how inputs may be specified.
+
 
 ## Level 2
 

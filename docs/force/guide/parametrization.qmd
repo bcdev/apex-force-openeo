@@ -13,7 +13,6 @@ There are 4 types of parameters that do not correspond exactly to the FORCE para
 
 Parameter names follow the openEO convention and have `snake_case`. Otherwise, the names are unchanged from those of the original parameter files.
 It is possible to inspect the processes (and see their parameters) using openEO's [`describe_process`](https://open-eo.github.io/openeo-python-client/api.html#openeo.rest.connection.Connection.describe_process) method. See [processes.qmd] for more.
-
 Parameter values may be strings (the same as in FORCE parameter files) or native python values which can be serialized to JSON. Values are converted to UPPERCASE before being passed into the parameter file.
 
 Parameter values are passed as a dictionary to the `arguments` parameter of `openeo.internal.graph_building.PGNode`:
@@ -50,7 +49,7 @@ This process must be wrapped as a `StacResource` as described in [FORCE level 2]
 ### Special parameters
 
 - `aoi`: replaces the `FILE_AOI` parameter. Pass a geojson feature (instead of a shapefile). See also [the aoi parameter description of level2](level2.qmd#Area of extent)
-- `dem`: replaces digital elevation model specific parameters (`FILE_DEM`, `DEM_RESAMPLING`, `DEM_NODATA`). Only possible value is `Copernicus_30m`
+- `dem`: replaces digital elevation model specific parameters (`FILE_DEM`, `DEM_RESAMPLING`, `DEM_NODATA`). The only supported value is `Copernicus_30m`.
 
 ### openEO specific parameters
 
@@ -121,7 +120,7 @@ Output Options
 
 Parallel processing (managed by the integration)
 
-- `NTREHAD_READ`
+- `NTHREAD_READ`
 - `NTHREAD_COMPUTE`
 - `NTHREAD_WRITE`
 - `STREAMING` (TRUE)

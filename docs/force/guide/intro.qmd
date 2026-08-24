@@ -5,7 +5,7 @@ order: 1
 
 The FORCE integration on CDSE makes it possible to use selected functionality of the FORCE processing engine on the CDSE infrastructure through the openEO API.
 
-Instead of installing FORCE locally, manually downloading data and annotating your results with metadata, the FORCE integration runs on cloud hardware, takes care of the input data staging and automatically generates a STAC catalog and item from the resulting FORCE data cube.
+Instead of installing FORCE locally, manually downloading data and annotating your results with metadata, the FORCE integration runs on cloud hardware, takes care of the input data staging, and automatically generates a STAC catalog and item from the resulting FORCE data cube.
 
 
 ## Prerequisites
@@ -32,7 +32,7 @@ If you are a FORCE user curious how to process in the cloud and the openEO inter
 - The [openEO vocabulary](https://openeo.org/documentation/1.0/glossary.html#processes)
 - **The [openEO Python client](https://open-eo.github.io/openeo-python-client/api.html)**: The main interface used to interact with the openEO backend.
   You may want to use the [R client](https://open-eo.github.io/openeo-r-client/) or [Javascript client](https://open-eo.github.io/openeo-js-client/latest/) instead, if you prefer.
-  However, in this guide, examples will be given exclusively with the Python client.
+  However, in this guide, examples will be given with the Python client.
 :::
 
 ::: {.callout-important title="Data cube representation"}
