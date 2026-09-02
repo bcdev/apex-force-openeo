@@ -1,17 +1,14 @@
 cwlVersion: v1.2
 
 class: CommandLineTool
+id: force_tsa
 requirements:
   NetworkAccess:
     networkAccess: true # TODO is this needed, if we can download independently?
   ResourceRequirement:
     # TODO set reasonable limits
-    #ramMin: 24576
-    #ramMax: 24576
     ramMin: 22000
     ramMax: 22000
-    #ramMin: 7000
-    #ramMax: 7000
     coresMin: 1
     coresMax: 4
   SchemaDefRequirement:

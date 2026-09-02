@@ -1,6 +1,7 @@
 cwlVersion: v1.2
 
 class: CommandLineTool
+id: staging
 requirements:
   NetworkAccess:
     networkAccess: true
