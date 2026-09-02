@@ -1,0 +1,84 @@
+# Test that cwl documents conform to EOAP and CWL standards
+# EOAP best practice defined here: http://www.opengis.net/doc/BP/eoap/1.0
+# CWL standard: https://www.commonwl.org/v1.2/
+
+name: Check CWL EOAP conformance
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "cwl/**"
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: install yq
+        run: |
+          sudo apt update
+          sudo apt install yq
+
+      - uses: actions/checkout@v7
+
+      - uses: prefix-dev/setup-pixi@v0.10.2
+        with:
+          pixi-version: v0.70.2
+
+      - name: Check CWL conformance
+        run: |
+          status=0
+
+          while IFS= read -r -d '' file; do
+              echo "Validating: $file"
+              if ! pixi run -e tools cwltool --validate "$file"; then
+                  status=1
+              fi
+          done < <(find cwl -type f -name '*.cwl' -print0)
+
+          exit "$status"
+
+        # TODO command line tools are detected by not having "workflow" in their filename which is brittle
+      - name: "Requirement 8: req/app-pck/clt"
+        run: |
+          status=0
+
+          while IFS= read -r -d '' file; do
+              echo "Validating req/app-pck/wf-inputs $file"
+            if ! yq -e 'has("id") and has("label") and has("doc")' "$file"; then
+              status=1
+            fi
+          done < <(find cwl -type f -name '*.cwl' ! -name '*workflow.cwl' -print0)
+
+          exit "$status"
+
+        # TODO workflows are detected by having "workflow" in their filename which is brittle
+      - name: "Requirement 9: req/app-pck/wf"
+        run: |
+          status=0
+
+          while IFS= read -r -d '' file; do
+              echo "Validating req/app-pck/wf-inputs $file"
+            if ! yq -e 'has("id") and has("label") and has("doc")' "$file"; then
+              status=1
+            fi
+          done < <(find cwl -type f -name '*workflow.cwl' -print0)
+
+          exit "$status"
+
+        # TODO workflows are detected by having "workflow" in their filename which is brittle
+      - name: "Requirement 10: req/app-pck/wf-inputs"
+        run: |
+          status=0
+
+          while IFS= read -r -d '' file; do
+              echo "Validating req/app-pck/wf-inputs $file"
+            if ! yq -e 'all(.inputs[]; has ("type") and has("label") and has("doc"))' "$file"; then
+              status=1
+            fi
+          done < <(find cwl -type f -name '*workflow.cwl' -print0)
+
+          exit "$status"
