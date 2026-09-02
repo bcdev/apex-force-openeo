@@ -47,8 +47,13 @@ jobs:
           status=0
 
           while IFS= read -r -d '' file; do
-              echo "Validating req/app-pck/wf-inputs $file"
-            if ! yq -e 'has("id") and has("label") and has("doc")' "$file"; then
+              echo "Validating req/app-pck/clt $file"
+            # check top level keys
+            if ! yq -e 'has("id") and has("baseCommand") and has("inputs") and has("requirements")' "$file"; then
+              status=1
+            fi
+            # check requirements for DockerRequirement
+            if ! yq -e '.requirements | has("DockerRequirement")' "$file"; then
               status=1
             fi
           done < <(find cwl -type f -name '*.cwl' ! -name '*workflow.cwl' -print0)
@@ -70,6 +75,7 @@ jobs:
           exit "$status"
 
         # TODO workflows are detected by having "workflow" in their filename which is brittle
+        # Not checking "id", because ids are given as keys instead
       - name: "Requirement 10: req/app-pck/wf-inputs"
         run: |
           status=0
