@@ -48,23 +48,16 @@ inputs:
 
   x_tile_range:
     type: int[]
-    default:
-      - -999
-      - 9999
     label: Analysis extent x
     doc: |
       Analysis extent, given in tile numbers (see tile naming). Each existing tile falling into this square extent will be processed.
-      Default: -999 9999
 
   y_tile_range:
     type: int[]
-    default:
-      - -999
-      - 9999
     label: Analysis extent y
     doc: |
      Analysis extent, given in tile numbers (see tile naming). Each existing tile falling into this square extent will be processed.
-     A shapefile of the tiles can be generated with force-tabulate-grid. Default: -999 9999
+     A shapefile of the tiles can be generated with force-tabulate-grid.
 
   file_tile:
     type: string[]
