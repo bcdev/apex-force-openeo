@@ -1,4 +1,5 @@
 # Test that cwl documents conform to EOAP and CWL standards
+# The workflow currently only checks a subset of requirements
 # EOAP best practice defined here: http://www.opengis.net/doc/BP/eoap/1.0
 # CWL standard: https://www.commonwl.org/v1.2/
 
@@ -9,8 +10,6 @@ on:
   push:
     paths:
       - "cwl/**"
-    tags:
-      - 'v*'
 
 jobs:
   build:
