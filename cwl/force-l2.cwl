@@ -10,6 +10,7 @@ cwlVersion: v1.2
 # cwltool --preserve-environment=AWS_ENDPOINT_URL_S3 --preserve-environment=AWS_ACCESS_KEY_ID --preserve-environment=AWS_SECRET_ACCESS_KEY --force-docker-pull --leave-container --leave-tmpdir --tmpdir-prefix=$HOME/tmp/ material/force-l2.cwl
 
 class: CommandLineTool
+id: force_level2
 requirements:
   NetworkAccess:
      networkAccess: true
