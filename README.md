@@ -25,6 +25,9 @@ on the [APEx toolbox documentation portal](https://esa-apex.github.io/apex_toolb
 
 ## Features
 
+> Please note that the FORCE integration is experimental and not suitable for reliable large-scale processing.
+> Please raise an issue if you have a question, a feature request or you found a bug.
+
 - FORCE level 2 processing through openEO on CDSE
 - FORCE Time Series Analysis (TSA) through openEO on CDSE
 - Dedicated Processes for FORCE operations (`force_level2`, `force_tsa`)
