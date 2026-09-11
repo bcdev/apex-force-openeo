@@ -264,21 +264,6 @@ force_l2_stac_resource = StacResource(
     connection=connection,
 )
 
-# Temporary fix
-force_l2_stac_resource = StacResource(
-    graph=PGNode(
-        process_id="run_cwl_to_stac",
-        arguments=dict(
-            cwl="https://github.com/bcdev/apex-force-openeo/releases/latest/download/force-level2.cwl",
-            context={
-                "stac_document": query_catalog.to_dict(),
-                "name": processing_name,
-                "do_brdf": True,
-            }
-        ),
-    ),
-    connection=connection,
-)
 # Optional when only processing level 2
 # If you intend to continue processing, or share the results with others,
 # add the `export_workspace` call:
