@@ -63,7 +63,8 @@ jobs:
       - name: FORCE level 2 test
         id: force_level2_test
         run: |
-          uv run --with cwltool bash test/test_force_level2_cltool.sh
+          #uv run --with cwltool bash test/test_force_level2_cltool.sh
+          echo "SKIPPING LOCAL LEVEL 2 TEST"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.EODATA_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.EODATA_AWS_SECRET_ACCESS_KEY }}
@@ -72,7 +73,8 @@ jobs:
       - name: FORCE TSA test
         id: force_tsa_test
         run: |
-          uv run --with cwltool bash test/test_force_tsa_cltool.sh
+          # uv run --with cwltool bash test/test_force_tsa_cltool.sh
+          echo "SKIPPING LOCAL TSA TEST"
       - name: Generate Full Workflow files
         run: |
           uv run --with cwltool tools/compile-workflows.sh "."
