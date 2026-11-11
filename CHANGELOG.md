@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## \[Unreleased\]
+
+- Add jupyterlite example for FORCE level2
+
 ## 1.0.0
 
 ### Fixed
@@ -17,4 +21,3 @@
 ### Fixed
 
 - STAC catalog is generated in output root ("l2-ard") and not in "l2-ard/europe" subdirectory
-
