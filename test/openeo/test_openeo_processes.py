@@ -20,8 +20,8 @@ def force_level2_example_url():
 
 @pytest.fixture
 def openeo_environment():
-    #return "production"
-    return "staging"
+    return "production"
+    #return "staging"
 
 @pytest.fixture
 def backend_url(openeo_environment):
