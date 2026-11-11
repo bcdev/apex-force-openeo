@@ -2,7 +2,7 @@
 
 ## \[Unreleased\]
 
-- Add jupyterlite example for FORCE level2
+- Add jupyterlite examples for FORCE level2 and TSA
 
 ## 1.0.0
 
