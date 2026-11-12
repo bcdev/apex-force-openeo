@@ -155,7 +155,7 @@ force_l2_stac_resource.export_workspace(
 :::
 
 ```{.python}
-l2_job = force_l2_stac_resource.create_job()
+l2_job = force_l2_stac_resource.create_job(job_options={"stac-version": "1.1"})
 l2_job.start()
 ```
 
@@ -290,10 +290,22 @@ force_tsa_stac_resource = StacResource(
 )
 ```
 
+You may also export the TSA results to a workspace (see [Workspaces in Level 2](level.qmd) for a discussion of this feature). Make sure to choose a different merge from your level 2 cube to avoid conflicts.
+
+```{python}
+import getpass
+tsa_merge = f"{getpass.getuser()}/experiments/{tsa_processing_name}"
+print("merge: ", tsa_merge)
+force_tsa_stac_resource = force_tsa_stac_resource.export_workspace(
+    workspace="apex-force-results-workspace",
+    merge=tsa_merge,
+)
+```
+
 We can then create and start the job as before:
 
 ```{.python}
-tsa_job = force_tsa_stac_resource.create_job(title=tsa_processing_name)
+tsa_job = force_tsa_stac_resource.create_job(title=tsa_processing_name, job_options={"stac-version": "1.1"})
 tsa_job.start() # use start_and_wait to block until finished
 ```
 
@@ -311,6 +323,13 @@ tsa_results
 
 ```{python}
 tsa_results.download_files("force-tsa-results")
+```
+
+Or, using [s5cmd](https://github.com/peak/s5cmd) if you exported to the workspace:
+
+
+```{.bash}
+s5cmd --endpoint-url https://s3.waw4-1.cloudferro.com/ --no-sign-request cp s3://apex-force-results-waw4-1-exotc5yuexi2c5tvwqhoivj62fz8v0uupy0me/<tsa-merge>/* .
 ```
 
 ### Further processing

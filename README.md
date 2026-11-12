@@ -81,7 +81,7 @@ force_l2_stac_resource = StacResource(
 )
 
 # Run processing
-l2_job = force_l2_stac_resource.create_job(title=processing_name)
+l2_job = force_l2_stac_resource.create_job(title=processing_name, job_options={"stac-version": "1.1"})
 l2_job.start_and_wait()
 
 # Download results (alternatively: Continue processing without download with Time Series Analysis. Check out the guide!)

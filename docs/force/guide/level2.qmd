@@ -329,7 +329,7 @@ You can [monitor the progress](processes.qmd#monitoring-progress) through the cl
 
 
 ```{.python}
-l2_job = force_l2_stac_resource.create_job(title=f"FORCE level 2 {processing_name}")
+l2_job = force_l2_stac_resource.create_job(title=f"FORCE level 2 {processing_name}", job_options = {"stac-version": "1.1"})
 l2_job.start() # use start_and_wait instead to block until the job is done
 ```
 
@@ -413,4 +413,10 @@ l2_results
 
 ```{python}
 l2_results.download_files("force-level2-results")
+```
+
+Alternatively, results can be downloaded from the workspace using an S3-compatible tool like [s3cmd](https://github.com/s3tools/s3cmd) or [s5cmd](https://github.com/peak/s5cmd).
+
+```{.bash}
+s5cmd --endpoint-url https://s3.waw4-1.cloudferro.com/ --no-sign-request cp s3://apex-force-results-waw4-1-exotc5yuexi2c5tvwqhoivj62fz8v0uupy0me/<merge>/* .
 ```
