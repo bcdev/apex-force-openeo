@@ -290,7 +290,7 @@ force_tsa_stac_resource = StacResource(
 )
 ```
 
-You may also export the TSA results to a workspace (see [Workspaces in Level 2](level.qmd) for a discussion of this feature). Make sure to choose a different merge from your level 2 cube to avoid conflicts.
+You may also export the TSA results to a workspace (see [Workspaces in Level 2](level2.qmd) for a discussion of this feature). Make sure to choose a different merge from your level 2 cube to avoid conflicts.
 
 ```{python}
 import getpass
